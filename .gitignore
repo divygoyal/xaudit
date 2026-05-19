@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Env files — anything with secrets stays local. .env.example is committed as a template.
+.env
+.env.*
+!.env.example
+
+# Vercel local state
+.vercel
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+.next-dev-*.log
+.next-dev-*.err.log
+.next-dev-*.out.log
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Claude Code / MCP local config
+.mcp.json
+.claude/
+
+# Extension build artifacts (zips for the Web Store)
+extension/*.zip
+extension/dist/

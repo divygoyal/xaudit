@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "xAudit — Audit any X post",
+  "version": "0.3.0",
+  "description": "Adds an 'Audit this' button to every X / Twitter post. Click the extension icon while drafting a tweet to audit it in-place.",
+  "action": {
+    "default_title": "xAudit — audit this post"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*",
+    "http://localhost:3000/*",
+    "https://xaudit.app/*"
+  ],
+  "permissions": ["activeTab", "declarativeNetRequest"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "xaudit_csp",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}
