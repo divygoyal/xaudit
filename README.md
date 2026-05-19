@@ -11,7 +11,7 @@ No folklore. No "post at 9am" hacks. Just the 10 positive and 4 negative signals
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
-- Google Gen AI SDK (`gemini-2.5-pro`, swap to `gemini-2.5-flash` for speed/cost)
+- Google Gen AI SDK (`gemini-3.5-pro`, swap to `gemini-3.5-flash` for speed/cost)
 
 ## Run locally
 
@@ -32,7 +32,7 @@ To enable live grading, create `.env.local` (get a key at <https://aistudio.goog
 GEMINI_API_KEY=AIzaSy...
 ```
 
-Then restart `npm run dev`. Default model is `gemini-2.5-pro` — swap to `gemini-2.5-flash` in `app/api/analyze/route.ts` for cheaper/faster grading.
+Then restart `npm run dev`. Default model is `gemini-3.5-flash` — swap to `gemini-3.5-pro` in `app/api/analyze/route.ts` for max quality.
 
 ## Architecture
 

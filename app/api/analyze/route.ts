@@ -17,7 +17,7 @@ import type { AnalysisResult } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MODEL = "gemini-3-flash-preview"; // Gemini 3 Flash (preview). Fast + cheap, right tier for our structured-JSON rubric task. Swap to "gemini-3.1-pro-preview" for max quality, or "gemini-3.1-flash-lite" once it's GA for stability.
+const MODEL = "gemini-3.5-flash"; // Gemini 3.5 Flash. Fast + cheap, right tier for our structured-JSON rubric task. Swap to "gemini-3.5-pro" for max quality.
 
 type IncomingBody = {
   text?: string;
