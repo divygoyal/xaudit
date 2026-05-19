@@ -297,6 +297,21 @@ export function AnalyzePanel() {
   const [currentUser, setCurrentUser] = useState<CurrentUser>(null);
   const [gateHit, setGateHit] = useState<"anon" | "free" | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const resultsAnchorRef = useRef<HTMLDivElement | null>(null);
+
+  // When grading starts, scroll the processing engine into view so the user
+  // doesn't have to hunt for the loader below the fold. Runs after the
+  // SignalStorm element actually mounts (useEffect fires post-render).
+  useEffect(() => {
+    if (phase !== "analyzing") return;
+    const el = resultsAnchorRef.current;
+    if (!el) return;
+    // rAF lets the element finish painting before we measure scroll position.
+    const id = window.requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [phase]);
 
   useEffect(() => {
     let cancelled = false;
@@ -515,19 +530,24 @@ export function AnalyzePanel() {
         </div>
 
         {/* ────────── BELOW WORKSHOP — loader, then result sections ────────── */}
-        {phase === "analyzing" && (
-          <div className="mx-auto max-w-6xl">
-            <SignalStorm draftText={draftAtSubmit || text || "Your draft"} />
-          </div>
-        )}
-        {phase === "done" && result && (
-          <div className="cockpit-enter">
-            {shareId && <ShareBar shareId={shareId} referrerId={currentUser?.id ?? null} />}
-            <MarkedUpDraft result={result} draftText={draftAtSubmit} />
-            <RewritesGrid result={result} draftText={draftAtSubmit} />
-            <StructuralCompact result={result} />
-          </div>
-        )}
+        {/* Anchor div: when grading starts we smooth-scroll this into view
+            so the processing engine lands at the top of the viewport. The
+            scroll-mt-* class gives it breathing room below the navbar. */}
+        <div ref={resultsAnchorRef} className="scroll-mt-6 md:scroll-mt-10">
+          {phase === "analyzing" && (
+            <div className="mx-auto max-w-6xl">
+              <SignalStorm draftText={draftAtSubmit || text || "Your draft"} />
+            </div>
+          )}
+          {phase === "done" && result && (
+            <div className="cockpit-enter">
+              {shareId && <ShareBar shareId={shareId} referrerId={currentUser?.id ?? null} />}
+              <MarkedUpDraft result={result} draftText={draftAtSubmit} />
+              <RewritesGrid result={result} draftText={draftAtSubmit} />
+              <StructuralCompact result={result} />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
