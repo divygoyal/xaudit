@@ -12,13 +12,14 @@ export function SampleAnalysis() {
     <section id="sample" className="relative border-t border-ink-700/60">
       <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
-          <SectionEyebrow>A real verdict</SectionEyebrow>
+          <SectionEyebrow>The full verdict</SectionEyebrow>
           <h2 className="mt-4 font-sans text-display-md font-medium text-paper">
-            Here&apos;s what a <span className="serif-italic">verdict</span> looks like.
+            Now zoom in on{" "}
+            <span className="serif-italic">every change</span>.
           </h2>
           <p className="mt-5 text-balance text-[15px] leading-relaxed text-ink-200">
-            A real X post, graded across 14 ranking signals — then rewritten to strengthen the
-            weakest ones. Hover any change to see exactly which signal it lifts.
+            Same post you just saw — but here&apos;s the full breakdown. Hover any rewrite to see
+            exactly which of the 13 ranking signals it lifts, and why.
           </p>
         </div>
 

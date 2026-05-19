@@ -1,17 +1,27 @@
 import { HandwrittenUnderline } from "./handwritten-underline";
+import { HeroTrajectory } from "./hero-trajectory";
+import { RecommendedRewrite } from "./recommended-rewrite";
 import { Button } from "./ui/button";
+import { SAMPLE_DRAFT, SAMPLE_RESULT } from "@/lib/sample-data";
+import { computeScore } from "@/lib/score";
 
 export function Hero() {
+  const primary =
+    SAMPLE_RESULT.rewrites.find((r) => r.is_primary) ?? SAMPLE_RESULT.rewrites[0];
+  const currentScore = computeScore(SAMPLE_RESULT);
+
   return (
-    <section className="relative">
-      <div className="mx-auto max-w-5xl px-6 pb-20 pt-16 text-center md:px-10 md:pb-28 md:pt-24">
-        <div className="stagger flex flex-col items-center gap-7 md:gap-9">
+    <section className="relative overflow-hidden">
+      <HeroTrajectory />
+
+      <div className="relative mx-auto max-w-6xl px-6 pb-10 pt-6 md:px-10 md:pb-14 md:pt-8">
+        <div className="stagger flex flex-col items-center gap-4 text-center md:gap-5">
           {/* status pill */}
           <a
             href="https://github.com/xai-org/x-algorithm"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2.5 rounded-full border border-ink-700 bg-ink-900/60 px-3.5 py-1.5 text-[11px] tracking-wide text-ink-200 backdrop-blur transition-all hover:border-ink-500 hover:bg-ink-800/60"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-ink-700 bg-ink-900/60 px-3 py-1 text-[11px] tracking-wide text-ink-200 backdrop-blur transition-all hover:border-ink-500 hover:bg-ink-800/60"
           >
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vermillion opacity-75" />
@@ -25,36 +35,36 @@ export function Hero() {
             <span className="opacity-50 transition-transform group-hover:translate-x-0.5">↗</span>
           </a>
 
-          {/* headline */}
-          <h1 className="font-sans text-display-xl font-medium text-paper">
+          {/* headline — compressed to ~60px so the comparison card stays in view */}
+          <h1 className="font-sans font-medium leading-[1.04] tracking-[-0.035em] text-paper text-[clamp(2rem,4.4vw,3.75rem)]">
             <span className="block">Paste your X draft.</span>
             <span className="block">
               See if the{" "}
               <span className="relative inline-block">
                 <span className="serif-italic text-paper">algorithm</span>
-                <HandwrittenUnderline className="absolute -bottom-3 left-0 h-[18px] w-full md:-bottom-4 md:h-[22px]" />
+                <HandwrittenUnderline className="absolute -bottom-2 left-0 h-[14px] w-full md:-bottom-2.5 md:h-[18px]" />
               </span>{" "}
               will care.
             </span>
           </h1>
 
           {/* subhead */}
-          <p className="max-w-2xl text-balance text-base leading-relaxed text-ink-200 md:text-lg">
-            Drop your tweet, thread, or screenshot. We score it across the{" "}
-            <span className="text-paper">13 engagement signals</span> X&apos;s own ranker tries to
-            predict — and rewrite it stronger. Verdict in under 30 seconds.
+          <p className="max-w-xl text-balance text-[13.5px] leading-relaxed text-ink-200 md:text-[15px]">
+            Drop your tweet, thread, or screenshot. We score it across{" "}
+            <span className="text-paper">13 engagement signals</span>, predict how it&apos;ll
+            perform, and rewrite it stronger in under 30 seconds.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
             <a href="#analyze">
-              <Button variant="primary" className="text-[15px]">
+              <Button variant="primary" className="text-[14px]">
                 <span>Grade my post — free</span>
                 <SparkIcon />
               </Button>
             </a>
             <a href="#sample">
-              <Button variant="outline" className="text-[15px]">
+              <Button variant="outline" className="text-[14px]">
                 <PlayIcon />
                 <span>See a sample</span>
               </Button>
@@ -62,7 +72,7 @@ export function Hero() {
           </div>
 
           {/* trust microline */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-ink-300">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-ink-300">
             <TrustItem>No signup</TrustItem>
             <span className="text-ink-600">·</span>
             <TrustItem>Drafts never stored</TrustItem>
@@ -71,11 +81,14 @@ export function Hero() {
           </div>
         </div>
 
-        {/* faint editorial cap line */}
-        <div className="mt-24 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.3em] text-ink-400 md:mt-32">
-          <span className="h-px w-12 bg-ink-700" />
-          <span className="font-mono">An honest grader · est. 2026</span>
-          <span className="h-px w-12 bg-ink-700" />
+        {/* embedded comparison — sits BELOW the stagger so it has its own delayed entrance */}
+        <div id="sample" className="hero-compare hero-compare-wrap mt-6 md:mt-7">
+          <RecommendedRewrite
+            result={SAMPLE_RESULT}
+            draftText={SAMPLE_DRAFT}
+            primary={primary}
+            currentScore={currentScore}
+          />
         </div>
       </div>
     </section>

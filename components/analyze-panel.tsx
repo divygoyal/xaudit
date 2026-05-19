@@ -598,9 +598,7 @@ function InputCard({
   usage: UsageInfo | null;
   gateHit: "anon" | "free" | null;
 }) {
-  const [isFocused, setIsFocused] = useState(false);
   const draftRef = useRef<HTMLTextAreaElement | null>(null);
-  const showPrompt = !text && !isFocused;
 
   return (
     <>
@@ -724,7 +722,7 @@ function InputCard({
           )}
 
           <div
-            className="relative mt-3 min-h-[170px] overflow-hidden rounded-[11px] border border-dashed border-ink-700/85 bg-ink-950/58 shadow-[inset_0_1px_0_rgba(255,255,255,0.48)]"
+            className="draft-field relative mt-3 overflow-hidden rounded-[11px] border border-dashed border-ink-700/85 bg-ink-950/58 shadow-[inset_0_1px_0_rgba(255,255,255,0.48)] transition-colors focus-within:border-vermillion/55 focus-within:bg-ink-950/72"
             onClick={() => draftRef.current?.focus()}
           >
             <label htmlFor="draft" className="sr-only">
@@ -735,35 +733,12 @@ function InputCard({
               id="draft"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
               onKeyDown={onKeyDown}
               placeholder={"Paste your X draft here.\n\nOr drop a screenshot anywhere on this card."}
               maxLength={MAX_CHARS + 200}
-              className={`absolute inset-0 z-10 h-full w-full resize-none bg-transparent p-4 text-[14px] leading-relaxed text-paper placeholder:text-ink-500 focus:outline-none ${
-                showPrompt ? "opacity-0" : "opacity-100"
-              }`}
+              rows={6}
+              className="block w-full resize-none bg-transparent p-4 text-[14px] leading-relaxed text-paper placeholder:text-ink-400 focus:outline-none"
             />
-
-            {showPrompt && !image && (
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-                <h3 className="font-serif text-[1.72rem] leading-none text-paper sm:text-[2rem]">
-                  <span className="serif-italic text-vermillion">Paste</span> your X draft
-                </h3>
-                <p className="mt-3 max-w-[18rem] text-[12.5px] leading-relaxed text-ink-300">
-                  Tweet, thread, or screenshot. We&apos;ll scan 13 signals fast.
-                </p>
-                <div className="mt-4 flex h-9 w-9 items-center justify-center rounded-full bg-vermillion/10 text-vermillion">
-                  <FileText size={17} strokeWidth={1.9} />
-                </div>
-                <p className="mt-4 text-[12.5px] font-medium text-ink-300">
-                  Or drag & drop an image here
-                </p>
-                <p className="mt-1 text-[10.5px] text-ink-500">
-                  PNG, JPG, or WebP up to 10MB
-                </p>
-              </div>
-            )}
 
             {image && (
               <div className="absolute bottom-4 left-4 z-20 inline-flex max-w-[calc(100%-2rem)] items-center gap-2.5 rounded-[9px] border border-ink-700 bg-ink-950/92 p-1.5 pr-2.5 shadow-[0_16px_36px_-26px_rgba(0,0,0,0.45)]">
