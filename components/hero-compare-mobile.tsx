@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Sparkles,
   TrendingUp,
@@ -12,6 +12,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import type { AnalysisResult, Rewrite } from "@/lib/types";
+import { CountUp } from "./count-up";
 import {
   buildAlignedDiff,
   originalCalloutFallback,
@@ -101,25 +102,32 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
         </div>
       </header>
 
-      {/* 3-stat row */}
+      {/* 3-stat row — values tick up to dramatize the lift */}
       <div className="relative grid grid-cols-3 gap-2 border-b border-ink-700/60 px-3 py-3">
         <StatCard
           label="Signal score"
           value={currentScore}
           suffix="/100"
           tone="rust"
+          delay={0.9}
         />
         <StatCard
           label="Predicted"
           value={projectedScore}
           suffix="/100"
           tone="moss"
+          delay={1.1}
+          duration={1500}
         />
         <StatCard
           label="Improvement"
-          value={`+${lift}`}
+          value={lift}
+          prefix="+"
           suffix="pts"
           tone="moss-strong"
+          delay={1.3}
+          duration={1700}
+          flashOnComplete
           icon={<TrendingUp size={10} strokeWidth={2.6} />}
         />
       </div>
@@ -192,15 +200,23 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
 function StatCard({
   label,
   value,
+  prefix,
   suffix,
   tone,
   icon,
+  delay = 0,
+  duration = 1400,
+  flashOnComplete = false,
 }: {
   label: string;
-  value: string | number;
+  value: number;
+  prefix?: string;
   suffix?: string;
   tone: "rust" | "moss" | "moss-strong";
   icon?: React.ReactNode;
+  delay?: number;
+  duration?: number;
+  flashOnComplete?: boolean;
 }) {
   // Tone palette: each card gets a tinted border + inner halo + outer glow
   // so the colour reads even on a dark surface. Improvement card runs
@@ -230,9 +246,22 @@ function StatCard({
               "shadow-[inset_0_0_12px_-4px_rgba(127,176,105,0.42),0_0_18px_-10px_rgba(168,220,138,0.5)]",
           };
 
+  // When the count-up completes, briefly add a flash class for the
+  // "Improvement" headline number. Subtle pop, ~700ms.
+  const [flashed, setFlashed] = useState(false);
+  useEffect(() => {
+    if (!flashOnComplete) return;
+    const t = window.setTimeout(() => setFlashed(true), (delay + duration / 1000) * 1000);
+    const off = window.setTimeout(() => setFlashed(false), (delay + duration / 1000 + 0.7) * 1000);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(off);
+    };
+  }, [flashOnComplete, delay, duration]);
+
   return (
     <div
-      className={`relative flex flex-col gap-0.5 rounded-xl border px-2 py-1.5 ${config.border} ${config.bg} ${config.shadow}`}
+      className={`hero-cm-stat relative flex flex-col gap-0.5 rounded-xl border px-2 py-1.5 ${config.border} ${config.bg} ${config.shadow} ${flashed ? "is-flashing" : ""}`}
     >
       <span className="font-mono text-[8.5px] font-semibold uppercase tracking-[0.18em] text-ink-400">
         {label}
@@ -241,7 +270,8 @@ function StatCard({
         className={`inline-flex items-baseline gap-1 font-mono text-[14px] font-semibold tabular-nums ${config.text}`}
       >
         {icon && <span className="self-center">{icon}</span>}
-        {value}
+        {prefix && <span>{prefix}</span>}
+        <CountUp value={value} duration={duration} delay={delay} />
         {suffix && (
           <span className="font-mono text-[9.5px] font-medium text-ink-400">
             {suffix}
@@ -376,6 +406,20 @@ function AnnotatedBody({
   annotations: DiffAnnotation[];
   tone: "rust" | "moss";
 }) {
+  // Active pulse — when user taps a numbered callout, the linked phrase
+  // pulses for ~900ms. Lets users connect callouts to phrases on mobile
+  // (replacing the desktop's hover state which doesn't exist on touch).
+  const [pulseIndex, setPulseIndex] = useState<number | null>(null);
+  useEffect(() => {
+    if (pulseIndex === null) return;
+    const t = window.setTimeout(() => setPulseIndex(null), 900);
+    return () => window.clearTimeout(t);
+  }, [pulseIndex]);
+  const triggerPulse = (idx: number) => {
+    // Re-trigger even if same index was already active by going through null
+    setPulseIndex(null);
+    requestAnimationFrame(() => setPulseIndex(idx));
+  };
   // Build sorted, deduped spans
   type Span = {
     start: number;
@@ -420,13 +464,6 @@ function AnnotatedBody({
   if (cursor < text.length) segments.push({ type: "text", text: text.slice(cursor) });
 
   const isMoss = tone === "moss";
-  // Phrase tints — slightly more saturated than before so they read on dark.
-  // Box-decoration-break: clone keeps the rounded bg correct when phrase
-  // wraps to a new line.
-  const phraseBg = isMoss ? "bg-moss/[0.32]" : "bg-rust/[0.22]";
-  const phraseShadow = isMoss
-    ? "shadow-[0_0_14px_-6px_rgba(168,220,138,0.55)]"
-    : "shadow-[0_0_14px_-6px_rgba(230,115,86,0.45)]";
 
   return (
     <p className="whitespace-pre-line text-[13.5px] leading-[1.78] text-paper">
@@ -436,8 +473,14 @@ function AnnotatedBody({
         const labelDelay = (parseFloat(delay) + 0.18).toFixed(2);
         return (
           <span key={i}>
+            {/* Highlighter-pen paint-in. The phrase background is a
+                linear-gradient whose background-size animates from 0% to
+                100% width — looks like someone is highlighting the text
+                in real time. */}
             <span
-              className={`hero-cm-phrase rounded-[4px] px-[4px] py-[1.5px] ${phraseBg} ${phraseShadow}`}
+              className={`hero-cm-phrase rounded-[4px] px-[4px] py-[1.5px] ${
+                isMoss ? "is-moss" : "is-rust"
+              } ${pulseIndex === seg.editIndex ? "is-pulsing" : ""}`}
               style={{
                 animationDelay: `${delay}s`,
                 boxDecorationBreak: "clone",
@@ -448,9 +491,21 @@ function AnnotatedBody({
             </span>
             {/* Use the same .diff-callout markup the desktop uses so the
                 dotted leader + numbered badge + sans-serif label match
-                pixel-for-pixel (just at mobile scale). */}
+                pixel-for-pixel (just at mobile scale). Tappable so users
+                can re-trigger the phrase pulse and confirm the link. */}
             <span
-              className={`diff-callout ${isMoss ? "is-green" : ""}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => triggerPulse(seg.editIndex)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  triggerPulse(seg.editIndex);
+                }
+              }}
+              className={`diff-callout cursor-pointer ${isMoss ? "is-green" : ""} ${
+                pulseIndex === seg.editIndex ? "is-active" : ""
+              }`}
               style={{ animationDelay: `${labelDelay}s` }}
             >
               <span className="diff-callout-line" />

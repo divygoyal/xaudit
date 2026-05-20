@@ -281,6 +281,34 @@ button {
   to   { transform: scaleY(1.15); opacity: 1; }
 }
 
+/* Micro-particles streaming along the trajectory toward the rocket.
+   Keyframe percentages step through the 8 path checkpoints (positions
+   expressed as viewBox-relative %, matching the dots that render via
+   the same coords). Linear timing so the flow feels constant. */
+.hero-traj-particle {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgb(var(--vermillion));
+  box-shadow: 0 0 8px 1px rgb(var(--vermillion) / 0.55);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: hero-traj-particle-travel 5.5s linear infinite;
+  pointer-events: none;
+}
+@keyframes hero-traj-particle-travel {
+  0%   { left: 2.5%;  top: 92.5%;  opacity: 0; }
+  4%   { opacity: 1; }
+  14%  { left: 14.58%; top: 78.33%; }
+  27%  { left: 20.83%; top: 85.83%; }
+  41%  { left: 39.17%; top: 63.33%; }
+  55%  { left: 46.25%; top: 70.83%; }
+  70%  { left: 62.08%; top: 41.67%; }
+  83%  { left: 69.17%; top: 49.17%; }
+  94%  { opacity: 1; }
+  100% { left: 90.83%; top: 15%; opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-traj-path {
     animation: none;
@@ -292,6 +320,7 @@ button {
     opacity: 1;
   }
   .hero-traj-flame { animation: none; }
+  .hero-traj-particle { animation: none; opacity: 0; }
 }
 
 /* ─────────────── Hero compare embed (compact comparison card) ─────────────── */
@@ -359,14 +388,52 @@ button {
   100% { opacity: 1; transform: translateY(0); }
 }
 
-/* Phrase tint fade-in (per-edit, staggered via inline animationDelay) */
+/* Phrase highlight — paint-in (highlighter pen effect).
+   Each phrase has a gradient bg whose horizontal size animates from 0
+   to 100%, sweeping the highlight in left-to-right instead of fading. */
 .hero-cm-phrase {
-  opacity: 0;
-  animation: hero-cm-phrase-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  background-image: linear-gradient(to right, var(--phrase-tint, transparent), var(--phrase-tint, transparent));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  background-position: left center;
+  box-shadow: 0 0 14px -6px var(--phrase-glow, transparent);
+  animation: hero-cm-phrase-paint 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-@keyframes hero-cm-phrase-in {
-  from { opacity: 0; background-color: transparent; }
-  to   { opacity: 1; }
+.hero-cm-phrase.is-moss {
+  --phrase-tint: rgba(127, 176, 105, 0.32);
+  --phrase-glow: rgba(168, 220, 138, 0.55);
+}
+.hero-cm-phrase.is-rust {
+  --phrase-tint: rgba(200, 85, 61, 0.22);
+  --phrase-glow: rgba(230, 115, 86, 0.45);
+}
+@keyframes hero-cm-phrase-paint {
+  from { background-size: 0% 100%; }
+  to   { background-size: 100% 100%; }
+}
+
+/* Pulse the phrase when its linked callout is tapped — confirms the
+   "this label = this phrase" link on touch devices where hover is dead. */
+.hero-cm-phrase.is-pulsing {
+  animation: hero-cm-phrase-pulse 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes hero-cm-phrase-pulse {
+  0%   { background-size: 100% 100%; box-shadow: 0 0 0 0 var(--phrase-glow, transparent); }
+  40%  { box-shadow: 0 0 0 6px var(--phrase-glow, transparent); transform: translateY(-0.5px); }
+  100% { background-size: 100% 100%; box-shadow: 0 0 14px -6px var(--phrase-glow, transparent); transform: translateY(0); }
+}
+
+/* Stat card glow flash — fires once when the +24 count-up completes */
+.hero-cm-stat {
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+.hero-cm-stat.is-flashing {
+  animation: hero-cm-stat-flash 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes hero-cm-stat-flash {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.04); box-shadow: 0 0 28px -2px rgba(168, 220, 138, 0.85), inset 0 0 14px -3px rgba(127, 176, 105, 0.55); }
+  100% { transform: scale(1); }
 }
 
 /* Change-card pop (Changes tab) */

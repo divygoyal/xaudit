@@ -68,6 +68,19 @@ export function HeroTrajectory() {
         </span>
       ))}
 
+      {/* Micro-particles travelling along the trajectory toward the rocket.
+          A small stream of vermillion sparks suggests "growth flowing
+          upward" — animated entirely in CSS via keyframes that step
+          through the checkpoint positions as percentages. */}
+      {[0, 1.6, 3.2, 4.8].map((delaySec, i) => (
+        <span
+          key={`particle-${i}`}
+          className="hero-traj-particle absolute"
+          style={{ animationDelay: `${4 + delaySec}s` }}
+          aria-hidden="true"
+        />
+      ))}
+
       <span
         className="hero-traj-rocket absolute"
         style={{

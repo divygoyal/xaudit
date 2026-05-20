@@ -23,6 +23,7 @@ import {
   UserRound,
 } from "lucide-react";
 import type { AnalysisResult, Rewrite, RewriteHighlight } from "@/lib/types";
+import { CountUp } from "./count-up";
 import { HighlightedRewrite } from "./highlighted-rewrite";
 
 interface Props {
@@ -173,14 +174,15 @@ function Header({ currentScore, lift }: { currentScore: number; lift: number }) 
           <span className="font-mono text-[10px] uppercase tracking-wider text-ink-400">
             Signal Score
           </span>
-          <span className="ml-2 font-mono text-[13px] tabular-nums text-paper">
-            {currentScore}/100
+          <span className="ml-2 inline-flex items-baseline font-mono text-[13px] tabular-nums text-paper">
+            <CountUp value={currentScore} duration={1400} delay={0.9} />
+            /100
           </span>
         </div>
         {lift > 0 && (
-          <div className="inline-flex items-center gap-1 rounded-full border border-moss/40 bg-moss/10 px-3 py-1.5 font-mono text-[12px] tabular-nums text-moss">
+          <div className="inline-flex items-center gap-1 rounded-full border border-moss/40 bg-moss/10 px-3 py-1.5 font-mono text-[12px] tabular-nums text-moss shadow-[0_0_18px_-6px_rgba(127,176,105,0.55)]">
             <TrendingUp size={11} strokeWidth={2.4} />
-            +{lift} pts
+            +<CountUp value={lift} duration={1600} delay={1.1} /> pts
           </div>
         )}
       </div>
