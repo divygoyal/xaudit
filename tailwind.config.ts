@@ -42,10 +42,12 @@ const config: Config = {
         moss: {
           DEFAULT: rgb("--moss"),
           dim: rgb("--moss-dim"),
+          glow: rgb("--moss-glow"),
         },
         rust: {
           DEFAULT: rgb("--rust"),
           dim: rgb("--rust-dim"),
+          glow: rgb("--rust-glow"),
         },
       },
       fontFamily: {

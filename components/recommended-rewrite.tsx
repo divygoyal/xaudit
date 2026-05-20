@@ -1001,7 +1001,7 @@ function formatCalloutLabel(label: string) {
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 }
 
-function originalCalloutFallback(label: string, signal: string) {
+export function originalCalloutFallback(label: string, signal: string) {
   const normalized = label.toLowerCase();
   if (normalized.includes("hook") || signal === "Click") return "Vague hook";
   if (normalized.includes("reply") || normalized.includes("question") || signal === "Reply") {
@@ -1012,7 +1012,7 @@ function originalCalloutFallback(label: string, signal: string) {
   return formatCalloutLabel(label);
 }
 
-function optimizedCalloutLabel(label: string, signal: string) {
+export function optimizedCalloutLabel(label: string, signal: string) {
   const normalized = label.toLowerCase();
   if (normalized.includes("hook") || signal === "Click") return "Hook written";
   if (normalized.includes("reply") || signal === "Reply") return "Reply trigger";

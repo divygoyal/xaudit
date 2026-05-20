@@ -14,6 +14,8 @@ import {
 import type { AnalysisResult, Rewrite } from "@/lib/types";
 import {
   buildAlignedDiff,
+  originalCalloutFallback,
+  optimizedCalloutLabel,
   SIGNAL_ICONS,
   type DiffAnnotation,
   type DiffEdit,
@@ -80,22 +82,27 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
   };
 
   return (
-    <section className="hero-compare-mobile relative overflow-hidden rounded-2xl border border-vermillion/40 bg-ink-900 shadow-[0_24px_70px_-30px_rgba(214,58,0,0.32),inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+    <section className="hero-compare-mobile relative overflow-hidden rounded-2xl border border-vermillion/55 bg-ink-900 shadow-[0_24px_70px_-30px_rgba(255,69,0,0.45),0_0_44px_-22px_rgba(255,69,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.05)]">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-px left-0 h-px w-full bg-gradient-to-r from-transparent via-vermillion to-transparent"
       />
+      {/* warm vermillion glow bleeding in from the top edge */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[radial-gradient(60%_120%_at_50%_0%,rgba(255,69,0,0.18)_0%,transparent_65%)]"
+      />
 
       {/* Header */}
-      <header className="flex items-center justify-between gap-3 border-b border-ink-700/60 px-4 py-3">
-        <div className="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[0.22em] text-vermillion-glow">
+      <header className="relative flex items-center justify-between gap-3 border-b border-ink-700/60 px-4 py-2.5">
+        <div className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.22em] text-vermillion-glow drop-shadow-[0_0_10px_rgba(255,138,77,0.45)]">
           <Sparkles size={11} strokeWidth={2.4} />
           Recommended rewrite
         </div>
       </header>
 
       {/* 3-stat row */}
-      <div className="grid grid-cols-3 gap-2 border-b border-ink-700/60 px-3 py-3">
+      <div className="relative grid grid-cols-3 gap-2 border-b border-ink-700/60 px-3 py-3">
         <StatCard
           label="Signal score"
           value={currentScore}
@@ -113,12 +120,12 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
           value={`+${lift}`}
           suffix="pts"
           tone="moss-strong"
-          icon={<TrendingUp size={11} strokeWidth={2.4} />}
+          icon={<TrendingUp size={10} strokeWidth={2.6} />}
         />
       </div>
 
       {/* Tab bar */}
-      <div className="grid grid-cols-3 gap-1.5 border-b border-ink-700/60 px-3 py-2.5">
+      <div className="relative grid grid-cols-3 gap-1.5 border-b border-ink-700/60 px-3 py-2">
         <TabButton
           active={activeTab === "original"}
           onClick={() => setActiveTab("original")}
@@ -195,29 +202,50 @@ function StatCard({
   tone: "rust" | "moss" | "moss-strong";
   icon?: React.ReactNode;
 }) {
-  const toneClasses =
+  // Tone palette: each card gets a tinted border + inner halo + outer glow
+  // so the colour reads even on a dark surface. Improvement card runs
+  // hotter (more saturated) since it's the headline number.
+  const config =
     tone === "rust"
-      ? "border-rust/40 bg-rust/[0.06]"
+      ? {
+          border: "border-rust/55",
+          bg: "bg-rust/[0.07]",
+          text: "text-rust-glow",
+          shadow:
+            "shadow-[inset_0_0_12px_-4px_rgba(200,85,61,0.38),0_0_18px_-10px_rgba(230,115,86,0.55)]",
+        }
       : tone === "moss-strong"
-        ? "border-moss/50 bg-moss/[0.10]"
-        : "border-moss/40 bg-moss/[0.06]";
-  const valueColor =
-    tone === "rust" ? "text-rust" : "text-moss";
+        ? {
+            border: "border-moss/65",
+            bg: "bg-moss/[0.12]",
+            text: "text-moss-glow",
+            shadow:
+              "shadow-[inset_0_0_14px_-3px_rgba(127,176,105,0.55),0_0_22px_-8px_rgba(168,220,138,0.65)]",
+          }
+        : {
+            border: "border-moss/50",
+            bg: "bg-moss/[0.08]",
+            text: "text-moss-glow",
+            shadow:
+              "shadow-[inset_0_0_12px_-4px_rgba(127,176,105,0.42),0_0_18px_-10px_rgba(168,220,138,0.5)]",
+          };
 
   return (
     <div
-      className={`flex flex-col gap-1 rounded-xl border bg-ink-950/40 px-2.5 py-2 ${toneClasses}`}
+      className={`relative flex flex-col gap-0.5 rounded-xl border px-2 py-1.5 ${config.border} ${config.bg} ${config.shadow}`}
     >
-      <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-400">
+      <span className="font-mono text-[8.5px] font-semibold uppercase tracking-[0.18em] text-ink-400">
         {label}
       </span>
       <span
-        className={`inline-flex items-baseline gap-1 font-mono text-[14.5px] font-medium tabular-nums ${valueColor}`}
+        className={`inline-flex items-baseline gap-1 font-mono text-[14px] font-semibold tabular-nums ${config.text}`}
       >
         {icon && <span className="self-center">{icon}</span>}
         {value}
         {suffix && (
-          <span className="font-mono text-[10px] text-ink-400">{suffix}</span>
+          <span className="font-mono text-[9.5px] font-medium text-ink-400">
+            {suffix}
+          </span>
         )}
       </span>
     </div>
@@ -241,24 +269,26 @@ function TabButton({
   label: string;
   tone: "rust" | "vermillion" | "moss";
 }) {
+  // Active state: tinted bg + glow halo in the tone's colour. Box-shadow
+  // uses the glow variant so the bloom reads even on a dark page surface.
   const activeClasses =
     tone === "rust"
-      ? "border-rust/45 bg-rust/[0.10] text-rust"
+      ? "border-rust/65 bg-rust/[0.16] text-rust-glow shadow-[0_0_18px_-4px_rgba(230,115,86,0.55),inset_0_0_10px_-4px_rgba(200,85,61,0.35)]"
       : tone === "vermillion"
-        ? "border-vermillion/45 bg-vermillion/[0.10] text-vermillion-glow"
-        : "border-moss/50 bg-moss/[0.12] text-moss";
+        ? "border-vermillion/65 bg-vermillion/[0.16] text-vermillion-glow shadow-[0_0_20px_-4px_rgba(255,138,77,0.6),inset_0_0_10px_-4px_rgba(255,69,0,0.35)]"
+        : "border-moss/65 bg-moss/[0.18] text-moss-glow shadow-[0_0_20px_-4px_rgba(168,220,138,0.6),inset_0_0_10px_-4px_rgba(127,176,105,0.4)]";
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-[12px] font-medium transition-all ${
+      className={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-1.5 py-1.5 text-[11.5px] transition-all ${
         active
-          ? `${activeClasses} font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]`
+          ? `${activeClasses} font-semibold`
           : "border-ink-700 bg-transparent text-ink-300 hover:border-ink-500 hover:text-paper"
       }`}
     >
-      <Icon size={12} strokeWidth={2.4} />
+      <Icon size={11} strokeWidth={2.4} />
       <span>{label}</span>
     </button>
   );
@@ -275,18 +305,29 @@ function OriginalView({
   draftText: string;
   annotations: DiffAnnotation[];
 }) {
+  // Transform raw labels ("Hook rewritten") into problem-oriented copy
+  // ("Vague hook") so it reads as a *diagnosis* on the original side,
+  // matching the desktop callout copy exactly.
+  const calloutAnnotations = useMemo(
+    () =>
+      annotations.map((a) => ({
+        ...a,
+        label: originalCalloutFallback(a.label, a.signal),
+      })),
+    [annotations]
+  );
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-rust">
+        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-rust-glow">
           <Eye size={10} strokeWidth={2.4} />
           Original draft
         </span>
-        <span className="rounded-full border border-rust/40 bg-rust/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-rust">
+        <span className="rounded-full border border-rust/55 bg-rust/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-rust-glow shadow-[0_0_12px_-4px_rgba(230,115,86,0.5)]">
           BEFORE
         </span>
       </div>
-      <AnnotatedBody text={draftText} annotations={annotations} tone="rust" />
+      <AnnotatedBody text={draftText} annotations={calloutAnnotations} tone="rust" />
     </div>
   );
 }
@@ -298,18 +339,28 @@ function OptimizedView({
   text: string;
   annotations: DiffAnnotation[];
 }) {
+  // Solution-oriented copy ("Hook written", "Reply trigger") for the
+  // after side — same transformer the desktop callout uses.
+  const calloutAnnotations = useMemo(
+    () =>
+      annotations.map((a) => ({
+        ...a,
+        label: optimizedCalloutLabel(a.label, a.signal),
+      })),
+    [annotations]
+  );
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-moss">
+        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-moss-glow">
           <Award size={10} strokeWidth={2.4} />
           Optimized version
         </span>
-        <span className="rounded-full border border-moss/40 bg-moss/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-moss">
+        <span className="rounded-full border border-moss/55 bg-moss/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-moss-glow shadow-[0_0_12px_-4px_rgba(168,220,138,0.55)]">
           AFTER
         </span>
       </div>
-      <AnnotatedBody text={text} annotations={annotations} tone="moss" />
+      <AnnotatedBody text={text} annotations={calloutAnnotations} tone="moss" />
     </div>
   );
 }
@@ -369,33 +420,42 @@ function AnnotatedBody({
   if (cursor < text.length) segments.push({ type: "text", text: text.slice(cursor) });
 
   const isMoss = tone === "moss";
-  const phraseBg = isMoss ? "bg-moss/[0.22]" : "bg-rust/[0.16]";
-  const badgeBg = isMoss ? "bg-moss text-paper-warm" : "bg-rust text-paper-warm";
-  const labelText = isMoss ? "text-moss" : "text-rust";
+  // Phrase tints — slightly more saturated than before so they read on dark.
+  // Box-decoration-break: clone keeps the rounded bg correct when phrase
+  // wraps to a new line.
+  const phraseBg = isMoss ? "bg-moss/[0.32]" : "bg-rust/[0.22]";
+  const phraseShadow = isMoss
+    ? "shadow-[0_0_14px_-6px_rgba(168,220,138,0.55)]"
+    : "shadow-[0_0_14px_-6px_rgba(230,115,86,0.45)]";
 
   return (
-    <p className="whitespace-pre-line text-[13.5px] leading-[1.75] text-paper">
+    <p className="whitespace-pre-line text-[13.5px] leading-[1.78] text-paper">
       {segments.map((seg, i) => {
         if (seg.type === "text") return <span key={i}>{seg.text}</span>;
         const delay = (0.15 + seg.editIndex * 0.18).toFixed(2);
+        const labelDelay = (parseFloat(delay) + 0.18).toFixed(2);
         return (
-          <span key={i} className="hero-cm-phrase-group">
+          <span key={i}>
             <span
-              className={`hero-cm-phrase rounded-[3px] px-[3px] py-[1px] ${phraseBg}`}
-              style={{ animationDelay: `${delay}s` }}
+              className={`hero-cm-phrase rounded-[4px] px-[4px] py-[1.5px] ${phraseBg} ${phraseShadow}`}
+              style={{
+                animationDelay: `${delay}s`,
+                boxDecorationBreak: "clone",
+                WebkitBoxDecorationBreak: "clone",
+              }}
             >
               {seg.text}
             </span>
+            {/* Use the same .diff-callout markup the desktop uses so the
+                dotted leader + numbered badge + sans-serif label match
+                pixel-for-pixel (just at mobile scale). */}
             <span
-              className={`hero-cm-callout ml-1 inline-flex items-center gap-1 align-baseline font-mono text-[9.5px] uppercase tracking-[0.14em] ${labelText}`}
-              style={{ animationDelay: `${parseFloat(delay) + 0.18}s` }}
+              className={`diff-callout ${isMoss ? "is-green" : ""}`}
+              style={{ animationDelay: `${labelDelay}s` }}
             >
-              <span
-                className={`inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full font-mono text-[9px] font-bold tabular-nums ${badgeBg}`}
-              >
-                {seg.editIndex + 1}
-              </span>
-              <span className="leading-none">{seg.label}</span>
+              <span className="diff-callout-line" />
+              <span className="diff-callout-badge">{seg.editIndex + 1}</span>
+              <span className="diff-callout-label">{seg.label}</span>
             </span>
           </span>
         );
@@ -412,11 +472,11 @@ function ChangesView({ edits }: { edits: DiffEdit[] }) {
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion-glow">
+        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-vermillion-glow">
           <Sparkles size={10} strokeWidth={2.4} />
           {edits.length} key improvements
         </span>
-        <span className="rounded-full border border-vermillion/40 bg-vermillion/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-vermillion-glow">
+        <span className="rounded-full border border-vermillion/55 bg-vermillion/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-vermillion-glow shadow-[0_0_12px_-4px_rgba(255,138,77,0.55)]">
           Diff
         </span>
       </div>
@@ -431,14 +491,14 @@ function ChangeCard({ edit, idx }: { edit: DiffEdit; idx: number }) {
   const Icon = SIGNAL_ICONS[edit.signal] ?? MessageCircle;
   return (
     <div
-      className="hero-cm-change-card flex flex-col gap-1.5 rounded-xl border border-vermillion/30 bg-vermillion/[0.05] p-3"
+      className="hero-cm-change-card flex flex-col gap-1.5 rounded-xl border border-vermillion/45 bg-vermillion/[0.07] p-3 shadow-[0_0_18px_-10px_rgba(255,138,77,0.55)]"
       style={{ animationDelay: `${0.1 + idx * 0.12}s` }}
     >
       <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vermillion text-paper-warm font-mono text-[10px] font-bold tabular-nums">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vermillion-glow text-ink-950 font-mono text-[10px] font-bold tabular-nums shadow-[0_0_12px_-2px_rgba(255,138,77,0.7)]">
           {edit.index + 1}
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-vermillion/30 bg-vermillion/10 px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-[0.18em] text-vermillion-glow">
+        <span className="inline-flex items-center gap-1 rounded-full border border-vermillion/45 bg-vermillion/15 px-1.5 py-[1px] font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-vermillion-glow">
           <Icon size={9} strokeWidth={2.4} />
           {edit.signal}
         </span>
@@ -450,14 +510,14 @@ function ChangeCard({ edit, idx }: { edit: DiffEdit; idx: number }) {
       {(edit.originalPhrase || edit.newPhrase) && (
         <div className="mt-1 grid gap-1.5">
           {edit.originalPhrase && (
-            <div className="flex items-start gap-1.5 rounded-lg border border-rust/25 bg-rust/[0.06] px-2 py-1.5 text-[11.5px] leading-snug text-ink-300">
-              <span className="font-mono text-rust">−</span>
+            <div className="flex items-start gap-1.5 rounded-lg border border-rust/35 bg-rust/[0.08] px-2 py-1.5 text-[11.5px] leading-snug text-ink-300">
+              <span className="font-mono text-rust-glow">−</span>
               <span className="line-clamp-2">{shorten(edit.originalPhrase)}</span>
             </div>
           )}
           {edit.newPhrase && (
-            <div className="flex items-start gap-1.5 rounded-lg border border-moss/30 bg-moss/[0.08] px-2 py-1.5 text-[11.5px] leading-snug text-paper">
-              <span className="font-mono text-moss">+</span>
+            <div className="flex items-start gap-1.5 rounded-lg border border-moss/40 bg-moss/[0.10] px-2 py-1.5 text-[11.5px] leading-snug text-paper">
+              <span className="font-mono text-moss-glow">+</span>
               <span className="line-clamp-2">{shorten(edit.newPhrase)}</span>
             </div>
           )}
@@ -493,7 +553,7 @@ function PeekCard({
   // Changes peek is not contextual here — peekTab is always optimized or original.
   // But defensive: render generic CTA if tab === "changes".
   const text = isOriginal ? draftText : optimizedText;
-  const toneCls = isOriginal ? "text-rust" : "text-moss";
+  const toneCls = isOriginal ? "text-rust-glow" : "text-moss-glow";
   const Icon = isOriginal ? Eye : Award;
   const label = isOriginal ? "Original draft" : "Optimized version";
   const subLabel = isOriginal ? "before" : "after";
