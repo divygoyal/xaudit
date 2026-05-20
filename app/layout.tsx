@@ -31,11 +31,20 @@ const caveat = Caveat({
   weight: ["400", "600", "700"],
 });
 
+// Pick the absolute site URL Next.js should use when generating
+// metadata URLs (og:image, twitter:image, canonical links, etc.).
+// Priority: explicit env var > Vercel-provided URL > localhost dev.
+// This is what social platforms see when they crawl shared links —
+// hardcoding the wrong domain breaks the OG preview entirely.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
   title: "xAudit — Paste your X draft. See if the algorithm will care.",
   description:
     "We grade your X draft against the 13 engagement signals X's open-source ranker tries to predict — and rewrite it stronger. Verdict in under 30 seconds.",
-  metadataBase: new URL("https://xaudit.app"),
+  metadataBase: new URL(siteUrl),
   openGraph: {
     title: "xAudit",
     description: "Paste your X draft. See if the algorithm will care.",
