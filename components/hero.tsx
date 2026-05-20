@@ -1,4 +1,5 @@
 import { HandwrittenUnderline } from "./handwritten-underline";
+import { HeroCompareMobile } from "./hero-compare-mobile";
 import { HeroTrajectory } from "./hero-trajectory";
 import { RecommendedRewrite } from "./recommended-rewrite";
 import { Button } from "./ui/button";
@@ -82,13 +83,25 @@ export function Hero() {
         </div>
 
         {/* embedded comparison — sits BELOW the stagger so it has its own delayed entrance */}
-        <div id="sample" className="hero-compare hero-compare-wrap mt-6 md:mt-7">
-          <RecommendedRewrite
-            result={SAMPLE_RESULT}
-            draftText={SAMPLE_DRAFT}
-            primary={primary}
-            currentScore={currentScore}
-          />
+        <div id="sample" className="hero-compare-wrap mt-6 md:mt-7">
+          {/* mobile: tabbed comparison with stat row + peek */}
+          <div className="lg:hidden">
+            <HeroCompareMobile
+              result={SAMPLE_RESULT}
+              draftText={SAMPLE_DRAFT}
+              primary={primary}
+              currentScore={currentScore}
+            />
+          </div>
+          {/* desktop: full 3-column WhyChanged view */}
+          <div className="hero-compare hidden lg:block">
+            <RecommendedRewrite
+              result={SAMPLE_RESULT}
+              draftText={SAMPLE_DRAFT}
+              primary={primary}
+              currentScore={currentScore}
+            />
+          </div>
         </div>
       </div>
     </section>

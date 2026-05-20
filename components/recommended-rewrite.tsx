@@ -34,7 +34,7 @@ interface Props {
 
 type Mode = "final" | "compare" | "why";
 
-const SIGNAL_ICONS: Record<string, typeof MessageCircle> = {
+export const SIGNAL_ICONS: Record<string, typeof MessageCircle> = {
   Reply: MessageCircle,
   Click: MousePointerClick,
   Follow: UserPlus,
@@ -375,7 +375,7 @@ function CompareView({
 // buildAlignedDiff — construct optimized text by applying edits in order
 // ─────────────────────────────────────────────────────────────
 
-type DiffEdit = {
+export type DiffEdit = {
   index: number;
   originalPhrase: string;
   newPhrase: string;
@@ -384,14 +384,14 @@ type DiffEdit = {
   description: string;
 };
 
-type DiffAnnotation = {
+export type DiffAnnotation = {
   phrase: string;
   label: string;
   signal: string;
   editIndex: number;
 };
 
-function buildAlignedDiff(
+export function buildAlignedDiff(
   original: string,
   primary: Rewrite
 ): {
