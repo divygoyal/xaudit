@@ -49,6 +49,17 @@ export const metadata: Metadata = {
     title: "xAudit",
     description: "Paste your X draft. See if the algorithm will care.",
     type: "website",
+    // url + siteName + locale satisfy the strict OG spec (og:url is one
+    // of the four required properties) and let Slack/Discord render the
+    // site label above the share card.
+    url: "/",
+    siteName: "xAudit",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "xAudit",
+    description: "Paste your X draft. See if the algorithm will care.",
   },
 };
 

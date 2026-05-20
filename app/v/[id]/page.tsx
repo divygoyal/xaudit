@@ -50,10 +50,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title,
     description,
+    // Canonical URL of this shared analysis. Strips query params so
+    // ?ref=… / ?utm_…= don't fragment the canonical for indexing.
+    alternates: { canonical: `/v/${params.id}` },
     openGraph: {
       title,
       description,
       type: "article",
+      url: `/v/${params.id}`,
     },
     twitter: {
       card: "summary_large_image",
