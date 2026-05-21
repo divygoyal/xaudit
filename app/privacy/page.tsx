@@ -58,39 +58,55 @@ export default function PrivacyPage() {
                 3. Google User Data
               </h2>
               <p>
-                letxcook accesses Google user data only to sign you in and
-                identify your account.
+                letxcook accesses Google user data exclusively to authenticate
+                your identity and manage your account.
               </p>
               <ul className="ml-5 flex list-disc flex-col gap-2 text-ink-200">
                 <li>
-                  <span className="font-medium text-paper">Access:</span> Only
-                  data explicitly granted by users is accessed.
+                  <span className="font-medium text-paper">Access &amp; Use:</span>{" "}
+                  We only access data explicitly granted via the Google OAuth
+                  consent screen (Name, Email, and Profile Picture). This data
+                  is used solely to create your profile and personalize your
+                  dashboard experience.
                 </li>
                 <li>
                   <span className="font-medium text-paper">
-                    Data Retention and Deletion:
+                    Data Retention &amp; Deletion:
                   </span>{" "}
-                  Google user data is retained securely while accounts remain
-                  active. Users may request complete deletion by contacting
-                  support or revoking application access through Google Account
-                  security settings, with permanent removal occurring within 30
-                  days.
+                  Google user data is retained securely while your account
+                  remains active. Users may request complete deletion of their
+                  data at any time by contacting support, or revoke application
+                  access through their Google Account Security Settings.
+                  Permanent removal from our databases occurs within 30 days of
+                  a deletion request.
                 </li>
                 <li>
                   <span className="font-medium text-paper">Data Sharing:</span>{" "}
-                  We do <span className="font-medium text-paper">not</span>{" "}
-                  share, transfer, sell, or disclose your Google user data to
-                  any third parties.
+                  We do not share, transfer, sell, or disclose your Google user
+                  data to any third parties, except as required for basic
+                  system operations.
                 </li>
                 <li>
                   <span className="font-medium text-paper">AI Models:</span> We
-                  explicitly do not share Google user data with AI models for
-                  training.
+                  explicitly do not use or share Google user data to train,
+                  tune, or improve artificial intelligence or machine learning
+                  models.
                 </li>
                 <li>
-                  <span className="font-medium text-paper">Limited Use:</span>{" "}
-                  Transfer of Google API information adheres to Google&apos;s
-                  API Services User Data Policy.
+                  <span className="font-medium text-paper">
+                    Limited Use Disclosure:
+                  </span>{" "}
+                  letxcook&apos;s use and transfer of information received from
+                  Google APIs to any other app will adhere to the{" "}
+                  <a
+                    href="https://developers.google.com/terms/api-services-user-data-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-vermillion-glow underline decoration-vermillion/40 decoration-dotted underline-offset-2 transition-colors hover:text-vermillion"
+                  >
+                    Google API Services User Data Policy
+                  </a>
+                  , including the Limited Use requirements.
                 </li>
               </ul>
             </section>
