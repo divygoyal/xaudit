@@ -1,10 +1,13 @@
-// xAudit service worker.
+// letxcook service worker.
 //   1. Handles the toolbar-icon click → sends a "trigger" message to the
 //      active tab's content script which decides what to do based on URL.
 //   2. Proxies API calls from the content script to our backend so the
 //      content script doesn't hit CORS (background has host permissions).
 
-const XAUDIT_URL = "http://localhost:3000"; // ← swap to prod domain when deployed
+// For local dev, swap to "http://localhost:3000" and add it back to the
+// manifest's host_permissions. The Chrome Web Store rejects builds that
+// ship localhost so production stays at letxcook.com.
+const XAUDIT_URL = "https://letxcook.com";
 
 chrome.action.onClicked.addListener(async (tab) => {
   if (!tab.id) return;

@@ -1,4 +1,4 @@
-// xAudit content script.
+// letxcook content script.
 //   1. Per-tweet button on every tweet — click opens the in-page overlay (NOT a new tab).
 //   2. Extension-icon click → smart context detect → opens overlay for either
 //      the compose draft or the current tweet.
@@ -8,7 +8,10 @@
 (() => {
   const BUTTON_ATTR = "data-xaudit-injected";
   const OVERLAY_ID = "xaudit-overlay-root";
-  const XAUDIT_URL = "http://localhost:3000"; // ← keep in sync with background.js
+  // Keep in sync with background.js. For local dev, swap to localhost:3000
+  // AND add it back to manifest host_permissions; production must stay
+  // on letxcook.com to satisfy Chrome Web Store review.
+  const XAUDIT_URL = "https://letxcook.com";
   const UTM = "utm_source=extension&utm_medium=overlay&utm_campaign=ext_v1";
   const THEME_KEY = "xaudit_overlay_theme";
 

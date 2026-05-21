@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "xAudit — Audit any X post",
+  "name": "letxcook — grade any X draft",
   "version": "0.3.0",
-  "description": "Adds an 'Audit this' button to every X / Twitter post. Click the extension icon while drafting a tweet to audit it in-place.",
+  "description": "Grade your X drafts against 13 engagement signals before posting. Adds an 'Audit' button to every post and opens a quick verdict in-place.",
   "action": {
-    "default_title": "xAudit — audit this post"
+    "default_title": "letxcook — audit this post"
   },
   "background": {
     "service_worker": "background.js"
@@ -20,14 +20,13 @@
   "host_permissions": [
     "https://x.com/*",
     "https://twitter.com/*",
-    "http://localhost:3000/*",
-    "https://xaudit.app/*"
+    "https://letxcook.com/*"
   ],
   "permissions": ["activeTab", "declarativeNetRequest"],
   "declarative_net_request": {
     "rule_resources": [
       {
-        "id": "xaudit_csp",
+        "id": "letxcook_csp",
         "enabled": true,
         "path": "rules.json"
       }

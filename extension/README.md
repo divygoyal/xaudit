@@ -1,6 +1,6 @@
-# xAudit Browser Extension (v0)
+# letxcook Browser Extension (v0)
 
-Adds an **Audit** button to every X / Twitter post. One click opens xAudit with the post URL pre-filled.
+Adds an **Audit** button to every X / Twitter post. One click opens letxcook with the post URL pre-filled.
 
 ## Install (development / unpacked)
 
@@ -15,7 +15,7 @@ Adds an **Audit** button to every X / Twitter post. One click opens xAudit with 
 Open `content.js` and change the top of file:
 
 ```js
-const XAUDIT_URL = "https://xaudit.app"; // change to "http://localhost:3000"
+const XAUDIT_URL = "https://letxcook.com"; // change to "http://localhost:3000"
 ```
 
 Reload the extension at `chrome://extensions` after editing.
