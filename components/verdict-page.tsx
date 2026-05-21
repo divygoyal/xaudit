@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { RecommendedRewrite } from "./recommended-rewrite";
+import { HeroCompareMobile } from "./hero-compare-mobile";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { ReferralCapture } from "./referral-capture";
@@ -78,16 +79,26 @@ export function VerdictPage({ row, referrerId }: Props) {
         </div>
       </section>
 
-      {/* Comparison */}
+      {/* Comparison — mobile uses tabbed compact view, desktop uses full 3-col */}
       <section className="relative">
         <div className="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">
           <div className="mx-auto max-w-6xl">
-            <RecommendedRewrite
-              result={row.result}
-              draftText={row.draft_text}
-              primary={primary}
-              currentScore={currentScore}
-            />
+            <div className="lg:hidden">
+              <HeroCompareMobile
+                result={row.result}
+                draftText={row.draft_text}
+                primary={primary}
+                currentScore={currentScore}
+              />
+            </div>
+            <div className="hidden lg:block">
+              <RecommendedRewrite
+                result={row.result}
+                draftText={row.draft_text}
+                primary={primary}
+                currentScore={currentScore}
+              />
+            </div>
           </div>
         </div>
       </section>

@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowRight,
   ChevronDown,
   Crosshair,
-  Lock,
   MessageCircle,
   MousePointerClick,
   UserPlus,
@@ -166,11 +164,6 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
       }
     : null;
 
-  const handleViewFullReport = useCallback(() => {
-    const target = document.getElementById("rewrite-recommended");
-    target?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, []);
-
   return (
     <div className="mt-10">
       <Header
@@ -204,13 +197,12 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
         </div>
       </div>
 
-      {/* BOTTOM SUMMARY STRIP — Biggest leak · Quickest win · Potential lift · CTA */}
+      {/* BOTTOM SUMMARY STRIP — Biggest leak · Quickest win · Potential lift */}
       <div className="col-reveal" style={{ animationDelay: "0.7s" }}>
         <BottomSummaryStrip
           biggestLeak={biggestLeak}
           quickestWin={quickestWin}
           liftRange={liftRange}
-          onViewFullReport={handleViewFullReport}
         />
       </div>
     </div>
@@ -1427,22 +1419,20 @@ function shortTrigger(s: string, max = 92): string {
 }
 
 // ─────────────────────────────────────────────────────────────
-// BOTTOM SUMMARY STRIP — Biggest leak · Quickest win · Potential lift · CTA
+// BOTTOM SUMMARY STRIP — Biggest leak · Quickest win · Potential lift
 // ─────────────────────────────────────────────────────────────
 
 function BottomSummaryStrip({
   biggestLeak,
   quickestWin,
   liftRange,
-  onViewFullReport,
 }: {
   biggestLeak: { title: string; subtitle: string } | null;
   quickestWin: { title: string; subtitle: string } | null;
   liftRange: string;
-  onViewFullReport: () => void;
 }) {
   return (
-    <div className="mt-8 grid grid-cols-1 gap-3 rounded-2xl border border-ink-700 bg-ink-900/40 px-5 py-4 shadow-[0_18px_50px_-30px_rgba(75,40,15,0.18)] md:grid-cols-[1fr_1fr_1fr_auto] md:items-center md:gap-6">
+    <div className="mt-8 grid grid-cols-1 gap-3 rounded-2xl border border-ink-700 bg-ink-900/40 px-5 py-4 shadow-[0_18px_50px_-30px_rgba(75,40,15,0.18)] md:grid-cols-3 md:items-center md:gap-6">
       {/* BIGGEST LEAK */}
       <SummaryItem
         icon={Crosshair}
@@ -1469,21 +1459,6 @@ function BottomSummaryStrip({
         title={<span className="font-mono tabular-nums text-moss">{liftRange}</span>}
         subtitle="Replies + clicks combined"
       />
-
-      {/* CTA */}
-      <div className="flex flex-col items-start gap-1.5 md:items-end">
-        <button
-          onClick={onViewFullReport}
-          className="group/cta inline-flex items-center gap-2 rounded-full bg-paper px-4 py-2.5 text-[13px] font-medium text-ink-950 transition-all hover:bg-paper-warm"
-        >
-          View full signal report
-          <ArrowRight size={13} className="transition-transform group-hover/cta:translate-x-0.5" />
-        </button>
-        <span className="inline-flex items-center gap-1 font-mono text-[10px] text-ink-400">
-          <Lock size={9} strokeWidth={2.2} />
-          No credit card required
-        </span>
-      </div>
     </div>
   );
 }
