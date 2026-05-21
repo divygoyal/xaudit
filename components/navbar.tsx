@@ -14,7 +14,7 @@ export async function Navbar() {
       <Link href="/" className="group flex items-center gap-2.5">
         <LogoMark />
         <span className="font-serif text-2xl tracking-tight">
-          x<span className="serif-italic">Audit</span>
+          let<span className="serif-italic">x</span>cook
         </span>
       </Link>
 

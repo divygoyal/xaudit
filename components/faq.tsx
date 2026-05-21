@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: "Can I use this for LinkedIn, Threads, or Bluesky?",
-    a: "Not yet. xAudit is built on X's repo specifically. We'd rather be excellent on one platform than guess on five.",
+    a: "Not yet. letxcook is built on X's repo specifically. We'd rather be excellent on one platform than guess on five.",
   },
 ];
 

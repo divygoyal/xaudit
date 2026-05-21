@@ -70,7 +70,7 @@ export function VsFolklore() {
             . We don&apos;t.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-balance text-[15px] leading-relaxed text-ink-300">
-            xAudit reads the same engagement signals from X&apos;s open-source ranker,
+            letxcook reads the same engagement signals from X&apos;s open-source ranker,
             so every recommendation is{" "}
             <span className="font-medium text-vermillion-glow">verifiable</span>.
           </p>
@@ -378,7 +378,7 @@ function RepoPanel() {
       </header>
 
       <h3 className="mt-5 font-sans text-[1.65rem] font-medium leading-[1.14] tracking-tight text-paper md:text-[1.85rem]">
-        xAudit signal map
+        letxcook signal map
       </h3>
       <p className="mt-3 max-w-md text-[13.5px] leading-relaxed text-ink-300">
         Recommendations are tied to the prediction labels the open-source ranker

@@ -41,38 +41,42 @@ const siteUrl =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
 export const metadata: Metadata = {
-  title: "xAudit — Paste your X draft. See if the algorithm will care.",
+  title: "letxcook — Paste your X draft. See if the algorithm will care.",
   description:
     "We grade your X draft against the 13 engagement signals X's open-source ranker tries to predict — and rewrite it stronger. Verdict in under 30 seconds.",
   metadataBase: new URL(siteUrl),
   openGraph: {
-    title: "xAudit",
+    title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
     type: "website",
     // url + siteName + locale satisfy the strict OG spec (og:url is one
     // of the four required properties) and let Slack/Discord render the
     // site label above the share card.
     url: "/",
-    siteName: "xAudit",
+    siteName: "letxcook",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "xAudit",
+    title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
   },
 };
 
 // Set theme before paint to avoid flash-of-wrong-theme.
+// Dark by default — only the user explicitly picking "light" via the
+// ThemeToggle (which writes xa-theme=light to localStorage) breaks out
+// of dark. New visitors and "no preference" sessions all land on dark.
 const noFlashScript = `
 (function(){try{
-  var t=localStorage.getItem('xa-theme');
-  if(t==='dark'){document.documentElement.classList.add('dark');}
-  else if(t==='light'){document.documentElement.classList.remove('dark');}
-  else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+  if(localStorage.getItem('xa-theme')==='light'){
+    document.documentElement.classList.remove('dark');
+  } else {
     document.documentElement.classList.add('dark');
   }
-}catch(e){}})();
+}catch(e){
+  document.documentElement.classList.add('dark');
+}})();
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -5,7 +5,7 @@ import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const metadata = {
-  title: "Dashboard · xAudit",
+  title: "Dashboard · letxcook",
 };
 
 export default async function DashboardLayout({

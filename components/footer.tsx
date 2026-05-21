@@ -5,7 +5,7 @@ export function Footer() {
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <span className="font-serif text-xl tracking-tight text-paper">
-              x<span className="serif-italic">Audit</span>
+              let<span className="serif-italic">x</span>cook
             </span>
             <span className="text-xs text-ink-400">© 2026</span>
           </div>
@@ -20,12 +20,12 @@ export function Footer() {
               xai-org/x-algorithm ↗
             </a>
             <a href="#faq" className="transition-colors hover:text-paper">FAQ</a>
-            <a href="mailto:hi@xaudit.app" className="transition-colors hover:text-paper">Contact</a>
+            <a href="mailto:hi@letxcook.com" className="transition-colors hover:text-paper">Contact</a>
           </div>
         </div>
 
         <p className="mt-8 max-w-3xl text-xs leading-relaxed text-ink-400">
-          xAudit grades drafts using only the engagement signals documented in X's open-source ranking
+          letxcook grades drafts using only the engagement signals documented in X&apos;s open-source ranking
           repository. Numeric weights and the production model are proprietary and not used. This is a
           coaching tool — no result guarantees reach.
         </p>

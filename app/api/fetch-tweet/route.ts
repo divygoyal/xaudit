@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 async function fetchViaFxTwitter(parts: TwitterUrlParts): Promise<FetchedTweet | null> {
   const res = await fetch(
     `https://api.fxtwitter.com/${parts.username}/status/${parts.tweetId}`,
-    { headers: { "User-Agent": "xAudit/1.0 (fetch-tweet)" } }
+    { headers: { "User-Agent": "letxcook/1.0 (fetch-tweet)" } }
   );
   if (!res.ok) return null;
   const data = (await res.json()) as {
@@ -136,7 +136,7 @@ async function fetchViaFxTwitter(parts: TwitterUrlParts): Promise<FetchedTweet |
 async function fetchViaVxTwitter(parts: TwitterUrlParts): Promise<FetchedTweet | null> {
   const res = await fetch(
     `https://api.vxtwitter.com/${parts.username}/status/${parts.tweetId}`,
-    { headers: { "User-Agent": "xAudit/1.0 (fetch-tweet)" } }
+    { headers: { "User-Agent": "letxcook/1.0 (fetch-tweet)" } }
   );
   if (!res.ok) return null;
   const data = (await res.json()) as {

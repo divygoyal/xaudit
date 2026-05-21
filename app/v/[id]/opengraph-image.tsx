@@ -6,7 +6,7 @@ import type { AnalysisResult, Rewrite } from "@/lib/types";
 // triggers when the project path contains a space (Windows). The Edge
 // build resolves bundled assets differently and works correctly.
 export const runtime = "edge";
-export const alt = "xAudit · Tweet analyzed";
+export const alt = "letxcook · Tweet analyzed";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -127,7 +127,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 backgroundColor: VERMILLION,
               }}
             />
-            xAudit · 13 signals
+            letxcook · 13 signals
           </div>
           <div
             style={{
@@ -305,7 +305,7 @@ export default async function Image({ params }: { params: { id: string } }) {
               color: INK_500,
             }}
           >
-            xaudit.app · grounded in xai-org/x-algorithm
+            letxcook.com · grounded in xai-org/x-algorithm
           </div>
         </div>
       </div>
@@ -339,7 +339,7 @@ function FallbackCard() {
           marginBottom: 16,
         }}
       >
-        xAudit
+        letxcook
       </div>
       <div
         style={{
@@ -359,7 +359,7 @@ function FallbackCard() {
           color: INK_500,
         }}
       >
-        xaudit.app · grade any X draft, free
+        letxcook.com · grade any X draft, free
       </div>
       <div style={{ display: "none" }}>{CREAM_DEEP}</div>
     </div>

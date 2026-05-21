@@ -217,7 +217,7 @@ export default function LoginPage() {
           className="inline-flex items-center gap-1.5 text-[12px] text-ink-400 transition-colors hover:text-paper"
         >
           <ArrowLeft size={12} strokeWidth={2.4} />
-          Back to xAudit
+          Back to letxcook
         </Link>
 
         <div className="mt-6 rounded-[20px] border border-ink-700 bg-ink-950/80 px-6 py-8 shadow-[0_28px_60px_-32px_rgba(214,58,0,0.25),inset_0_1px_0_rgba(255,255,255,0.06)] md:px-8 md:py-10">

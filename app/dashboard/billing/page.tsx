@@ -112,7 +112,7 @@ export default async function BillingPage() {
               Coming soon
             </div>
             <h2 className="mt-3 font-serif text-2xl text-paper md:text-3xl">
-              xAudit <span className="serif-italic text-vermillion">Pro</span>
+              letxcook <span className="serif-italic text-vermillion">Pro</span>
             </h2>
             <p className="mt-1.5 text-[13.5px] text-ink-300">
               For ghostwriters and serious posters who run more than a handful of drafts a week.
@@ -131,7 +131,7 @@ export default async function BillingPage() {
               / month
             </div>
             <a
-              href={`mailto:hello@xaudit.app?subject=${encodeURIComponent("Notify me when Pro launches")}&body=${encodeURIComponent("Email: " + (user.email ?? ""))}`}
+              href={`mailto:hello@letxcook.com?subject=${encodeURIComponent("Notify me when Pro launches")}&body=${encodeURIComponent("Email: " + (user.email ?? ""))}`}
               className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-vermillion px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-paper-warm transition-colors hover:bg-vermillion-glow"
             >
               <Zap size={12} strokeWidth={2.4} />

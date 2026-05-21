@@ -39,13 +39,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const row = await loadAnalysis(params.id);
   if (!row) {
     return {
-      title: "xAudit · Analysis not found",
+      title: "letxcook · Analysis not found",
       description: "This shared analysis is no longer available.",
     };
   }
   const author = row.tweet_author ? `@${row.tweet_author}` : "an X draft";
   const lift = row.result.rewrites?.find((r) => r.is_primary)?.predicted_lift ?? 0;
-  const title = `xAudit · ${author} graded${lift > 0 ? ` · +${lift} pts predicted lift` : ""}`;
+  const title = `letxcook · ${author} graded${lift > 0 ? ` · +${lift} pts predicted lift` : ""}`;
   const description = `13 ranker signals graded. ${lift > 0 ? `Rewrite gains +${lift} predicted points.` : "Repo-grounded analysis."}`;
   return {
     title,
