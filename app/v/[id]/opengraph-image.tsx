@@ -295,8 +295,11 @@ export default async function Image({ params }: { params: { id: string } }) {
           color: PAPER,
         }}
       >
-        {/* ── TOP BAR — wordmark with logo embedded AS the X letter ─── */}
-        <div style={{ display: "flex", alignItems: "center" }}>
+        {/* ── TOP BAR — wordmark with logo embedded AS the X letter.
+            marginLeft matches the LEFT column below so the wordmark
+            and the headline line up vertically; both shift right to
+            stay inside X's mobile-preview crop. ─── */}
+        <div style={{ display: "flex", alignItems: "center", marginLeft: 40 }}>
           <span
             style={{
               display: "flex",
@@ -335,12 +338,16 @@ export default async function Image({ params }: { params: { id: string } }) {
 
         {/* ── MAIN ROW ────────────────────────────────────── */}
         <div style={{ display: "flex", flex: 1, gap: 28, marginTop: 22 }}>
-          {/* LEFT COLUMN */}
+          {/* LEFT COLUMN — shifted right ~40px to stay inside X's
+              mobile-preview crop zone. width compensates (530→490) so
+              the right column / AFTER card keeps its original size and
+              position (flex: 1 absorbs the same remaining space). */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              width: 530,
+              width: 490,
+              marginLeft: 40,
             }}
           >
             {/* Headline */}
