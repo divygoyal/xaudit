@@ -113,26 +113,31 @@ function GateCallout({
   );
 }
 
+// X usernames are 1-15 chars alphanumeric + underscore. Anything else
+// shouldn't make it into a clean URL — fall back to /v/{id}.
+const HANDLE_RE = /^[A-Za-z0-9_]{1,15}$/;
+
 function buildShareUrl(
   origin: string,
   shareId: string,
-  referrerId: string | null,
-  utm: { source: string; medium: string; campaign: string }
+  tweetAuthor: string | null
 ) {
-  const params = new URLSearchParams();
-  if (referrerId) params.set("ref", referrerId);
-  params.set("utm_source", utm.source);
-  params.set("utm_medium", utm.medium);
-  params.set("utm_campaign", utm.campaign);
-  return `${origin}/v/${shareId}?${params.toString()}`;
+  // Clean canonical URL — author handle when known, /v/ fallback otherwise.
+  // No utm / ref params; sharers explicitly grab a referral link from the
+  // dashboard when they want attribution credit, otherwise this stays
+  // tweet-reply-friendly: short and tracker-free.
+  if (tweetAuthor && HANDLE_RE.test(tweetAuthor)) {
+    return `${origin}/${tweetAuthor}/${shareId}`;
+  }
+  return `${origin}/v/${shareId}`;
 }
 
 function ShareBar({
   shareId,
-  referrerId,
+  tweetAuthor,
 }: {
   shareId: string;
-  referrerId: string | null;
+  tweetAuthor: string | null;
 }) {
   const [copied, setCopied] = useState(false);
   const [copyUrl, setCopyUrl] = useState<string>("");
@@ -141,25 +146,13 @@ function ShareBar({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const origin = window.location.origin;
-    // Different UTM source per share button so we can measure which one
-    // actually converts. The X intent button gets `utm_source=x`; the
-    // generic copy link uses `direct` (since we don't know where the user
-    // will paste it).
-    setCopyUrl(
-      buildShareUrl(origin, shareId, referrerId, {
-        source: "direct",
-        medium: "share",
-        campaign: "share_v1",
-      })
-    );
-    setTweetUrl(
-      buildShareUrl(origin, shareId, referrerId, {
-        source: "x",
-        medium: "comment",
-        campaign: "share_v1",
-      })
-    );
-  }, [shareId, referrerId]);
+    // Both buttons use the same clean URL — no per-button utm split.
+    // We lose source attribution but gain a URL that fits in a tweet
+    // reply without looking like a tracking pixel.
+    const url = buildShareUrl(origin, shareId, tweetAuthor);
+    setCopyUrl(url);
+    setTweetUrl(url);
+  }, [shareId, tweetAuthor]);
 
   const copy = async () => {
     if (!copyUrl) return;
@@ -189,11 +182,6 @@ function ShareBar({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion-glow">
               Comparison ready
-              {referrerId && (
-                <span className="rounded-full border border-moss/35 bg-moss/[0.08] px-1.5 py-[1px] tracking-[0.16em] text-moss">
-                  +5 per signup
-                </span>
-              )}
             </div>
             <div className="mt-0.5 truncate font-mono text-[12px] text-ink-200">
               {shareUrl || "Preparing share link…"}
@@ -598,7 +586,12 @@ export function AnalyzePanel() {
           )}
           {phase === "done" && result && (
             <div className="cockpit-enter">
-              {shareId && <ShareBar shareId={shareId} referrerId={currentUser?.id ?? null} />}
+              {shareId && (
+                <ShareBar
+                  shareId={shareId}
+                  tweetAuthor={fetchedFrom?.screen_name ?? null}
+                />
+              )}
               <MarkedUpDraft result={result} draftText={draftAtSubmit} />
               <RewritesGrid result={result} draftText={draftAtSubmit} />
               <StructuralCompact result={result} />
