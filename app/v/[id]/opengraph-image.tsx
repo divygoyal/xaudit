@@ -299,7 +299,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             marginLeft matches the LEFT column below so the wordmark
             and the headline line up vertically; both shift right to
             stay inside X's mobile-preview crop. ─── */}
-        <div style={{ display: "flex", alignItems: "center", marginLeft: 40 }}>
+        <div style={{ display: "flex", alignItems: "center", marginLeft: 60 }}>
           <span
             style={{
               display: "flex",
@@ -338,16 +338,16 @@ export default async function Image({ params }: { params: { id: string } }) {
 
         {/* ── MAIN ROW ────────────────────────────────────── */}
         <div style={{ display: "flex", flex: 1, gap: 28, marginTop: 22 }}>
-          {/* LEFT COLUMN — shifted right ~40px to stay inside X's
-              mobile-preview crop zone. width compensates (530→490) so
+          {/* LEFT COLUMN — shifted right ~60px to stay inside X's
+              mobile-preview crop zone. width compensates (530→470) so
               the right column / AFTER card keeps its original size and
               position (flex: 1 absorbs the same remaining space). */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              width: 490,
-              marginLeft: 40,
+              width: 470,
+              marginLeft: 60,
             }}
           >
             {/* Headline */}
