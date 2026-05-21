@@ -296,6 +296,10 @@ export function AnalyzePanel() {
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser>(null);
   const [gateHit, setGateHit] = useState<"anon" | "free" | null>(null);
+  // Set true after a successful fetch — a downstream effect auto-fires
+  // the grade flow once text state has settled. Folds the user's Fetch +
+  // Grade into a single click (and makes the URL-hack one-shot).
+  const [autoGradeAfterFetch, setAutoGradeAfterFetch] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const resultsAnchorRef = useRef<HTMLDivElement | null>(null);
 
@@ -372,6 +376,9 @@ export function AnalyzePanel() {
         })),
       });
       setIsFetching(false);
+      // Single-click flow: trigger the grade after the text state has
+      // settled in the next render (a useEffect picks this up).
+      setAutoGradeAfterFetch(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Network error.");
       setIsFetching(false);
@@ -493,6 +500,17 @@ export function AnalyzePanel() {
       setPhase("idle");
     }
   }, [text, image, phase, fetchedFrom, url]);
+
+  // Single-click flow: after a successful fetch, fire the grade once the
+  // text state has propagated and we're not already running something.
+  // Flag flips false immediately so a follow-up state change can't double-fire.
+  useEffect(() => {
+    if (!autoGradeAfterFetch) return;
+    if (!text.trim()) return;
+    if (phase !== "idle" || isFetching) return;
+    setAutoGradeAfterFetch(false);
+    void submit();
+  }, [autoGradeAfterFetch, text, phase, isFetching, submit]);
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -710,7 +728,7 @@ function InputCard({
             />
             <button
               type="button"
-              onClick={fetchTweet}
+              onClick={() => fetchTweet()}
               disabled={isFetching || !url.trim()}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] bg-vermillion/10 px-3 py-1.5 text-[11px] font-medium text-vermillion-glow transition hover:bg-vermillion/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
