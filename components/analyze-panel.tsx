@@ -173,7 +173,7 @@ function ShareBar({
   };
 
   const tweetIntent = tweetUrl
-    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent("Just audited a tweet with xAudit — 13 ranker signals, every recommendation verifiable in the open repo.")}&url=${encodeURIComponent(tweetUrl)}`
+    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent("Just audited a tweet with letxcook — 13 ranker signals, every recommendation verifiable in the open repo.")}&url=${encodeURIComponent(tweetUrl)}`
     : "#";
 
   // Display URL — show the user the `direct` flavor (cleaner).
@@ -332,25 +332,8 @@ export function AnalyzePanel() {
     };
   }, []);
 
-  // Pre-fill from query params (browser extension hooks):
-  //   ?tweet=<x-url>  → fills the URL field
-  //   ?text=<draft>   → fills the textarea directly (e.g. compose-page draft)
-  const searchParams = useSearchParams();
-  useEffect(() => {
-    const tweetParam = searchParams.get("tweet");
-    if (tweetParam && !url) {
-      setUrl(tweetParam);
-    }
-    const textParam = searchParams.get("text");
-    if (textParam && !text) {
-      setText(textParam);
-    }
-    // intentionally not depending on url/text — only run on the initial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
-  const fetchTweet = useCallback(async () => {
-    const trimmed = url.trim();
+  const fetchTweet = useCallback(async (urlOverride?: string) => {
+    const trimmed = (urlOverride ?? url).trim();
     if (!trimmed) {
       setError("Paste an X post URL first.");
       return;
@@ -394,6 +377,43 @@ export function AnalyzePanel() {
       setIsFetching(false);
     }
   }, [url]);
+
+  // Pre-fill from query params (browser extension + URL-hack catch-all):
+  //   ?tweet=<x-url>  → fills URL field AND auto-fetches the post
+  //   ?text=<draft>   → fills the textarea directly (compose-page draft)
+  //   ?compose=1      → scroll to the analyzer + focus the textarea
+  //                     (lets users coming from `letxcook.com/compose/post`
+  //                     land ready to type instead of staring at a blank
+  //                     panel that looks like nothing happened)
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const tweetParam = searchParams.get("tweet");
+    if (tweetParam && !url) {
+      setUrl(tweetParam);
+      // Auto-fetch so the catch-all URL-hack (letxcook.com/user/status/id)
+      // lands the user on a fully-loaded analyzer, not a blank URL field.
+      void fetchTweet(tweetParam);
+    }
+    const textParam = searchParams.get("text");
+    if (textParam && !text) {
+      setText(textParam);
+    }
+    if (searchParams.get("compose") === "1") {
+      // Give the page a tick to lay out before scrolling + focusing —
+      // hash navigation has already triggered a jump, but we want a
+      // smooth scroll AND focus the textarea so the caret is blinking
+      // when the user arrives.
+      const timeoutId = window.setTimeout(() => {
+        const section = document.getElementById("analyze");
+        section?.scrollIntoView({ behavior: "smooth", block: "start" });
+        const textarea = document.getElementById("draft");
+        if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+      }, 180);
+      return () => window.clearTimeout(timeoutId);
+    }
+    // intentionally not depending on url/text — only run on the initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -501,6 +521,25 @@ export function AnalyzePanel() {
     <section id="analyze" className="relative">
       <div className="mx-auto max-w-7xl px-6 pb-24 pt-4 md:px-10">
         <div className="mx-auto max-w-[560px]">
+          {/* URL-hack tip — sits above the draft input card so users see the
+              trick at the exact moment they're about to paste something */}
+          <div className="mx-auto mb-4 flex w-fit max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-vermillion/35 bg-vermillion/[0.06] px-3.5 py-1.5 text-[11.5px] text-ink-200 backdrop-blur">
+            <span className="font-mono text-[9.5px] font-semibold uppercase tracking-[0.2em] text-vermillion-glow">
+              URL trick
+            </span>
+            <span className="text-ink-600">·</span>
+            <span>
+              swap{" "}
+              <code className="rounded bg-ink-900/70 px-1.5 py-0.5 font-mono text-[11px] text-paper">
+                x.com
+              </code>{" "}
+              with{" "}
+              <code className="rounded bg-vermillion/15 px-1.5 py-0.5 font-mono text-[11px] text-vermillion-glow">
+                letxcook.com
+              </code>{" "}
+              on any post
+            </span>
+          </div>
           <InputCard
             text={text}
             setText={setText}
