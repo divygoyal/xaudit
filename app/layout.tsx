@@ -69,6 +69,10 @@ export const metadata: Metadata = {
     title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
   },
+  // og:logo is emitted manually in the <head> (see RootLayout below)
+  // because Next.js's metadata.other field emits <meta name=…> and
+  // OG conventions / validators want <meta property=…>. Spec-strict
+  // validators flag it as missing if the wrong attribute is used.
 };
 
 // Set theme before paint to avoid flash-of-wrong-theme.
@@ -87,6 +91,21 @@ const noFlashScript = `
 }})();
 `;
 
+// Schema.org Organization JSON-LD. This is what Google reads to build
+// the Knowledge Panel, brand search results, and AI overviews. Far
+// more impactful than og:logo for actual SEO — and the format Google
+// explicitly documents for "brand logo".
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "letxcook",
+  alternateName: "let X cook",
+  url: siteUrl,
+  logo: `${siteUrl}/logo-hero.svg`,
+  description:
+    "Grade your X drafts against the 13 engagement signals X's open-source ranker tries to predict — and rewrite them stronger.",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -96,6 +115,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
+        {/* og:logo — emitted manually because Next.js metadata.other
+            emits <meta name=…> and OG convention wants property=. */}
+        <meta property="og:logo" content={`${siteUrl}/logo-hero.svg`} />
+        {/* Structured data for Google's Knowledge Panel + brand search. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
       </head>
       <body className="bg-ink-950 text-paper antialiased font-sans selection:bg-vermillion selection:text-ink-950">
         <div className="relative isolate min-h-screen overflow-x-hidden">
