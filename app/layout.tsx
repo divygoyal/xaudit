@@ -45,6 +45,14 @@ export const metadata: Metadata = {
   description:
     "We grade your X draft against the 13 engagement signals X's open-source ranker tries to predict — and rewrite it stronger. Verdict in under 30 seconds.",
   metadataBase: new URL(siteUrl),
+  // IMPORTANT: setting any field inside metadata.icons OVERRIDES the
+  // file-convention link Next.js generates from app/icon.svg. So we
+  // must list `icon` explicitly too — otherwise adding `apple` here
+  // drops the browser-tab favicon link from the head.
+  icons: {
+    icon: "/icon.svg",
+    apple: "/logo-hero.svg",
+  },
   openGraph: {
     title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
