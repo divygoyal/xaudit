@@ -29,7 +29,9 @@ export function Footer() {
               xai-org/x-algorithm ↗
             </a>
             <a href="#faq" className="transition-colors hover:text-paper">FAQ</a>
-            <a href="mailto:hi@letxcook.com" className="transition-colors hover:text-paper">Contact</a>
+            <a href="/privacy" className="transition-colors hover:text-paper">Privacy</a>
+            <a href="/terms" className="transition-colors hover:text-paper">Terms</a>
+            <a href="mailto:letxcook@gmail.com" className="transition-colors hover:text-paper">Contact</a>
           </div>
         </div>
 
