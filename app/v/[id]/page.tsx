@@ -43,10 +43,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description: "This shared analysis is no longer available.",
     };
   }
-  const author = row.tweet_author ? `@${row.tweet_author}` : "an X draft";
-  const lift = row.result.rewrites?.find((r) => r.is_primary)?.predicted_lift ?? 0;
-  const title = `letxcook · ${author} graded${lift > 0 ? ` · +${lift} pts predicted lift` : ""}`;
-  const description = `13 ranker signals graded. ${lift > 0 ? `Rewrite gains +${lift} predicted points.` : "Repo-grounded analysis."}`;
+  // Share-preview title is the site's value prop — same wording as the
+  // OG image headline so the visual + text reinforce each other. Avoid
+  // putting the lift number in metadata: the image already shows it and
+  // a numeric claim in text reads as scam-bait when the image isn't
+  // visible (some platforms truncate to title+description only).
+  const authorHandle = row.tweet_author ? `@${row.tweet_author}` : null;
+  const title = "Make your X posts perform better";
+  const description = `An honest grade of ${
+    authorHandle ? `${authorHandle}'s X draft` : "this X draft"
+  } against the 13 engagement signals X's open-source ranker tries to predict.`;
   return {
     title,
     description,
