@@ -1,0 +1,53 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="letxcook">
+  <defs>
+    <!-- Vermillion gradient gives subtle 3D feel without a thousand traced paths -->
+    <linearGradient id="lxcVermGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFB073"/>
+      <stop offset="0.45" stop-color="#FF6E23"/>
+      <stop offset="1" stop-color="#A52D00"/>
+    </linearGradient>
+    <!-- Brighter flame gradient: yellow heart, orange edge -->
+    <linearGradient id="lxcFlameGrad" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0" stop-color="#FF6E23"/>
+      <stop offset="0.55" stop-color="#FFA53D"/>
+      <stop offset="1" stop-color="#FFE085"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Speed lines streaming in from the left -->
+  <g fill="url(#lxcVermGrad)">
+    <rect x="6" y="108" width="34" height="3.5" rx="1.75" opacity="0.95"/>
+    <rect x="0" y="120" width="26" height="3.5" rx="1.75" opacity="0.85"/>
+    <rect x="14" y="132" width="22" height="3.5" rx="1.75" opacity="0.9"/>
+    <circle cx="46" cy="124" r="2.2"/>
+    <circle cx="48" cy="138" r="1.6" opacity="0.8"/>
+  </g>
+
+  <!-- X letterform: two crossing strokes -->
+  <g fill="url(#lxcVermGrad)">
+    <rect x="20" y="100" width="200" height="40" rx="8"
+          transform="rotate(40 120 120)"/>
+    <rect x="20" y="100" width="200" height="40" rx="8"
+          transform="rotate(-40 120 120)"/>
+  </g>
+
+  <!-- Flame curling off the upper-right tip of the X -->
+  <path d="M 200 62
+           C 208 50 203 38 207 24
+           C 199 30 195 40 193 48
+           C 188 36 181 40 184 50
+           C 186 58 192 61 200 62 Z"
+        fill="url(#lxcFlameGrad)"/>
+
+  <!-- Chef hat sitting on the upper-left tip of the X.
+       Three overlapping ellipses form the puffy top; the band sits
+       across the X arm so visually the hat 'wears' that tip. -->
+  <g transform="translate(58, 30)">
+    <ellipse cx="-15" cy="4" rx="15" ry="14" fill="url(#lxcVermGrad)"/>
+    <ellipse cx="15" cy="4" rx="15" ry="14" fill="url(#lxcVermGrad)"/>
+    <ellipse cx="0" cy="-7" rx="14" ry="14" fill="url(#lxcVermGrad)"/>
+    <rect x="-24" y="14" width="48" height="14" rx="2.5" fill="#1F1612"/>
+    <!-- Subtle highlight on hat band so it reads on dark surfaces -->
+    <rect x="-24" y="14" width="48" height="2" rx="1" fill="#3A2E26"/>
+  </g>
+</svg>

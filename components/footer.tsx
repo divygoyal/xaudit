@@ -4,8 +4,17 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12 md:px-10">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-serif text-xl tracking-tight text-paper">
-              let<span className="serif-italic">x</span>cook
+            <span className="inline-flex items-center text-paper">
+              <span className="serif-italic text-[1.6rem] leading-none tracking-tight">let</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-hero.svg"
+                alt="x"
+                width={48}
+                height={48}
+                className="-mx-1 block shrink-0"
+              />
+              <span className="serif-italic text-[1.6rem] leading-none tracking-tight">cook</span>
             </span>
             <span className="text-xs text-ink-400">© 2026</span>
           </div>

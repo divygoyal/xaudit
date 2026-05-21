@@ -17,25 +17,6 @@ export function Hero() {
 
       <div className="relative mx-auto max-w-6xl px-6 pb-10 pt-6 md:px-10 md:pb-14 md:pt-8">
         <div className="stagger flex flex-col items-center gap-4 text-center md:gap-5">
-          {/* status pill */}
-          <a
-            href="https://github.com/xai-org/x-algorithm"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2.5 rounded-full border border-ink-700 bg-ink-900/60 px-3 py-1 text-[11px] tracking-wide text-ink-200 backdrop-blur transition-all hover:border-ink-500 hover:bg-ink-800/60"
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vermillion opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-vermillion" />
-            </span>
-            <span className="font-mono uppercase">
-              Built on <span className="text-paper">github.com/xai-org/x-algorithm</span>
-            </span>
-            <span className="text-ink-400">·</span>
-            <span className="font-mono text-vermillion">v1 live</span>
-            <span className="opacity-50 transition-transform group-hover:translate-x-0.5">↗</span>
-          </a>
-
           {/* headline — compressed to ~60px so the comparison card stays in view */}
           <h1 className="font-sans font-medium leading-[1.04] tracking-[-0.035em] text-paper text-[clamp(2rem,4.4vw,3.75rem)]">
             <span className="block">Paste your X draft.</span>

@@ -11,10 +11,15 @@ export async function Navbar() {
 
   return (
     <nav className="relative z-50 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10 md:py-7">
-      <Link href="/" className="group flex items-center gap-2.5">
+      <Link href="/" className="group inline-flex items-center text-paper">
+        {/* Wordmark with the logo embedded as the literal X letter.
+            Reads "let [chef-X] cook" — the logo IS the X. */}
+        <span className="serif-italic text-[2rem] leading-none tracking-tight md:text-[2.4rem]">
+          let
+        </span>
         <LogoMark />
-        <span className="font-serif text-2xl tracking-tight">
-          let<span className="serif-italic">x</span>cook
+        <span className="serif-italic text-[2rem] leading-none tracking-tight md:text-[2.4rem]">
+          cook
         </span>
       </Link>
 
@@ -52,16 +57,18 @@ export async function Navbar() {
 }
 
 function LogoMark() {
+  // Logo sits INSIDE the wordmark as the literal X letter. Negative
+  // horizontal margins pull "let" + "cook" closer so the logo tucks
+  // into the word without ugly whitespace gaps. Sized to roughly match
+  // the cap-height of the surrounding italic-serif text.
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <rect x="1" y="1" width="26" height="26" rx="7" fill="rgb(var(--vermillion))" />
-      <path
-        d="M8.5 9.5 L13.5 14 L8.5 18.5 M14.5 18.5 H19.5"
-        stroke="rgb(var(--ink-950))"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src="/logo-hero.svg"
+      alt="x"
+      width={64}
+      height={64}
+      className="-mx-1 block shrink-0 md:-mx-1.5"
+    />
   );
 }
