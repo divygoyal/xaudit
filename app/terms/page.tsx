@@ -4,8 +4,7 @@ import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Terms of Service · letxcook",
-  description:
-    "The rules of the road for using letxcook — acceptable use, account responsibility, and disclaimers.",
+  description: "The rules of the road for using letxcook.",
 };
 
 export default function TermsPage() {
@@ -38,11 +37,9 @@ export default function TermsPage() {
                 2. Description of Service
               </h2>
               <p>
-                letxcook is an AI-powered grader for X (formerly Twitter)
-                posts. You submit a draft and receive a score plus suggested
-                rewrites based on the signals X&apos;s open-source ranking
-                algorithm is known to weight. We reserve the right to modify or
-                discontinue the service at any time.
+                letxcook provides AI-powered grading and rewriting of X
+                (Twitter) post drafts via a web app. We reserve the right to
+                modify or discontinue the service at any time.
               </p>
             </section>
 
@@ -52,9 +49,8 @@ export default function TermsPage() {
               </h2>
               <p>
                 You are responsible for maintaining the security of your
-                account and the credentials of any third-party provider (e.g.
-                Google) you use to sign in. You engage with the service at your
-                own risk.
+                account and any tokens associated with it. You engage with the
+                service at your own risk.
               </p>
             </section>
 
@@ -65,10 +61,7 @@ export default function TermsPage() {
               <p>
                 You agree not to misuse the service or help anyone else do so.
                 This includes not probing, scanning, or testing the
-                vulnerability of any system or network; not submitting content
-                that is illegal, abusive, or infringes the rights of others;
-                and not attempting to reverse-engineer, scrape, or automate
-                requests beyond reasonable use.
+                vulnerability of any system or network.
               </p>
             </section>
 
@@ -78,10 +71,8 @@ export default function TermsPage() {
               </h2>
               <p>
                 The service is provided &ldquo;as is&rdquo; without warranties
-                of any kind. We do not guarantee that the grades or rewrites
-                will actually improve the performance of your posts on X, that
-                the service will meet your specific requirements, or that it
-                will remain uninterrupted, secure, or error-free.
+                of any kind. The platform generally does not guarantee that it
+                will meet your specific requirements or remain uninterrupted.
               </p>
             </section>
 
@@ -90,7 +81,7 @@ export default function TermsPage() {
                 6. Contact
               </h2>
               <p>
-                Questions about these Terms of Service should be sent to{" "}
+                Questions about the Terms of Service should be sent to{" "}
                 <a
                   href="mailto:letxcook@gmail.com"
                   className="text-vermillion-glow underline decoration-vermillion/40 decoration-dotted underline-offset-2 transition-colors hover:text-vermillion"
