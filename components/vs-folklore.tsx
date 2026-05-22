@@ -12,16 +12,17 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { SectionEyebrow } from "./signals-strip";
 
 const REPO_URL = "https://github.com/xai-org/x-algorithm";
 
-const FOLKLORE_CLAIMS: string[] = [
-  "Post at 9am for maximum reach",
-  "Use exactly 2 hashtags",
-  "Put the link in the first comment",
-  "Always end with a question",
-];
+const FOLKLORE_CLAIM_KEYS = [
+  "post_time",
+  "hashtags",
+  "link_comment",
+  "end_question",
+] as const;
 
 const REPO_POSITIVE: string[] = [
   "like",
@@ -38,13 +39,14 @@ const REPO_POSITIVE: string[] = [
 
 const REPO_NEGATIVE: string[] = ["not_interested", "block", "mute", "report"];
 
-const VERIFICATION_TRAIL: { step: number; label: string; detail: string }[] = [
-  { step: 1, label: "Repo", detail: "xai-org/x-algorithm" },
-  { step: 2, label: "Labels", detail: "Exact ranker targets" },
-  { step: 3, label: "Advice", detail: "Built from those targets" },
-];
+const VERIFICATION_TRAIL_KEYS = [
+  { step: 1, key: "trail_step1" },
+  { step: 2, key: "trail_step2" },
+  { step: 3, key: "trail_step3" },
+] as const;
 
-export function VsFolklore() {
+export async function VsFolklore() {
+  const t = await getTranslations("vs_folklore");
   return (
     <section id="folklore" className="relative overflow-hidden border-t border-ink-700/60">
       {/* Top-centered vermillion wash, anchors the eyeline */}
@@ -60,19 +62,23 @@ export function VsFolklore() {
       <div className="relative mx-auto max-w-7xl px-6 py-20 md:px-10 md:py-28">
         {/* ─────────── HEADER ─────────── */}
         <div className="mx-auto max-w-3xl text-center">
-          <SectionEyebrow>Facts vs folklore</SectionEyebrow>
+          <SectionEyebrow>{t("eyebrow")}</SectionEyebrow>
           <h2 className="mt-4 font-sans text-[2.45rem] font-medium leading-[1.04] tracking-tight text-paper md:text-[3.4rem]">
-            Most tweet tools{" "}
-            <span className="relative inline-block">
-              <span className="serif-italic">guess</span>
-              <HandUnderline />
-            </span>
-            . We don&apos;t.
+            {t.rich("heading", {
+              emph: (chunks) => (
+                <span className="relative inline-block">
+                  <span className="serif-italic">{chunks}</span>
+                  <HandUnderline />
+                </span>
+              ),
+            })}
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-balance text-[15px] leading-relaxed text-ink-300">
-            letxcook reads the same engagement signals from X&apos;s open-source ranker,
-            so every recommendation is{" "}
-            <span className="font-medium text-vermillion-glow">verifiable</span>.
+            {t.rich("intro", {
+              strong: (chunks) => (
+                <span className="font-medium text-vermillion-glow">{chunks}</span>
+              ),
+            })}
           </p>
         </div>
 
@@ -90,10 +96,10 @@ export function VsFolklore() {
               <Zap size={11} strokeWidth={2.4} className="text-vermillion-glow" />
             </span>
             <span className="font-sans text-[13.5px] text-ink-200">
-              Same draft. Same day. Different advice.
+              {t("tagline_lead")}
             </span>
             <span className="serif-italic text-[15px] text-vermillion-glow">
-              Only one is grounded.
+              {t("tagline_emphasis")}
             </span>
           </div>
         </div>
@@ -130,7 +136,8 @@ function HandUnderline() {
 // LEFT · FOLKLORE — 4 paper-slip cards with hand-drawn underlines
 // ─────────────────────────────────────────────────────────────
 
-function FolklorePanel() {
+async function FolklorePanel() {
+  const t = await getTranslations("vs_folklore");
   const rotations = [-1.8, 1.9, -1.35, 1.2];
   const offsets = [8, -8, 10, -3];
   const widths = ["92%", "88%", "95%", "91%"];
@@ -152,20 +159,22 @@ function FolklorePanel() {
 
       <div className="relative flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-vermillion-glow">
         <span aria-hidden className="h-px w-9 bg-vermillion-glow/70" />
-        Folklore claims
+        {t("folklore_label")}
       </div>
 
       <h3 className="relative mt-7 max-w-[34rem] font-serif text-[3.15rem] font-normal leading-[0.98] tracking-normal text-paper md:text-[4rem] lg:text-[3.7rem]">
-        <span className="serif-italic text-[1.1em] text-vermillion">Advice</span>{" "}
-        repeated
-        <br />
-        until it sounds true.
+        {t.rich("folklore_heading", {
+          br: () => <br />,
+          emph: (chunks) => (
+            <span className="serif-italic text-[1.1em] text-vermillion">{chunks}</span>
+          ),
+        })}
       </h3>
 
       <ul className="relative mt-10 flex flex-1 flex-col gap-6 md:mt-11 md:gap-7">
-        {FOLKLORE_CLAIMS.map((claim, i) => (
+        {FOLKLORE_CLAIM_KEYS.map((key, i) => (
           <li
-            key={claim}
+            key={key}
             className="relative border border-vermillion/24 px-6 py-5 shadow-[0_20px_36px_-24px_rgba(214,58,0,0.58),0_4px_16px_-10px_rgba(214,58,0,0.36),inset_0_1px_0_rgba(255,255,255,0.82)] backdrop-blur-[1px]"
             style={{
               width: widths[i % widths.length],
@@ -183,7 +192,7 @@ function FolklorePanel() {
               </span>
               <div className="relative min-w-0 flex-1 py-1.5">
                 <span className="block font-serif text-[1.22rem] italic leading-[1.16] tracking-normal text-paper md:text-[1.43rem]">
-                  {claim}
+                  {t(`folklore_claims.${key}`)}
                 </span>
                 <UnderlineMark index={i} />
               </div>
@@ -226,7 +235,8 @@ function UnderlineMark({ index }: { index: number }) {
 // CENTER · FLOW PILLAR
 // ─────────────────────────────────────────────────────────────
 
-function CenterFlow() {
+async function CenterFlow() {
+  const t = await getTranslations("vs_folklore");
   return (
     <div className="relative hidden flex-col items-center justify-between py-6 lg:flex">
       {/* dotted vertical line — vermillion top, fades to moss bottom */}
@@ -257,7 +267,7 @@ function CenterFlow() {
 
       {/* 13 signals scanned */}
       <FlowPill icon={<Activity size={11} className="text-vermillion-glow" strokeWidth={2.4} />}>
-        <span className="font-sans text-[12.5px] text-paper">13 signals scanned</span>
+        <span className="font-sans text-[12.5px] text-paper">{t("center_signals_scanned")}</span>
       </FlowPill>
 
       {/* 0 folklore matches */}
@@ -266,9 +276,9 @@ function CenterFlow() {
           0
         </span>
         <span className="font-sans text-[12.5px] leading-tight text-paper">
-          folklore
-          <br />
-          matches
+          {t.rich("center_folklore_label", {
+            br: () => <br />,
+          })}
         </span>
       </div>
 
@@ -319,7 +329,7 @@ function CenterFlow() {
         tone="moss"
         icon={<CheckCircle2 size={12} className="text-moss" strokeWidth={2.6} />}
       >
-        <span className="font-sans text-[12.5px] text-paper">Source verified</span>
+        <span className="font-sans text-[12.5px] text-paper">{t("center_source_verified")}</span>
       </FlowPill>
     </div>
   );
@@ -350,7 +360,8 @@ function FlowPill({
 // RIGHT · REPO-GROUNDED
 // ─────────────────────────────────────────────────────────────
 
-function RepoPanel() {
+async function RepoPanel() {
+  const t = await getTranslations("vs_folklore");
   return (
     <article className="relative overflow-hidden rounded-[20px] border border-moss/30 bg-ink-900/70 px-6 py-7 shadow-[0_24px_60px_-36px_rgba(93,143,77,0.25),inset_0_1px_0_rgba(255,255,255,0.05)] md:px-8 md:py-8">
       {/* HEADER */}
@@ -359,7 +370,7 @@ function RepoPanel() {
           <span className="flex h-6 w-6 items-center justify-center rounded-md border border-moss/35 bg-moss/[0.10]">
             <ShieldCheck size={12} strokeWidth={2.4} />
           </span>
-          Repo-grounded
+          {t("repo_label")}
         </div>
         <a
           href={REPO_URL}
@@ -368,7 +379,7 @@ function RepoPanel() {
           className="group inline-flex items-center gap-1.5 rounded-lg border border-ink-700 bg-ink-950/60 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-300 transition-colors hover:border-moss/45 hover:bg-moss/[0.06] hover:text-moss"
         >
           <Github size={11} strokeWidth={2.2} />
-          GitHub
+          {t("repo_link_github")}
           <ArrowUpRight
             size={10}
             strokeWidth={2.4}
@@ -378,11 +389,10 @@ function RepoPanel() {
       </header>
 
       <h3 className="mt-5 font-sans text-[1.65rem] font-medium leading-[1.14] tracking-tight text-paper md:text-[1.85rem]">
-        letxcook signal map
+        {t("repo_heading")}
       </h3>
       <p className="mt-3 max-w-md text-[13.5px] leading-relaxed text-ink-300">
-        Recommendations are tied to the prediction labels the open-source ranker
-        optimizes for.
+        {t("repo_intro")}
       </p>
 
       {/* STAT CARDS */}
@@ -391,13 +401,13 @@ function RepoPanel() {
           icon={<Target size={15} strokeWidth={2.4} className="text-moss" />}
           tone="moss"
           count={REPO_POSITIVE.length}
-          label="Rewarded targets"
+          label={t("repo_stat_rewarded")}
         />
         <StatCard
           icon={<AlertTriangle size={15} strokeWidth={2.4} className="text-vermillion" />}
           tone="vermillion"
           count={REPO_NEGATIVE.length}
-          label="Penalty targets"
+          label={t("repo_stat_penalty")}
         />
       </div>
 
@@ -405,7 +415,7 @@ function RepoPanel() {
       <div className="mt-6">
         <div className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-moss">
           <ThumbsUp size={12} strokeWidth={2.4} />
-          Positive signals
+          {t("repo_positive_label")}
         </div>
         <div className="flex flex-wrap gap-1.5">
           {REPO_POSITIVE.map((sig) => (
@@ -426,7 +436,7 @@ function RepoPanel() {
       <div className="mt-5">
         <div className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion">
           <MinusCircle size={12} strokeWidth={2.4} />
-          Negative signals
+          {t("repo_negative_label")}
         </div>
         <div className="flex flex-wrap gap-1.5">
           {REPO_NEGATIVE.map((sig) => (
@@ -447,24 +457,24 @@ function RepoPanel() {
       <div className="mt-6 border-t border-ink-700/60 pt-5">
         <div className="mb-4 flex items-center gap-2 text-[12.5px] text-ink-200">
           <CheckCircle2 size={13} strokeWidth={2.4} className="text-moss" />
-          Verified from{" "}
+          {t("verified_from_prefix")}{" "}
           <code className="font-mono text-paper">xai-org/x-algorithm</code>
         </div>
         <div className="flex items-start justify-between gap-1">
-          {VERIFICATION_TRAIL.map((step, i) => (
-            <div key={step.step} className="flex flex-1 items-start gap-1">
+          {VERIFICATION_TRAIL_KEYS.map(({ step, key }, i) => (
+            <div key={step} className="flex flex-1 items-start gap-1">
               <div className="min-w-0 flex-1 text-center">
                 <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-moss/40 bg-moss/[0.08] font-mono text-[12px] font-semibold text-moss">
-                  {step.step}
+                  {step}
                 </span>
                 <div className="mt-1.5 font-sans text-[12px] font-semibold leading-tight text-paper">
-                  {step.label}
+                  {t(`${key}_label`)}
                 </div>
                 <div className="mt-0.5 text-[10.5px] leading-snug text-ink-400">
-                  {step.detail}
+                  {t(`${key}_detail`)}
                 </div>
               </div>
-              {i < VERIFICATION_TRAIL.length - 1 && (
+              {i < VERIFICATION_TRAIL_KEYS.length - 1 && (
                 <ArrowRight
                   size={12}
                   strokeWidth={2.2}

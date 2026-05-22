@@ -15,44 +15,48 @@ import {
   Flag,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-const POSITIVE: { name: string; Icon: LucideIcon }[] = [
-  { name: "Like", Icon: Heart },
-  { name: "Reply", Icon: MessageCircle },
-  { name: "Repost", Icon: Repeat2 },
-  { name: "Quote", Icon: Quote },
-  { name: "Click", Icon: MousePointerClick },
-  { name: "Profile click", Icon: UserRound },
-  { name: "Photo expand", Icon: ImageIcon },
-  { name: "Video view", Icon: PlayCircle },
-  { name: "Dwell", Icon: Timer },
-  { name: "Follow", Icon: UserPlus },
+const POSITIVE: { key: string; Icon: LucideIcon }[] = [
+  { key: "like", Icon: Heart },
+  { key: "reply", Icon: MessageCircle },
+  { key: "repost", Icon: Repeat2 },
+  { key: "quote", Icon: Quote },
+  { key: "click", Icon: MousePointerClick },
+  { key: "profile_click", Icon: UserRound },
+  { key: "photo_expand", Icon: ImageIcon },
+  { key: "video_view", Icon: PlayCircle },
+  { key: "dwell", Icon: Timer },
+  { key: "follow", Icon: UserPlus },
 ];
 
-const NEGATIVE: { name: string; Icon: LucideIcon }[] = [
-  { name: "Not interested", Icon: EyeOff },
-  { name: "Block", Icon: Ban },
-  { name: "Mute", Icon: VolumeX },
-  { name: "Report", Icon: Flag },
+const NEGATIVE: { key: string; Icon: LucideIcon }[] = [
+  { key: "not_interested", Icon: EyeOff },
+  { key: "block", Icon: Ban },
+  { key: "mute", Icon: VolumeX },
+  { key: "report", Icon: Flag },
 ];
 
-export function SignalsStrip() {
+export async function SignalsStrip() {
+  const t = await getTranslations("signals_strip");
   return (
     <section id="signals" className="relative border-t border-ink-700/60">
       <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 md:py-28">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_2fr] lg:gap-20">
           <div>
-            <SectionEyebrow>The 13 signals</SectionEyebrow>
+            <SectionEyebrow>{t("eyebrow")}</SectionEyebrow>
             <h2 className="mt-4 font-sans text-display-md font-medium text-paper">
-              13 signals.<br />One <span className="serif-italic">verdict</span>.
+              {t.rich("heading", {
+                br: () => <br />,
+                emph: (chunks) => <span className="serif-italic">{chunks}</span>,
+              })}
             </h2>
             <p className="mt-6 max-w-md text-[15px] leading-relaxed text-ink-200">
-              Every draft is scored against the engagement actions X&apos;s open-source ranker
-              explicitly tries to predict. Ten the algorithm rewards. Four it punishes.
+              {t("intro")}
             </p>
             <div className="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
               <span className="h-px w-6 bg-ink-600" />
-              Source: xai-org/x-algorithm
+              {t("source")}
             </div>
           </div>
 
@@ -61,11 +65,16 @@ export function SignalsStrip() {
             <div>
               <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-moss">
                 <span className="h-1.5 w-1.5 rounded-full bg-moss" />
-                Rewarded — 10
+                {t("rewarded_label")}
               </div>
               <div className="flex flex-wrap gap-2">
-                {POSITIVE.map(({ name, Icon }) => (
-                  <SignalChip key={name} name={name} Icon={Icon} tone="positive" />
+                {POSITIVE.map(({ key, Icon }) => (
+                  <SignalChip
+                    key={key}
+                    name={t(`positive_signals.${key}`)}
+                    Icon={Icon}
+                    tone="positive"
+                  />
                 ))}
               </div>
             </div>
@@ -74,11 +83,16 @@ export function SignalsStrip() {
             <div>
               <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-rust">
                 <span className="h-1.5 w-1.5 rounded-full bg-rust" />
-                Punished — 4
+                {t("punished_label")}
               </div>
               <div className="flex flex-wrap gap-2">
-                {NEGATIVE.map(({ name, Icon }) => (
-                  <SignalChip key={name} name={name} Icon={Icon} tone="negative" />
+                {NEGATIVE.map(({ key, Icon }) => (
+                  <SignalChip
+                    key={key}
+                    name={t(`negative_signals.${key}`)}
+                    Icon={Icon}
+                    tone="negative"
+                  />
                 ))}
               </div>
             </div>

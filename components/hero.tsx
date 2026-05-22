@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { HandwrittenUnderline } from "./handwritten-underline";
 import { HeroCompareMobile } from "./hero-compare-mobile";
 import { HeroTrajectory } from "./hero-trajectory";
@@ -6,7 +7,8 @@ import { Button } from "./ui/button";
 import { SAMPLE_DRAFT, SAMPLE_RESULT } from "@/lib/sample-data";
 import { computeScore } from "@/lib/score";
 
-export function Hero() {
+export async function Hero() {
+  const t = await getTranslations("hero");
   const primary =
     SAMPLE_RESULT.rewrites.find((r) => r.is_primary) ?? SAMPLE_RESULT.rewrites[0];
   const currentScore = computeScore(SAMPLE_RESULT);
@@ -19,47 +21,49 @@ export function Hero() {
         <div className="stagger flex flex-col items-center gap-4 text-center md:gap-5">
           {/* headline — compressed to ~60px so the comparison card stays in view */}
           <h1 className="font-sans font-medium leading-[1.04] tracking-[-0.035em] text-paper text-[clamp(2rem,4.4vw,3.75rem)]">
-            <span className="block">Paste your X draft.</span>
+            <span className="block">{t("headline_line1")}</span>
             <span className="block">
-              See if the{" "}
-              <span className="relative inline-block">
-                <span className="serif-italic text-paper">algorithm</span>
-                <HandwrittenUnderline className="absolute -bottom-2 left-0 h-[14px] w-full md:-bottom-2.5 md:h-[18px]" />
-              </span>{" "}
-              will care.
+              {t.rich("headline_line2", {
+                emph: (chunks) => (
+                  <span className="relative inline-block">
+                    <span className="serif-italic text-paper">{chunks}</span>
+                    <HandwrittenUnderline className="absolute -bottom-2 left-0 h-[14px] w-full md:-bottom-2.5 md:h-[18px]" />
+                  </span>
+                ),
+              })}
             </span>
           </h1>
 
           {/* subhead */}
           <p className="max-w-xl text-balance text-[13.5px] leading-relaxed text-ink-200 md:text-[15px]">
-            Drop your tweet, thread, or screenshot. We score it across{" "}
-            <span className="text-paper">13 engagement signals</span>, predict how it&apos;ll
-            perform, and rewrite it stronger in under 30 seconds.
+            {t.rich("subhead", {
+              strong: (chunks) => <span className="text-paper">{chunks}</span>,
+            })}
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
             <a href="#analyze">
               <Button variant="primary" className="text-[14px]">
-                <span>Grade my post — free</span>
+                <span>{t("cta_primary")}</span>
                 <SparkIcon />
               </Button>
             </a>
             <a href="#sample">
               <Button variant="outline" className="text-[14px]">
                 <PlayIcon />
-                <span>See a sample</span>
+                <span>{t("cta_secondary")}</span>
               </Button>
             </a>
           </div>
 
           {/* trust microline */}
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-ink-300">
-            <TrustItem>No signup</TrustItem>
+            <TrustItem>{t("trust_no_signup")}</TrustItem>
             <span className="text-ink-600">·</span>
-            <TrustItem>Drafts never stored</TrustItem>
+            <TrustItem>{t("trust_no_storage")}</TrustItem>
             <span className="text-ink-600">·</span>
-            <TrustItem>Free</TrustItem>
+            <TrustItem>{t("trust_free")}</TrustItem>
           </div>
         </div>
 

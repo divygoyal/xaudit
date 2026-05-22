@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, Hanken_Grotesk, JetBrains_Mono, Caveat } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -121,7 +123,16 @@ const organizationJsonLd = {
     "Grade your X drafts against the 13 engagement signals X's open-source ranker tries to predict — and rewrite them stronger.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Load the active locale's message catalogue at render time. Without
+  // next-intl middleware in place yet (we removed it during Phase 0 to
+  // sidestep the [locale]/[username] slug collision), `requestLocale`
+  // resolves to undefined and i18n/request.ts falls through to the
+  // default locale ("en"). When per-locale static folders ship in
+  // Phase 1, each /app/<locale>/layout.tsx will call setRequestLocale()
+  // itself and override this default.
+  const messages = await getMessages();
+
   return (
     <html
       lang="en"
@@ -142,23 +153,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-ink-950 text-paper antialiased font-sans selection:bg-vermillion selection:text-ink-950">
-        <div className="relative isolate min-h-screen overflow-x-hidden">
-          {/* fine newsprint grain — blend mode switches per theme */}
-          <div
-            aria-hidden
-            className="pointer-events-none fixed inset-0 z-[60] grain-overlay"
-            style={{
-              backgroundImage:
-                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-            }}
-          />
-          {/* warm top vignette — color tuned per theme via CSS var */}
-          <div
-            aria-hidden
-            className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[600px] bg-vignette-top"
-          />
-          {children}
-        </div>
+        <NextIntlClientProvider messages={messages}>
+          <div className="relative isolate min-h-screen overflow-x-hidden">
+            {/* fine newsprint grain — blend mode switches per theme */}
+            <div
+              aria-hidden
+              className="pointer-events-none fixed inset-0 z-[60] grain-overlay"
+              style={{
+                backgroundImage:
+                  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+              }}
+            />
+            {/* warm top vignette — color tuned per theme via CSS var */}
+            <div
+              aria-hidden
+              className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[600px] bg-vignette-top"
+            />
+            {children}
+          </div>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

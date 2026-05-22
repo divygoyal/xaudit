@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Button } from "./ui/button";
 import { HandwrittenUnderline } from "./handwritten-underline";
 
-export function BottomCTA() {
+export async function BottomCTA() {
+  const t = await getTranslations("bottom_cta");
   return (
     <section className="relative border-t border-ink-700/60">
       <div className="relative mx-auto max-w-5xl px-6 py-24 text-center md:px-10 md:py-36">
@@ -12,37 +14,36 @@ export function BottomCTA() {
         />
 
         <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-vermillion-glow">
-          One more thing
+          {t("eyebrow")}
         </div>
         <h2 className="mt-5 font-sans text-display-lg font-medium text-paper">
-          Stop guessing.<br />
+          {t("heading_prefix")}<br />
           <span className="relative inline-block">
-            <span className="serif-italic">Know</span>
+            <span className="serif-italic">{t("heading_emphasis")}</span>
             <HandwrittenUnderline className="absolute -bottom-2 left-0 h-3 w-full md:-bottom-3 md:h-4" />
           </span>{" "}
-          first.
+          {t("heading_suffix")}
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-balance text-[15px] leading-relaxed text-ink-200">
-          Paste your next draft. Get a verdict in 30 seconds. Ship the rewrite that hits the
-          signals X&apos;s ranker actually predicts.
+          {t("body")}
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
           <a href="#analyze">
             <Button variant="primary" className="px-7 py-4 text-[15px]">
-              Grade my post — free
+              {t("cta_primary")}
               <span>→</span>
             </Button>
           </a>
           <Link href="https://github.com/xai-org/x-algorithm" target="_blank">
             <Button variant="ghost" className="px-5 py-4 text-[14px]">
-              Read the source repo ↗
+              {t("cta_secondary")}
             </Button>
           </Link>
         </div>
 
         <div className="mt-8 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">
-          No signup · Drafts never stored · Free
+          {t("trust_line")}
         </div>
       </div>
     </section>

@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export async function Navbar() {
   const supabase = getSupabaseServer();
+  const t = await getTranslations("navbar");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -24,10 +26,10 @@ export async function Navbar() {
       </Link>
 
       <div className="hidden items-center gap-9 text-sm text-ink-200 md:flex">
-        <a href="/#signals" className="transition-colors hover:text-paper">Signals</a>
-        <a href="/#sample" className="transition-colors hover:text-paper">Sample</a>
-        <a href="/#how" className="transition-colors hover:text-paper">How it works</a>
-        <a href="/#faq" className="transition-colors hover:text-paper">FAQ</a>
+        <a href="/#signals" className="transition-colors hover:text-paper">{t("link_signals")}</a>
+        <a href="/#sample" className="transition-colors hover:text-paper">{t("link_sample")}</a>
+        <a href="/#how" className="transition-colors hover:text-paper">{t("link_how")}</a>
+        <a href="/#faq" className="transition-colors hover:text-paper">{t("link_faq")}</a>
       </div>
 
       <div className="flex items-center gap-3">
@@ -38,7 +40,7 @@ export async function Navbar() {
               href="/dashboard"
               className="hidden items-center rounded-full border border-ink-700 bg-ink-900/70 px-4 py-2 text-sm text-paper backdrop-blur transition-all hover:border-vermillion hover:bg-ink-800 md:inline-flex"
             >
-              Dashboard
+              {t("btn_dashboard")}
             </Link>
             <UserMenu email={user.email} />
           </>
@@ -47,7 +49,7 @@ export async function Navbar() {
             href="/login"
             className="group inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-900/70 px-4 py-2 text-sm text-paper backdrop-blur transition-all hover:border-vermillion hover:bg-ink-800"
           >
-            Sign in
+            {t("btn_signin")}
             <span className="transition-transform group-hover:translate-x-0.5">→</span>
           </Link>
         )}

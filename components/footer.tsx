@@ -1,4 +1,7 @@
-export function Footer() {
+import { getTranslations } from "next-intl/server";
+
+export async function Footer() {
+  const t = await getTranslations("footer");
   return (
     <footer className="border-t border-ink-700/60">
       <div className="mx-auto max-w-7xl px-6 py-12 md:px-10">
@@ -16,7 +19,7 @@ export function Footer() {
               />
               <span className="serif-italic text-[1.6rem] leading-none tracking-tight">cook</span>
             </span>
-            <span className="text-xs text-ink-400">© 2026</span>
+            <span className="text-xs text-ink-400">{t("copyright")}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-sm text-ink-300">
@@ -28,17 +31,15 @@ export function Footer() {
             >
               xai-org/x-algorithm ↗
             </a>
-            <a href="#faq" className="transition-colors hover:text-paper">FAQ</a>
-            <a href="/privacy" className="transition-colors hover:text-paper">Privacy</a>
-            <a href="/terms" className="transition-colors hover:text-paper">Terms</a>
-            <a href="mailto:letxcook@gmail.com" className="transition-colors hover:text-paper">Contact</a>
+            <a href="#faq" className="transition-colors hover:text-paper">{t("link_faq")}</a>
+            <a href="/privacy" className="transition-colors hover:text-paper">{t("link_privacy")}</a>
+            <a href="/terms" className="transition-colors hover:text-paper">{t("link_terms")}</a>
+            <a href="mailto:letxcook@gmail.com" className="transition-colors hover:text-paper">{t("link_contact")}</a>
           </div>
         </div>
 
         <p className="mt-8 max-w-3xl text-xs leading-relaxed text-ink-400">
-          letxcook grades drafts using only the engagement signals documented in X&apos;s open-source ranking
-          repository. Numeric weights and the production model are proprietary and not used. This is a
-          coaching tool — no result guarantees reach.
+          {t("disclaimer")}
         </p>
       </div>
     </footer>
