@@ -100,7 +100,7 @@
 
   "signals_strip": {
     "eyebrow": "The 13 signals",
-    "heading": "13 signals.<br/>One <emph>verdict</emph>.",
+    "heading": "13 signals.<br></br>One <emph>verdict</emph>.",
     "intro": "Every draft is scored against the engagement actions X's open-source ranker explicitly tries to predict. Ten the algorithm rewards. Four it punishes.",
     "source": "Source: xai-org/x-algorithm",
     "rewarded_label": "Rewarded — 10",
@@ -130,7 +130,7 @@
     "heading": "Most tweet tools <emph>guess</emph>. We don't.",
     "intro": "letxcook reads the same engagement signals from X's open-source ranker, so every recommendation is <strong>verifiable</strong>.",
     "folklore_label": "Folklore claims",
-    "folklore_heading": "<emph>Advice</emph> repeated<br/>until it sounds true.",
+    "folklore_heading": "<emph>Advice</emph> repeated<br></br>until it sounds true.",
     "folklore_claims": {
       "post_time": "Post at 9am for maximum reach",
       "hashtags": "Use exactly 2 hashtags",
@@ -138,7 +138,7 @@
       "end_question": "Always end with a question"
     },
     "center_signals_scanned": "13 signals scanned",
-    "center_folklore_label": "folklore<br/>matches",
+    "center_folklore_label": "folklore<br></br>matches",
     "center_source_verified": "Source verified",
     "repo_label": "Repo-grounded",
     "repo_link_github": "GitHub",
@@ -156,7 +156,21 @@
     "trail_step3_label": "Advice",
     "trail_step3_detail": "Built from those targets",
     "tagline_lead": "Same draft. Same day. Different advice.",
-    "tagline_emphasis": "Only one is grounded."
+    "tagline_emphasis": "Only one is grounded.",
+    "repo_chip_like": "Like",
+    "repo_chip_reply": "Reply",
+    "repo_chip_repost": "Repost",
+    "repo_chip_quote_tweet": "Quote",
+    "repo_chip_click": "Click",
+    "repo_chip_profile_click": "Profile click",
+    "repo_chip_photo_expand": "Photo expand",
+    "repo_chip_video_view": "Video view",
+    "repo_chip_dwell": "Dwell",
+    "repo_chip_follow": "Follow",
+    "repo_chip_not_interested": "Not interested",
+    "repo_chip_block": "Block",
+    "repo_chip_mute": "Mute",
+    "repo_chip_report": "Report"
   },
 
   "analyze_panel": {
@@ -231,7 +245,21 @@
     "desc_not_interested": "Checking not-interested risk.",
     "desc_bookmark": "Checking block-trigger risk.",
     "desc_share": "Checking mute risk.",
-    "desc_report": "Checking policy / spam risk."
+    "desc_report": "Checking policy / spam risk.",
+    "label_like": "Like",
+    "label_reply": "Reply",
+    "label_repost": "Repost",
+    "label_quote": "Quote",
+    "label_follow": "Follow",
+    "label_profile_click": "Profile Click",
+    "label_click": "Link Click",
+    "label_video_view": "Video View",
+    "label_photo_expand": "Image View",
+    "label_dwell": "Dwell Time",
+    "label_not_interested": "Expand",
+    "label_bookmark": "Bookmark",
+    "label_share": "Share",
+    "label_report": "Report Risk"
   },
 
   "annotated_draft": {

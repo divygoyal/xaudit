@@ -93,28 +93,28 @@
   },
   "signals_strip": {
     "eyebrow": "13のシグナル",
-    "heading": "13のシグナル。<br/>1つの<emph>判定</emph>。",
+    "heading": "13のシグナル。<br></br>1つの<emph>判定</emph>。",
     "intro": "すべての下書きは、Xのオープンソースアルゴリズムが明確に予測しようとするエンゲージメントアクションに基づいてスコアリングされます。10項目がプラス評価、4項目がマイナス評価となります。",
     "source": "ソース: xai-org/x-algorithm",
     "rewarded_label": "プラス評価 — 10",
     "punished_label": "マイナス評価 — 4",
     "positive_signals": {
-      "like": "Like",
-      "reply": "Reply",
-      "repost": "Repost",
-      "quote": "Quote",
-      "click": "Click",
-      "profile_click": "Profile click",
-      "photo_expand": "Photo expand",
-      "video_view": "Video view",
-      "dwell": "Dwell",
-      "follow": "Follow"
+      "like": "いいね",
+      "reply": "返信",
+      "repost": "リポスト",
+      "quote": "引用",
+      "click": "クリック",
+      "profile_click": "プロフィールクリック",
+      "photo_expand": "画像表示",
+      "video_view": "動画再生",
+      "dwell": "滞在時間",
+      "follow": "フォロー"
     },
     "negative_signals": {
-      "not_interested": "Not interested",
-      "block": "Block",
-      "mute": "Mute",
-      "report": "Report"
+      "not_interested": "興味なし",
+      "block": "ブロック",
+      "mute": "ミュート",
+      "report": "報告"
     }
   },
   "vs_folklore": {
@@ -122,7 +122,7 @@
     "heading": "多くのツールは<emph>推測</emph>で語る。私たちは違う。",
     "intro": "letxcookは、Xのオープンソースアルゴリズムと同じエンゲージメントシグナルを読み取ります。そのため、すべてのアドバイスは<strong>検証可能</strong>です。",
     "folklore_label": "都市伝説",
-    "folklore_heading": "真実のように語り継がれる<br/><emph>アドバイス</emph>。",
+    "folklore_heading": "真実のように語り継がれる<br></br><emph>アドバイス</emph>。",
     "folklore_claims": {
       "post_time": "リーチを最大化するには午前9時に投稿する",
       "hashtags": "ハッシュタグは正確に2つ使う",
@@ -130,7 +130,7 @@
       "end_question": "常に質問で締めくくる"
     },
     "center_signals_scanned": "13のシグナルをスキャン",
-    "center_folklore_label": "都市伝説との<br/>一致",
+    "center_folklore_label": "都市伝説との<br></br>一致",
     "center_source_verified": "ソース検証済み",
     "repo_label": "リポジトリに基づく",
     "repo_link_github": "GitHub",
@@ -148,7 +148,21 @@
     "trail_step3_label": "アドバイス",
     "trail_step3_detail": "ターゲットに基づいて構築",
     "tagline_lead": "同じ下書き。同じ日。異なるアドバイス。",
-    "tagline_emphasis": "根拠があるのは、1つだけ。"
+    "tagline_emphasis": "根拠があるのは、1つだけ。",
+    "repo_chip_like": "いいね",
+    "repo_chip_reply": "返信",
+    "repo_chip_repost": "リポスト",
+    "repo_chip_quote_tweet": "引用",
+    "repo_chip_click": "クリック",
+    "repo_chip_profile_click": "プロフィールクリック",
+    "repo_chip_photo_expand": "画像表示",
+    "repo_chip_video_view": "動画再生",
+    "repo_chip_dwell": "滞在時間",
+    "repo_chip_follow": "フォロー",
+    "repo_chip_not_interested": "興味なし",
+    "repo_chip_block": "ブロック",
+    "repo_chip_mute": "ミュート",
+    "repo_chip_report": "報告"
   },
   "analyze_panel": {
     "url_trick_label": "URLトリック",
@@ -221,7 +235,21 @@
     "desc_not_interested": "「興味がない」と思われるリスクを確認。",
     "desc_bookmark": "ブロックを誘発するリスクを確認。",
     "desc_share": "ミュートされるリスクを確認。",
-    "desc_report": "ポリシー違反 / スパムのリスクを確認。"
+    "desc_report": "ポリシー違反 / スパムのリスクを確認。",
+    "label_like": "いいね",
+    "label_reply": "返信",
+    "label_repost": "リポスト",
+    "label_quote": "引用",
+    "label_follow": "フォロー",
+    "label_profile_click": "プロフィールクリック",
+    "label_click": "リンククリック",
+    "label_video_view": "動画再生",
+    "label_photo_expand": "画像表示",
+    "label_dwell": "滞在時間",
+    "label_not_interested": "興味なし",
+    "label_bookmark": "ブックマーク",
+    "label_share": "シェア",
+    "label_report": "報告"
   },
   "annotated_draft": {
     "eyebrow": "下書きのマークアップ",

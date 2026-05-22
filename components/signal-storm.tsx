@@ -26,31 +26,32 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-/** Signal label/kind/icon. `descKey` maps to messages.signal_storm.<key>
- *  for the per-signal description line in the active-card. Labels stay
- *  English by design (they match X's own product labels and are part of
- *  the brand glossary). */
+/** Signal kind/icon. `descKey` and `labelKey` map to messages.signal_storm.*
+ *  for the per-signal description line in the active card and the chip
+ *  label respectively. Translating labels per locale (so JP visitors see
+ *  いいね/返信/リポスト instead of "Like/Reply/Repost") matches X's own
+ *  product labeling in each market. */
 const SIGNALS: {
   id: string;
-  label: string;
+  labelKey: string;
   kind: "rewarded" | "punished";
   descKey: string;
   Icon: LucideIcon;
 }[] = [
-  { id: "like", label: "Like", kind: "rewarded", descKey: "desc_like", Icon: Heart },
-  { id: "reply", label: "Reply", kind: "rewarded", descKey: "desc_reply", Icon: MessageCircle },
-  { id: "repost", label: "Repost", kind: "rewarded", descKey: "desc_repost", Icon: Repeat2 },
-  { id: "quote", label: "Quote", kind: "rewarded", descKey: "desc_quote", Icon: Quote },
-  { id: "follow", label: "Follow", kind: "rewarded", descKey: "desc_follow", Icon: UserPlus },
-  { id: "profile-click", label: "Profile Click", kind: "rewarded", descKey: "desc_profile_click", Icon: UserRound },
-  { id: "click", label: "Link Click", kind: "rewarded", descKey: "desc_click", Icon: MousePointerClick },
-  { id: "video-view", label: "Video View", kind: "rewarded", descKey: "desc_video_view", Icon: PlayCircle },
-  { id: "photo-expand", label: "Image View", kind: "rewarded", descKey: "desc_photo_expand", Icon: ImageIcon },
-  { id: "dwell", label: "Dwell Time", kind: "rewarded", descKey: "desc_dwell", Icon: Timer },
-  { id: "not-interested", label: "Expand", kind: "punished", descKey: "desc_not_interested", Icon: EyeOff },
-  { id: "bookmark", label: "Bookmark", kind: "punished", descKey: "desc_bookmark", Icon: Ban },
-  { id: "share", label: "Share", kind: "punished", descKey: "desc_share", Icon: VolumeX },
-  { id: "report", label: "Report Risk", kind: "punished", descKey: "desc_report", Icon: Flag },
+  { id: "like", labelKey: "label_like", kind: "rewarded", descKey: "desc_like", Icon: Heart },
+  { id: "reply", labelKey: "label_reply", kind: "rewarded", descKey: "desc_reply", Icon: MessageCircle },
+  { id: "repost", labelKey: "label_repost", kind: "rewarded", descKey: "desc_repost", Icon: Repeat2 },
+  { id: "quote", labelKey: "label_quote", kind: "rewarded", descKey: "desc_quote", Icon: Quote },
+  { id: "follow", labelKey: "label_follow", kind: "rewarded", descKey: "desc_follow", Icon: UserPlus },
+  { id: "profile-click", labelKey: "label_profile_click", kind: "rewarded", descKey: "desc_profile_click", Icon: UserRound },
+  { id: "click", labelKey: "label_click", kind: "rewarded", descKey: "desc_click", Icon: MousePointerClick },
+  { id: "video-view", labelKey: "label_video_view", kind: "rewarded", descKey: "desc_video_view", Icon: PlayCircle },
+  { id: "photo-expand", labelKey: "label_photo_expand", kind: "rewarded", descKey: "desc_photo_expand", Icon: ImageIcon },
+  { id: "dwell", labelKey: "label_dwell", kind: "rewarded", descKey: "desc_dwell", Icon: Timer },
+  { id: "not-interested", labelKey: "label_not_interested", kind: "punished", descKey: "desc_not_interested", Icon: EyeOff },
+  { id: "bookmark", labelKey: "label_bookmark", kind: "punished", descKey: "desc_bookmark", Icon: Ban },
+  { id: "share", labelKey: "label_share", kind: "punished", descKey: "desc_share", Icon: VolumeX },
+  { id: "report", labelKey: "label_report", kind: "punished", descKey: "desc_report", Icon: Flag },
 ];
 
 const SIGNAL_DURATION_MS = 2000;
@@ -307,7 +308,7 @@ function ProcessingEngine({
               } ${isActive ? "is-active" : ""}`}
             >
               <ChipIcon size={11} strokeWidth={2.2} />
-              {signal.label}
+              {t(signal.labelKey)}
             </div>
           );
         })}
@@ -321,7 +322,7 @@ function ProcessingEngine({
         <div className="signal-engine-active-body">
           <div className="signal-engine-active-head">
             <span className="signal-engine-active-name">
-              {current.label.toUpperCase()}
+              {t(current.labelKey).toUpperCase()}
             </span>
             <span
               className={`signal-engine-active-pill signal-engine-active-pill-${current.kind}`}

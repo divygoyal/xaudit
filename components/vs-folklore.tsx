@@ -426,7 +426,7 @@ async function RepoPanel() {
               rel="noopener noreferrer"
               className="rounded-md border border-moss/25 bg-moss/[0.06] px-2.5 py-1 font-mono text-[11.5px] text-moss transition-all hover:-translate-y-px hover:border-moss/55 hover:bg-moss/[0.12]"
             >
-              {sig}
+              {t(`repo_chip_${sig}`)}
             </a>
           ))}
         </div>
@@ -447,7 +447,7 @@ async function RepoPanel() {
               rel="noopener noreferrer"
               className="rounded-md border border-vermillion/30 bg-vermillion/[0.05] px-2.5 py-1 font-mono text-[11.5px] text-vermillion transition-all hover:-translate-y-px hover:border-vermillion/55 hover:bg-vermillion/[0.10]"
             >
-              {sig}
+              {t(`repo_chip_${sig}`)}
             </a>
           ))}
         </div>
