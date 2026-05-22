@@ -1,0 +1,6 @@
+{
+  "_meta": {
+    "locale": "en",
+    "note": "Phase 0 placeholder. String extraction happens in Phase 0b — components currently still render hardcoded English. This file exists so the request-config import resolves and the i18n plumbing is wired end-to-end before we touch every component."
+  }
+}

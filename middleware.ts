@@ -21,7 +21,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip static assets, image optimization, and common static file types.
-    "/((?!_next/static|_next/image|favicon.ico|fonts/|videos/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|otf|ttf|woff2?)$).*)",
+    // Skip static assets, image optimization, and common static file
+    // types. Also skip .html/.xml/.txt so search-engine verification
+    // files (yandex_*.html), and the metadata routes (/sitemap.xml,
+    // /robots.txt) bypass middleware entirely for fastest serving.
+    "/((?!_next/static|_next/image|favicon.ico|fonts/|videos/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|otf|ttf|woff2?|html|xml|txt)$).*)",
   ],
 };
