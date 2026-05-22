@@ -4,12 +4,12 @@ import { DEFAULT_LOCALE } from "@/i18n/config";
 export async function Footer() {
   const t = await getTranslations("footer");
   const locale = await getLocale();
-  // Same anchor-prefix trick as the navbar so footer #faq scrolls to
-  // the FAQ on whichever locale-homepage the user is on, instead of
-  // bouncing to the English homepage. Privacy/Terms intentionally stay
-  // unprefixed — there are no /ja-jp/privacy or /ja-jp/terms pages, so
-  // we link to the English legal pages from every locale's footer.
-  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+  // Same anchor-prefix trick as the navbar — NO extra slash between
+  // the locale segment and `#` so /ja-jp#faq stays an in-page scroll
+  // instead of a full reload. Privacy/Terms intentionally stay
+  // unprefixed — there are no /ja-jp/privacy or /ja-jp/terms pages,
+  // so we link to the English legal pages from every locale's footer.
+  const homePath = locale === DEFAULT_LOCALE ? "/" : `/${locale}`;
   return (
     <footer className="border-t border-ink-700/60">
       <div className="mx-auto max-w-7xl px-6 py-12 md:px-10">
@@ -39,7 +39,7 @@ export async function Footer() {
             >
               xai-org/x-algorithm ↗
             </a>
-            <a href={`${localePrefix}/#faq`} className="transition-colors hover:text-paper">{t("link_faq")}</a>
+            <a href={`${homePath}#faq`} className="transition-colors hover:text-paper">{t("link_faq")}</a>
             <a href="/privacy" className="transition-colors hover:text-paper">{t("link_privacy")}</a>
             <a href="/terms" className="transition-colors hover:text-paper">{t("link_terms")}</a>
             <a href="mailto:letxcook@gmail.com" className="transition-colors hover:text-paper">{t("link_contact")}</a>
