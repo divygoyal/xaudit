@@ -11,13 +11,16 @@ import { Footer } from "@/components/footer";
 import { GoogleOneTap } from "@/components/google-one-tap";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
-/** hreflang matrix. Next.js auto-emits these as <link rel="alternate">
- *  in <head>. Must list every enabled locale (full N×N) + x-default for
- *  the spec-compliant signal. As we ship more locales, append entries
- *  here and also bump the matching entry in app/<locale>/page.tsx. */
+/** JP-specific page metadata. Title + description override the global
+ *  defaults from app/layout.tsx so the SERP snippet shows in Japanese.
+ *  hreflang matrix mirrors app/page.tsx (must be symmetric — every
+ *  variant lists every other variant or Google drops the annotation). */
 export const metadata: Metadata = {
+  title: "letxcook — Xの下書きを採点。アルゴリズムが評価するか確かめよう。",
+  description:
+    "Xの下書きを13のエンゲージメントシグナルに基づいて採点し、より強くリライトします。30秒以内に判定が出ます。",
   alternates: {
-    canonical: "/",
+    canonical: "/ja-jp",
     languages: {
       en: "/",
       "ja-JP": "/ja-jp",
@@ -26,7 +29,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function HomePage() {
+/** Japanese (ja-JP) marketing homepage. Identical to the English root
+ *  in component structure — strings come from messages/ja-jp.json via
+ *  the locale that app/ja-jp/layout.tsx sets through setRequestLocale.
+ *  Future locales (pt-br, es-mx, ar-sa, id-id) follow the same pattern:
+ *  one static folder, one layout that sets the locale, one page that
+ *  re-uses the marketing component tree. */
+export default async function JaJpHomePage() {
   const sb = getSupabaseServer();
   const {
     data: { user },

@@ -24,7 +24,7 @@ export const LOCALES = {
   "ja-jp": {
     name: "Japanese",
     nativeName: "日本語",
-    enabled: false,
+    enabled: true,
     dir: "ltr",
     hreflang: ["ja-JP", "ja"],
   },

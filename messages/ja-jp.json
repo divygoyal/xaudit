@@ -1,0 +1,153 @@
+{
+  "_meta": {
+    "locale": "ja-jp",
+    "translated_by": "gemini-3.5-pro"
+  },
+  "hero": {
+    "headline_line1": "Xのポスト下書きをペースト。",
+    "headline_line2": "<emph>アルゴリズム</emph>にどう評価されるか確かめよう。",
+    "subhead": "ツイート、スレッド、またはスクリーンショットをドロップ。<strong>13のエンゲージメントシグナル</strong>に基づいてスコア化し、パフォーマンスを予測。さらに、より強力なポストへと30秒以内にリライトします。",
+    "cta_primary": "無料でポストを採点する",
+    "cta_secondary": "サンプルを見る",
+    "trust_no_signup": "登録不要",
+    "trust_no_storage": "下書きの保存なし",
+    "trust_free": "無料"
+  },
+  "navbar": {
+    "link_signals": "シグナル",
+    "link_sample": "サンプル",
+    "link_how": "仕組み",
+    "link_faq": "FAQ",
+    "btn_dashboard": "ダッシュボード",
+    "btn_signin": "サインイン"
+  },
+  "footer": {
+    "copyright": "© 2026",
+    "link_faq": "FAQ",
+    "link_privacy": "プライバシーポリシー",
+    "link_terms": "利用規約",
+    "link_contact": "お問い合わせ",
+    "disclaimer": "letxcookは、Xのオープンソースのランキングリポジトリに文書化されているエンゲージメントシグナルのみを使用して下書きを採点します。数値の重み付けや本番環境のモデルは非公開であり、使用されていません。これはコーチングツールであり、結果がリーチを保証するものではありません。"
+  },
+  "how_it_works": {
+    "eyebrow": "仕組み",
+    "heading": "3つのステップ。<emph>無駄は一切なし</emph>。",
+    "steps": {
+      "paste": {
+        "title": "ペースト",
+        "body": "下書き、スレッド、または参考にしたい他の人のツイートのスクリーンショットをドロップします。マルチモーダル入力に対応しています。",
+        "detail": "TXT · PNG · JPG"
+      },
+      "grade": {
+        "title": "採点",
+        "body": "全13のシグナル（ランカーが評価する10個、ペナルティを与える4個）についてスコア化し、それぞれの判定のトリガーとなった行を提示します。",
+        "detail": "約12秒"
+      },
+      "ship": {
+        "title": "投稿",
+        "body": "それぞれ異なる弱いシグナルを強化した3つのリライト案を提示します。目的に合ったものをコピーしてください。",
+        "detail": "コピー → ポスト"
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "heading": "誤魔化しのない<emph>回答</emph>。",
+    "intro": "このカテゴリのツールは過剰な約束をしがちです。私たちは控えめに伝え、すべての情報源を明示し、あなた自身に判断していただきたいと考えています。",
+    "items": {
+      "store_drafts": {
+        "q": "下書きは保存されますか？",
+        "a": "いいえ。下書きは採点システムに送信され、応答後に破棄されます。データを紐づけて保存するためのアカウントシステムもありません。今後アカウント機能を追加する場合でも、下書きの保存はオプトイン（同意制）になります。"
+      },
+      "vs_competitors": {
+        "q": "Hypefury、Tweet Hunter、Typefullyのアナリティクスとはどう違うのですか？",
+        "a": "それらのツールは、投稿時間のチャート、ハッシュタグの数、コメント欄へのリンク配置といった、Xの公開コードには存在しない「都市伝説」に基づいて最適化を行っています。私たちは、X自身がxai-org/x-algorithmで公開しているエンゲージメントシグナルのみに基づいて採点します。"
+      },
+      "viral_guarantee": {
+        "q": "これを使えば確実にバズりますか？",
+        "a": "いいえ。それを保証する人がいれば、それは嘘です。私たちはランカーが予測しようとするシグナルを採点し、方向性を示します。オーディエンスとの相性、タイミング、そして運の要素は依然として存在します。私たちは、あなたがコントロールできる部分を可視化しているだけです。"
+      },
+      "algorithm_basis": {
+        "q": "なぜXのアルゴリズムに基づいていると言えるのですか？",
+        "a": "github.com/xai-org/x-algorithmにあるXのオープンソースのランキングリポジトリに文書化されているシグナルのみを使用しているからです。数値の重み付けは把握していませんし、Xの外部の人間で知っている人はいません。私たちは規模（どれくらい影響するか）ではなく、方向性（どのシグナルが重要か）に焦点を当てています。"
+      },
+      "secret_weights": {
+        "q": "非公開の重み付けについてはどうですか？",
+        "a": "それらは非公開であり、私たちが推測することはありません。だからこそ、すべての採点結果はパーセンテージではなく、段階（Weak/Moderate/Strong）で示されます。私たちは、正確さを装うことを拒否します。"
+      },
+      "other_platforms": {
+        "q": "LinkedIn、Threads、Blueskyでも使えますか？",
+        "a": "まだ使えません。letxcookはXのリポジトリに特化して構築されています。5つのプラットフォームで推測を行うよりも、1つのプラットフォームで卓越したツールでありたいと考えています。"
+      }
+    }
+  },
+  "bottom_cta": {
+    "eyebrow": "最後に",
+    "heading_prefix": "推測はもうやめて、まずは",
+    "heading_emphasis": "確信",
+    "heading_suffix": "しよう。",
+    "body": "次のポストの下書きをペーストしてください。30秒で判定結果が出ます。Xのランカーが実際に予測するシグナルを押さえたリライトを投稿しましょう。",
+    "cta_primary": "無料でポストを採点する",
+    "cta_secondary": "ソースリポジトリを読む ↗",
+    "trust_line": "登録不要 · 下書きの保存なし · 無料"
+  },
+  "signals_strip": {
+    "eyebrow": "13のシグナル",
+    "heading": "13のシグナル。<br/>導き出される1つの<emph>判定</emph>。",
+    "intro": "すべての下書きは、Xのオープンソースのランカーが明確に予測しようとするエンゲージメントアクションに基づいてスコア化されます。アルゴリズムは10個のシグナルを評価し、4個にペナルティを与えます。",
+    "source": "ソース: xai-org/x-algorithm",
+    "rewarded_label": "評価されるシグナル — 10",
+    "punished_label": "ペナルティシグナル — 4",
+    "positive_signals": {
+      "like": "Like",
+      "reply": "Reply",
+      "repost": "Repost",
+      "quote": "Quote",
+      "click": "Click",
+      "profile_click": "Profile click",
+      "photo_expand": "Photo expand",
+      "video_view": "Video view",
+      "dwell": "Dwell",
+      "follow": "Follow"
+    },
+    "negative_signals": {
+      "not_interested": "Not interested",
+      "block": "Block",
+      "mute": "Mute",
+      "report": "Report"
+    }
+  },
+  "vs_folklore": {
+    "eyebrow": "事実 vs 都市伝説",
+    "heading": "ほとんどのツールは<emph>推測</emph>する。私たちは違う。",
+    "intro": "letxcookはXのオープンソースのランカーと同じエンゲージメントシグナルを読み取るため、すべてのアドバイスは<strong>検証可能</strong>です。",
+    "folklore_label": "都市伝説",
+    "folklore_heading": "真実のように語り継がれる<br/><emph>アドバイス</emph>。",
+    "folklore_claims": {
+      "post_time": "リーチを最大化するには朝9時に投稿する",
+      "hashtags": "ハッシュタグは必ず2つにする",
+      "link_comment": "リンクは最初のコメントに貼る",
+      "end_question": "常に質問で締めくくる"
+    },
+    "center_signals_scanned": "13のシグナルをスキャン",
+    "center_folklore_label": "都市伝説との<br/>一致",
+    "center_source_verified": "ソース検証済み",
+    "repo_label": "リポジトリに基づく",
+    "repo_link_github": "GitHub",
+    "repo_heading": "letxcook シグナルマップ",
+    "repo_intro": "アドバイスは、オープンソースのランカーが最適化する予測ラベルと結びついています。",
+    "repo_stat_rewarded": "評価ターゲット",
+    "repo_stat_penalty": "ペナルティターゲット",
+    "repo_positive_label": "ポジティブシグナル",
+    "repo_negative_label": "ネガティブシグナル",
+    "verified_from_prefix": "検証元:",
+    "trail_step1_label": "リポジトリ",
+    "trail_step1_detail": "xai-org/x-algorithm",
+    "trail_step2_label": "ラベル",
+    "trail_step2_detail": "実際のランカーターゲット",
+    "trail_step3_label": "アドバイス",
+    "trail_step3_detail": "ターゲットに基づく構築",
+    "tagline_lead": "同じ下書き。同じ日。なのに違うアドバイス。",
+    "tagline_emphasis": "確かな根拠があるのは、ひとつだけ。"
+  }
+}
