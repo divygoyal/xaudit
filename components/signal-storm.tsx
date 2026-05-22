@@ -138,15 +138,20 @@ export function SignalStorm({ draftText }: { draftText: string }) {
   return (
     <section className="signal-engine relative mt-8 overflow-hidden rounded-2xl border border-vermillion/30 bg-ink-900/60">
       {/* HEADER */}
-      <header className="relative flex flex-wrap items-center justify-between gap-4 px-5 py-5 md:px-8 md:py-6">
-        <div className="min-w-0">
-          <h3 className="font-sans text-[22px] font-semibold leading-tight text-paper md:text-[26px]">
-            Grading your <span className="serif-italic text-vermillion">draft</span>
-          </h3>
-          <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-ink-300">
-            <Sparkles size={11} className="text-vermillion-glow" strokeWidth={2.4} />
-            14 ranker signals · about 28 seconds
-          </p>
+      <header className="relative flex flex-wrap items-center justify-between gap-3 px-5 py-4 md:gap-4 md:px-8 md:py-6">
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 lg:block lg:flex-initial">
+          <div className="min-w-0">
+            <h3 className="font-sans text-[19px] font-semibold leading-tight text-paper md:text-[26px]">
+              Grading your <span className="serif-italic text-vermillion">draft</span>
+            </h3>
+            <p className="mt-1 hidden items-center gap-1.5 text-[12.5px] text-ink-300 lg:flex">
+              <Sparkles size={11} className="text-vermillion-glow" strokeWidth={2.4} />
+              14 ranker signals · about 28 seconds
+            </p>
+          </div>
+          <span className="signal-engine-mobile-count lg:hidden">
+            {graded}<span className="text-ink-500">/14</span>
+          </span>
         </div>
         <div className="signal-engine-header-bar">
           <div className="signal-engine-header-track">
