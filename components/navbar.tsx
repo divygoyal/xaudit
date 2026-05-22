@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE } from "@/i18n/config";
+import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 import { getSupabaseServer } from "@/lib/supabase-server";
@@ -7,13 +9,19 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 export async function Navbar() {
   const supabase = getSupabaseServer();
   const t = await getTranslations("navbar");
+  const locale = await getLocale();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Anchor links must include the locale prefix or they'd jump back to
+  // the English homepage from /ja-jp etc. On the default locale this is
+  // the empty string so "/" stays as the canonical English root.
+  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+
   return (
     <nav className="relative z-50 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10 md:py-7">
-      <Link href="/" className="group inline-flex items-center text-paper">
+      <Link href={localePrefix || "/"} className="group inline-flex items-center text-paper">
         {/* Wordmark with the logo embedded as the literal X letter.
             Reads "let [chef-X] cook" — the logo IS the X. */}
         <span className="serif-italic text-[2rem] leading-none tracking-tight md:text-[2.4rem]">
@@ -26,13 +34,14 @@ export async function Navbar() {
       </Link>
 
       <div className="hidden items-center gap-9 text-sm text-ink-200 md:flex">
-        <a href="/#signals" className="transition-colors hover:text-paper">{t("link_signals")}</a>
-        <a href="/#sample" className="transition-colors hover:text-paper">{t("link_sample")}</a>
-        <a href="/#how" className="transition-colors hover:text-paper">{t("link_how")}</a>
-        <a href="/#faq" className="transition-colors hover:text-paper">{t("link_faq")}</a>
+        <a href={`${localePrefix}/#signals`} className="transition-colors hover:text-paper">{t("link_signals")}</a>
+        <a href={`${localePrefix}/#sample`} className="transition-colors hover:text-paper">{t("link_sample")}</a>
+        <a href={`${localePrefix}/#how`} className="transition-colors hover:text-paper">{t("link_how")}</a>
+        <a href={`${localePrefix}/#faq`} className="transition-colors hover:text-paper">{t("link_faq")}</a>
       </div>
 
       <div className="flex items-center gap-3">
+        <LanguageSwitcher />
         <ThemeToggle />
         {user?.email ? (
           <>

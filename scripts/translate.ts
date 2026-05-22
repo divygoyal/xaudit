@@ -100,6 +100,12 @@ ${localeMeta.name} — locale code ${localeCode}, native form: ${localeMeta.nati
 TONE
 Confident, direct, slightly casual — matches the original English voice. Speaks to creators as peers. NOT corporate, NOT over-formal. For Japanese specifically: warm/confident keigo balance — not vending-machine sonkeigo, not anime casual. For Arabic: Modern Standard Arabic, accessible to Gulf + Levant + Maghreb readers.
 
+UI TERMINOLOGY
+Use the most native local term for common UI elements when one exists — don't leave English abbreviations untranslated when the target language has a widely-used native form. Examples:
+  • "FAQ"           — Japanese: よくある質問   Portuguese-BR: Perguntas frequentes   Spanish: Preguntas frecuentes   Arabic: الأسئلة الشائعة   Indonesian: FAQ (acceptable English-loanword)
+  • "Sign in"        — use the native verb-form, not English
+  • "Dashboard"      — native term if widely used, else the loanword
+
 GLOSSARY — KEEP THESE EXACT ENGLISH FORMS (do not translate):
 ${GLOSSARY.map((g) => `  • "${g}"`).join("\n")}
   • "X" when it refers to the platform (formerly Twitter). When it just means the letter or appears in a sentence about something else, translate normally.

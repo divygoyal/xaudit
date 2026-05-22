@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ArrowDownToLine,
   ArrowUp,
@@ -46,11 +47,12 @@ function formatCount(n: number): string {
 }
 
 function UsageBadge({ usage }: { usage: UsageInfo | null }) {
+  const t = useTranslations("analyze_panel");
   if (!usage) {
     return (
       <span className="inline-flex items-center gap-1.5">
         <Lock size={11} />
-        Free tier
+        {t("usage_free_tier")}
       </span>
     );
   }
@@ -59,8 +61,10 @@ function UsageBadge({ usage }: { usage: UsageInfo | null }) {
       <span className="inline-flex items-center gap-1.5">
         <Lock size={11} />
         {usage.remaining > 0
-          ? `${usage.remaining} free trial${usage.remaining === 1 ? "" : "s"} left`
-          : "Free trial used"}
+          ? usage.remaining === 1
+            ? t("usage_anon_one")
+            : t("usage_anon_other", { count: usage.remaining })
+          : t("usage_anon_used")}
       </span>
     );
   }
@@ -68,14 +72,14 @@ function UsageBadge({ usage }: { usage: UsageInfo | null }) {
     <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
       <span className="inline-flex items-center gap-1.5">
         <Lock size={11} />
-        {usage.used} / {usage.limit} this month
+        {t("usage_monthly", { used: usage.used, limit: usage.limit })}
       </span>
       {usage.bonusCredits > 0 && (
         <span
           className="inline-flex items-center gap-1 rounded-full border border-moss/35 bg-moss/[0.08] px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-[0.16em] text-moss"
-          title="Bonus credits from referrals. Spent only after your monthly free tier is used."
+          title={t("usage_bonus_tooltip")}
         >
-          +{usage.bonusCredits} bonus
+          {t("usage_bonus_chip", { count: usage.bonusCredits })}
         </span>
       )}
     </span>
@@ -89,24 +93,21 @@ function GateCallout({
   gate: "anon" | "free";
   usage: UsageInfo | null;
 }) {
+  const t = useTranslations("analyze_panel");
   const isAnon = gate === "anon";
   return (
     <div className="rounded-[10px] border border-vermillion/40 bg-vermillion/[0.06] px-3.5 py-3 text-center">
       <div className="font-sans text-[13px] font-medium text-paper">
-        {isAnon
-          ? "You've used your free trial."
-          : `You've used all ${usage?.limit ?? 3} free analyses this month.`}
+        {isAnon ? t("gate_anon_title") : t("gate_free_title", { limit: usage?.limit ?? 3 })}
       </div>
       <p className="mt-1 text-[11.5px] leading-snug text-ink-300">
-        {isAnon
-          ? "Sign in for 3 free analyses every month — no card required."
-          : "Upgrade to keep grading. (Stripe wiring coming.)"}
+        {isAnon ? t("gate_anon_body") : t("gate_free_body")}
       </p>
       <Link
         href={isAnon ? "/login?next=%2F%23analyze" : "#pricing"}
         className="group mt-3 inline-flex items-center gap-1.5 rounded-full bg-vermillion px-5 py-2 font-mono text-[11.5px] font-semibold uppercase tracking-[0.18em] text-paper-warm shadow-[0_14px_30px_-16px_rgba(214,58,0,0.55)] transition hover:bg-vermillion-soft"
       >
-        {isAnon ? "Sign in free" : "Upgrade"}
+        {isAnon ? t("gate_anon_cta") : t("gate_free_cta")}
         <ArrowUp size={11} strokeWidth={2.6} className="rotate-45 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </div>
@@ -139,6 +140,7 @@ function ShareBar({
   shareId: string;
   tweetAuthor: string | null;
 }) {
+  const t = useTranslations("analyze_panel");
   const [copied, setCopied] = useState(false);
   const [copyUrl, setCopyUrl] = useState<string>("");
   const [tweetUrl, setTweetUrl] = useState<string>("");
@@ -166,7 +168,7 @@ function ShareBar({
   };
 
   const tweetIntent = tweetUrl
-    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent("Just audited a tweet with letxcook — 13 ranker signals, every recommendation verifiable in the open repo.")}&url=${encodeURIComponent(tweetUrl)}`
+    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(t("share_tweet_text"))}&url=${encodeURIComponent(tweetUrl)}`
     : "#";
 
   // Display URL — show the user the `direct` flavor (cleaner).
@@ -181,10 +183,10 @@ function ShareBar({
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion-glow">
-              Comparison ready
+              {t("share_bar_ready")}
             </div>
             <div className="mt-0.5 truncate font-mono text-[12px] text-ink-200">
-              {shareUrl || "Preparing share link…"}
+              {shareUrl || t("share_bar_preparing")}
             </div>
           </div>
         </div>
@@ -198,12 +200,12 @@ function ShareBar({
             {copied ? (
               <>
                 <Check size={12} strokeWidth={2.6} className="text-moss" />
-                Copied
+                {t("share_bar_copied")}
               </>
             ) : (
               <>
                 <Copy size={12} strokeWidth={2.4} />
-                Copy link
+                {t("share_bar_copy")}
               </>
             )}
           </button>
@@ -216,7 +218,7 @@ function ShareBar({
             }`}
           >
             <Share2 size={12} strokeWidth={2.6} />
-            Share on X
+            {t("share_bar_tweet")}
           </a>
         </div>
       </div>
@@ -271,6 +273,7 @@ type UsageInfo = {
 type CurrentUser = { id: string; email: string | null } | null;
 
 export function AnalyzePanel() {
+  const t = useTranslations("analyze_panel");
   const [text, setText] = useState("");
   const [image, setImage] = useState<{ base64: string; mediaType: string; preview: string } | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -531,19 +534,27 @@ export function AnalyzePanel() {
               trick at the exact moment they're about to paste something */}
           <div className="mx-auto mb-4 flex w-fit max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-vermillion/35 bg-vermillion/[0.06] px-3.5 py-1.5 text-[11.5px] text-ink-200 backdrop-blur">
             <span className="font-mono text-[9.5px] font-semibold uppercase tracking-[0.2em] text-vermillion-glow">
-              URL trick
+              {t("url_trick_label")}
             </span>
             <span className="text-ink-600">·</span>
             <span>
-              swap{" "}
-              <code className="rounded bg-ink-900/70 px-1.5 py-0.5 font-mono text-[11px] text-paper">
-                x.com
-              </code>{" "}
-              with{" "}
-              <code className="rounded bg-vermillion/15 px-1.5 py-0.5 font-mono text-[11px] text-vermillion-glow">
-                letxcook.com
-              </code>{" "}
-              on any post
+              {t.rich("url_trick_body", {
+                code: (chunks) => {
+                  const text = String(chunks);
+                  const isBrand = text.includes("letxcook");
+                  return (
+                    <code
+                      className={
+                        isBrand
+                          ? "rounded bg-vermillion/15 px-1.5 py-0.5 font-mono text-[11px] text-vermillion-glow"
+                          : "rounded bg-ink-900/70 px-1.5 py-0.5 font-mono text-[11px] text-paper"
+                      }
+                    >
+                      {chunks}
+                    </code>
+                  );
+                },
+              })}
             </span>
           </div>
           <InputCard
@@ -648,6 +659,7 @@ function InputCard({
   usage: UsageInfo | null;
   gateHit: "anon" | "free" | null;
 }) {
+  const t = useTranslations("analyze_panel");
   const draftRef = useRef<HTMLTextAreaElement | null>(null);
 
   return (
@@ -662,7 +674,7 @@ function InputCard({
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vermillion/8">
               <span className="h-2 w-2 rounded-full bg-vermillion" />
             </span>
-            Your draft
+            {t("your_draft_label")}
           </div>
           <div className="rounded-full bg-ink-900/45 px-2.5 py-0.5 font-mono text-[10px] text-ink-400">
             <span className={text.length > MAX_CHARS ? "text-rust" : ""}>{text.length}</span>
@@ -689,8 +701,8 @@ function InputCard({
               className="flex items-center justify-center gap-1.5 border-r border-ink-700/50 bg-ink-950 px-2 py-2.5 text-[11px] font-medium text-vermillion transition hover:bg-vermillion/[0.04]"
             >
               <FileText size={14} strokeWidth={2.2} />
-              <span className="hidden sm:inline">Paste draft</span>
-              <span className="sm:hidden">Paste</span>
+              <span className="hidden sm:inline">{t("tab_paste_full")}</span>
+              <span className="sm:hidden">{t("tab_paste_short")}</span>
             </button>
             <button
               type="button"
@@ -698,8 +710,8 @@ function InputCard({
               className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-[11px] font-medium text-ink-300 transition hover:bg-ink-900/45 hover:text-paper"
             >
               <ImagePlus size={14} strokeWidth={2.1} />
-              <span className="hidden sm:inline">Drop screenshot</span>
-              <span className="sm:hidden">Image</span>
+              <span className="hidden sm:inline">{t("tab_image_full")}</span>
+              <span className="sm:hidden">{t("tab_image_short")}</span>
             </button>
           </div>
 
@@ -716,7 +728,7 @@ function InputCard({
                   fetchTweet();
                 }
               }}
-              placeholder="Or paste an X post URL — x.com/user/status/123…"
+              placeholder={t("url_input_placeholder")}
               className="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-[12.5px] text-paper placeholder:text-ink-500 focus:outline-none"
             />
             <button
@@ -730,7 +742,7 @@ function InputCard({
               ) : (
                 <ArrowDownToLine size={11} strokeWidth={2.4} />
               )}
-              Fetch
+              {t("fetch_button")}
             </button>
           </div>
 
@@ -738,7 +750,7 @@ function InputCard({
             <div className="mt-2 flex items-center justify-between gap-3 rounded-[9px] border border-moss/25 bg-moss/[0.05] px-3 py-1.5">
               <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px]">
                 <CheckCircle2 size={12} strokeWidth={2.4} className="shrink-0 text-moss" />
-                <span className="text-ink-300">Fetched from</span>
+                <span className="text-ink-300">{t("fetched_from_prefix")}</span>
                 <span className="truncate font-medium text-paper">@{fetchedFrom.screen_name}</span>
                 <span className="text-ink-600">·</span>
                 <span className="inline-flex items-center gap-1 text-ink-400">
@@ -751,7 +763,7 @@ function InputCard({
                   <Repeat2 size={10} strokeWidth={2.2} /> {formatCount(fetchedFrom.reposts)}
                 </span>
                 {fetchedFrom.views > 0 && (
-                  <span className="text-ink-500">· {formatCount(fetchedFrom.views)} views</span>
+                  <span className="text-ink-500">· {formatCount(fetchedFrom.views)} {t("views_suffix")}</span>
                 )}
                 {fetchedFrom.media.length > 0 && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-vermillion/30 bg-vermillion/[0.08] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-vermillion-glow">
@@ -764,7 +776,7 @@ function InputCard({
                 type="button"
                 onClick={clearFetched}
                 className="shrink-0 rounded p-0.5 text-ink-400 transition hover:bg-ink-800 hover:text-paper"
-                aria-label="Clear fetched indicator"
+                aria-label={t("clear_fetched_aria")}
               >
                 <X size={12} />
               </button>
@@ -776,7 +788,7 @@ function InputCard({
             onClick={() => draftRef.current?.focus()}
           >
             <label htmlFor="draft" className="sr-only">
-              Your X draft
+              {t("draft_textarea_label")}
             </label>
             <textarea
               ref={draftRef}
@@ -784,7 +796,7 @@ function InputCard({
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder={"Paste your X draft here.\n\nOr drop a screenshot anywhere on this card."}
+              placeholder={t("draft_placeholder")}
               maxLength={MAX_CHARS + 200}
               rows={6}
               className="block w-full resize-none bg-transparent p-4 text-[14px] leading-relaxed text-paper placeholder:text-ink-400 focus:outline-none"
@@ -794,7 +806,7 @@ function InputCard({
               <div className="absolute bottom-4 left-4 z-20 inline-flex max-w-[calc(100%-2rem)] items-center gap-2.5 rounded-[9px] border border-ink-700 bg-ink-950/92 p-1.5 pr-2.5 shadow-[0_16px_36px_-26px_rgba(0,0,0,0.45)]">
                 <img
                   src={image.preview}
-                  alt="Attached screenshot"
+                  alt={t("attached_screenshot_alt")}
                   className="h-10 w-10 rounded-[6px] object-cover"
                 />
                 <span className="truncate font-mono text-[12px] text-ink-200">
@@ -807,7 +819,7 @@ function InputCard({
                     setImage(null);
                   }}
                   className="rounded p-1 text-ink-400 transition hover:bg-ink-800 hover:text-paper"
-                  aria-label="Remove image"
+                  aria-label={t("remove_image_aria")}
                 >
                   <X size={14} />
                 </button>
@@ -825,7 +837,7 @@ function InputCard({
               className="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-950/80 px-3 py-1.5 text-[11px] text-ink-200 transition hover:border-ink-500 hover:text-paper"
             >
               <Paperclip size={12} />
-              Screenshot
+              {t("screenshot_btn")}
             </button>
             {(text || image) && (
               <button
@@ -833,7 +845,7 @@ function InputCard({
                 onClick={reset}
                 className="px-1 text-[11px] text-ink-400 transition hover:text-paper"
               >
-                Clear
+                {t("clear_btn")}
               </button>
             )}
           </div>
@@ -842,11 +854,11 @@ function InputCard({
             <div className="flex flex-wrap items-center gap-2.5 text-[10px] text-ink-400">
               <span className="inline-flex items-center gap-1.5">
                 <Sparkles size={11} className="text-vermillion" />
-                13 signals
+                {t("stats_13_signals")}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock3 size={11} />
-                ~2 sec
+                {t("stats_2_sec")}
               </span>
               <UsageBadge usage={usage} />
             </div>
@@ -858,11 +870,11 @@ function InputCard({
                 {isLoading ? (
                   <>
                     <Loader2 size={13} className="animate-spin" />
-                    Grading...
+                    {t("cta_grading")}
                   </>
                 ) : (
                   <>
-                    Grade my post
+                    {t("cta_grade")}
                     <ArrowUp size={13} className="rotate-45" />
                   </>
                 )}
@@ -879,7 +891,7 @@ function InputCard({
 
       <div className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] text-ink-400">
         <Lock size={12} strokeWidth={2} />
-        <span>Private by default. Drafts are never stored after grading.</span>
+        <span>{t("privacy_note")}</span>
       </div>
     </>
   );
