@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { nanoid } from "nanoid";
-import { SYSTEM_PROMPT, buildUserPrompt, type AttachedMedia } from "@/lib/rubric";
+import { buildSystemPrompt, buildUserPrompt, type AttachedMedia } from "@/lib/rubric";
 import { SAMPLE_RESULT } from "@/lib/sample-data";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSupabaseServer } from "@/lib/supabase-server";
@@ -27,6 +27,11 @@ type IncomingBody = {
   tweetUrl?: string;
   tweetId?: string;
   tweetAuthor?: string;
+  /** Locale of the requesting page (e.g. "ja-jp"). When set to a
+   *  non-English value, Gemini is instructed to respond with all
+   *  human-readable text fields in that language. Canonical signal /
+   *  angle / band identifier strings stay English (UI keys on them). */
+  locale?: string;
 };
 
 export async function POST(req: Request) {
@@ -92,7 +97,7 @@ export async function POST(req: Request) {
       model: MODEL,
       contents: [{ role: "user", parts }],
       config: {
-        systemInstruction: SYSTEM_PROMPT,
+        systemInstruction: buildSystemPrompt(body.locale),
         responseMimeType: "application/json",
         temperature: 0.5,
         maxOutputTokens: 12000,

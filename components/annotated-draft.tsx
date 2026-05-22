@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronDown,
   Crosshair,
@@ -70,6 +71,7 @@ interface MarkedUpProps {
 }
 
 export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
+  const t = useTranslations("annotated_draft");
   const userText = draftText?.trim() ?? "";
   const fromScreenshot = !userText && !!result.draft_text?.trim();
   const draft = (userText || result.draft_text?.trim() || "").trim();
@@ -125,7 +127,7 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
           <p className="whitespace-pre-line text-[15px] leading-relaxed text-paper">{draft}</p>
           <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-moss/40 bg-moss/10 px-3 py-1 font-mono text-[10.5px] uppercase tracking-wider text-moss">
             <span>●</span>
-            No major leaks found
+            {t("no_major_leaks")}
           </div>
         </div>
       </div>
@@ -133,7 +135,7 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
   }
 
   const totalLift = sortedLeaks.reduce((acc, l) => acc + l.impact_lift, 0);
-  const liftRange = `+${Math.round(totalLift * 0.75)} to +${totalLift} pts`;
+  const liftRange = t("lift_range", { low: Math.round(totalLift * 0.75), high: totalLift });
 
   // Biggest leak = highest impact_lift leak (same as biggestImpact computed above)
   const biggestLeak = biggestImpact
@@ -231,60 +233,62 @@ function Header({
   biggestSignal: string | null;
   fromScreenshot: boolean;
 }) {
+  const t = useTranslations("annotated_draft");
   return (
     <div className="mb-5 flex items-end justify-between gap-4">
       <div>
         <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-vermillion">
-          Your draft, marked up
+          {t("eyebrow")}
         </div>
         <h3 className="mt-1.5 font-serif text-3xl tracking-tight text-paper md:text-[38px] md:leading-[1.05]">
-          Where the{" "}
-          <span className="serif-italic relative inline-block">
-            algorithm
-            <svg
-              className="pointer-events-none absolute -bottom-1.5 left-0 h-2.5 w-full overflow-visible"
-              viewBox="0 0 400 12"
-              preserveAspectRatio="none"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M 4,7 C 80,3 200,10 396,5"
-                stroke="rgb(var(--vermillion))"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-                className="confident-underline"
-                style={{ animationDelay: "0.2s" }}
-              />
-              <path
-                d="M 10,9 C 110,7 230,12 392,8"
-                stroke="rgb(var(--vermillion))"
-                strokeOpacity="0.4"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                className="confident-underline-soft"
-                style={{ animationDelay: "0.4s" }}
-              />
-            </svg>
-          </span>{" "}
-          leaks<span className="text-vermillion">.</span>
+          {t.rich("heading", {
+            emph: (chunks) => (
+              <span className="serif-italic relative inline-block">
+                {chunks}
+                <svg
+                  className="pointer-events-none absolute -bottom-1.5 left-0 h-2.5 w-full overflow-visible"
+                  viewBox="0 0 400 12"
+                  preserveAspectRatio="none"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M 4,7 C 80,3 200,10 396,5"
+                    stroke="rgb(var(--vermillion))"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    className="confident-underline"
+                    style={{ animationDelay: "0.2s" }}
+                  />
+                  <path
+                    d="M 10,9 C 110,7 230,12 392,8"
+                    stroke="rgb(var(--vermillion))"
+                    strokeOpacity="0.4"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    className="confident-underline-soft"
+                    style={{ animationDelay: "0.4s" }}
+                  />
+                </svg>
+              </span>
+            ),
+          })}
         </h3>
       </div>
       <div className="hidden items-center gap-3 sm:flex">
         {fromScreenshot && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-900/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-ink-300">
             <span className="h-1 w-1 rounded-full bg-vermillion-glow" />
-            Read from screenshot
+            {t("from_screenshot_badge")}
           </span>
         )}
         {leakCount > 0 && (
           <span className="font-mono text-[11px] text-ink-300">
-            <span className="text-paper tabular-nums">{leakCount}</span> leak
-            {leakCount === 1 ? "" : "s"}
+            <span className="text-paper tabular-nums">{t("leaks_count", { count: leakCount })}</span>
             {biggestSignal && (
               <>
                 <span className="mx-1.5 text-ink-500">·</span>
-                biggest: <span className="text-vermillion-glow">{biggestSignal}</span>
+                {t("biggest_prefix")} <span className="text-vermillion-glow">{biggestSignal}</span>
               </>
             )}
           </span>
@@ -299,7 +303,8 @@ function Header({
 // ─────────────────────────────────────────────────────────────
 
 function ProgressionNav() {
-  const steps = ["Draft", "Diagnosis", "Signal Check"];
+  const t = useTranslations("annotated_draft");
+  const steps = [t("step_draft"), t("step_diagnosis"), t("step_signal_check")];
   return (
     <div className="flex items-center justify-center gap-3 md:gap-5">
       {steps.map((label, idx) => (
@@ -370,6 +375,7 @@ function DraftCanvas({
   activeIdx: number;
   onSetActive: (i: number) => void;
 }) {
+  const tDraftCanvas = useTranslations("annotated_draft");
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const markRefs = useRef<(HTMLElement | null)[]>([]);
   const [connectors, setConnectors] = useState<IssueConnector[]>([]);
@@ -570,7 +576,7 @@ function DraftCanvas({
       {/* eyebrow */}
       <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-ink-400">
         <PencilLine size={11} />
-        Your draft (marked up)
+        {tDraftCanvas("draft_canvas_eyebrow")}
       </div>
 
       {/* Draft text */}
@@ -633,10 +639,7 @@ function DraftCanvas({
 
       <div className="mt-3 flex shrink-0 items-center gap-2.5 border-t border-ink-700/60 pt-3 text-[11.5px] text-ink-300">
         <Sparkles size={12} className="text-vermillion-glow" />
-        <span>
-          {leaks.length} {leaks.length === 1 ? "issue" : "issues"} reduce reply intent, clarity, and
-          perceived value.
-        </span>
+        <span>{tDraftCanvas("issues_summary", { count: leaks.length })}</span>
       </div>
     </div>
   );
@@ -1067,6 +1070,7 @@ const TRY_THIS_BY_SIGNAL: Record<string, string> = {
 const VISIBLE_LIMIT = 4;
 
 function WhatsWorkingColumn({ result }: { result: AnalysisResult }) {
+  const t = useTranslations("annotated_draft");
   const items = useMemo<SignalBoardItem[]>(() => {
     return [...result.positive_signals]
       .filter((s) => s.grade !== "Weak")
@@ -1088,8 +1092,8 @@ function WhatsWorkingColumn({ result }: { result: AnalysisResult }) {
     <SignalBoardFrame
       tone="working"
       icon={CheckCircle2}
-      label="What's working"
-      subtitle="Signals already helping this post perform"
+      label={t("working_label")}
+      subtitle={t("working_subtitle")}
       count={items.length}
       footer={
         hiddenCount > 0 ? (
@@ -1103,7 +1107,7 @@ function WhatsWorkingColumn({ result }: { result: AnalysisResult }) {
       }
     >
       {items.length === 0 ? (
-        <EmptySignalState tone="working" text="No strong signals yet." />
+        <EmptySignalState tone="working" text={t("no_strong_signals_yet")} />
       ) : (
         visible.map((item) => <SignalBoardRow key={item.key} tone="working" item={item} />)
       )}
@@ -1122,6 +1126,7 @@ function WhatToStrengthenColumn({
   result: AnalysisResult;
   liftRange: string;
 }) {
+  const t = useTranslations("annotated_draft");
   const items = useMemo<SignalBoardItem[]>(() => {
     // Substitute-signal mutex: if one media signal is already strong, hide weakness
     // recommendations for its substitute. A video covers the visual need.
@@ -1165,8 +1170,8 @@ function WhatToStrengthenColumn({
     <SignalBoardFrame
       tone="strengthen"
       icon={Flag}
-      label="What to strengthen"
-      subtitle="Small edits that could improve replies + clicks"
+      label={t("strengthen_label")}
+      subtitle={t("strengthen_subtitle")}
       count={items.length}
       footer={
         <div className="space-y-3 pt-1">
@@ -1181,7 +1186,7 @@ function WhatToStrengthenColumn({
           <div className="flex items-end justify-between gap-3 border-t border-ink-700/60 pt-3">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-400">
-                Potential lift:
+                {t("potential_lift_label")}
               </div>
               <div className="mt-0.5 font-mono text-[16px] tabular-nums text-moss">
                 {liftRange}
@@ -1191,7 +1196,7 @@ function WhatToStrengthenColumn({
               onClick={() => setShowFullReport((v) => !v)}
               className="inline-flex items-center gap-1 text-[12px] text-ink-300 transition-colors hover:text-paper"
             >
-              View full signal report
+              {t("view_full_signal_report")}
               <ChevronDown
                 size={12}
                 className={`transition-transform duration-300 ${showFullReport ? "rotate-180" : ""}`}
@@ -1203,7 +1208,7 @@ function WhatToStrengthenColumn({
       }
     >
       {items.length === 0 ? (
-        <EmptySignalState tone="strengthen" text="No weak signals found." />
+        <EmptySignalState tone="strengthen" text={t("no_weak_signals_found")} />
       ) : (
         visible.map((item) => <SignalBoardRow key={item.key} tone="strengthen" item={item} />)
       )}
@@ -1226,6 +1231,7 @@ function ShowMoreToggle({
   hiddenCount: number;
   onToggle: () => void;
 }) {
+  const t = useTranslations("annotated_draft");
   const accent = tone === "working" ? "text-moss" : "text-vermillion-glow";
   const accentBorder = tone === "working" ? "border-moss/35" : "border-vermillion/40";
   const accentBgHover = tone === "working" ? "hover:bg-moss/5" : "hover:bg-vermillion/5";
@@ -1235,7 +1241,7 @@ function ShowMoreToggle({
       className={`group flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed ${accentBorder} py-2 font-mono text-[10.5px] uppercase tracking-[0.15em] ${accent} transition-colors ${accentBgHover}`}
     >
       <span>
-        {expanded ? "Show fewer" : `Show ${hiddenCount} more`}
+        {expanded ? t("show_fewer") : t("show_more", { count: hiddenCount })}
       </span>
       <ChevronDown
         size={11}
@@ -1262,6 +1268,7 @@ function SignalBoardFrame({
   footer?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const tFrame = useTranslations("annotated_draft");
   const isWorking = tone === "working";
   return (
     <section
@@ -1292,7 +1299,7 @@ function SignalBoardFrame({
           </div>
         </div>
         <span className="shrink-0 pt-1 font-mono text-[10.5px] tabular-nums text-ink-400">
-          {count} signal{count === 1 ? "" : "s"}
+          {tFrame("signals_count", { count })}
         </span>
       </div>
 
@@ -1362,6 +1369,7 @@ function SignalBoardRow({
   tone: SignalBoardTone;
   item: SignalBoardItem;
 }) {
+  const tRow = useTranslations("annotated_draft");
   const { iconBoxStyle, iconColorStyle, pillStyle, accentColor, Icon } = signalStyle(item.signal);
   const hasTrigger = !!item.trigger && item.trigger.trim().length > 1;
   const isWorking = tone === "working";
@@ -1410,7 +1418,7 @@ function SignalBoardRow({
           )}
           {item.grade === "Moderate" && (
             <span className="mt-2 inline-flex items-center rounded-full border border-ink-600 bg-ink-900/40 px-1.5 py-[1px] font-mono text-[8.5px] uppercase tracking-wider text-ink-400">
-              moderate
+              {tRow("moderate_pill")}
             </span>
           )}
         </div>
@@ -1440,33 +1448,34 @@ function BottomSummaryStrip({
   quickestWin: { title: string; subtitle: string } | null;
   liftRange: string;
 }) {
+  const t = useTranslations("annotated_draft");
   return (
     <div className="mt-8 grid grid-cols-1 gap-3 rounded-2xl border border-ink-700 bg-ink-900/40 px-5 py-4 shadow-[0_18px_50px_-30px_rgba(75,40,15,0.18)] md:grid-cols-3 md:items-center md:gap-6">
       {/* BIGGEST LEAK */}
       <SummaryItem
         icon={Crosshair}
         iconTone="vermillion"
-        eyebrow="Biggest leak"
-        title={biggestLeak?.title ?? "None"}
-        subtitle={biggestLeak?.subtitle ?? "Your draft has no major leaks."}
+        eyebrow={t("summary_biggest_leak")}
+        title={biggestLeak?.title ?? t("summary_biggest_leak_fallback_title")}
+        subtitle={biggestLeak?.subtitle ?? t("summary_biggest_leak_fallback_subtitle")}
       />
 
       {/* QUICKEST WIN */}
       <SummaryItem
         icon={Zap}
         iconTone="moss"
-        eyebrow="Quickest win"
-        title={quickestWin?.title ?? "Ship it"}
-        subtitle={quickestWin?.subtitle ?? "Nothing urgent to fix."}
+        eyebrow={t("summary_quickest_win")}
+        title={quickestWin?.title ?? t("summary_quickest_win_fallback_title")}
+        subtitle={quickestWin?.subtitle ?? t("summary_quickest_win_fallback_subtitle")}
       />
 
       {/* POTENTIAL LIFT */}
       <SummaryItem
         icon={TrendingUp}
         iconTone="vermillion"
-        eyebrow="Potential lift"
+        eyebrow={t("summary_potential_lift")}
         title={<span className="font-mono tabular-nums text-moss">{liftRange}</span>}
-        subtitle="Replies + clicks combined"
+        subtitle={t("summary_potential_lift_subtitle")}
       />
     </div>
   );

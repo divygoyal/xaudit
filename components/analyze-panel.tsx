@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowDownToLine,
   ArrowUp,
@@ -274,6 +274,7 @@ type CurrentUser = { id: string; email: string | null } | null;
 
 export function AnalyzePanel() {
   const t = useTranslations("analyze_panel");
+  const locale = useLocale();
   const [text, setText] = useState("");
   const [image, setImage] = useState<{ base64: string; mediaType: string; preview: string } | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -465,6 +466,7 @@ export function AnalyzePanel() {
           media: fetchedFrom?.media ?? [],
           tweetUrl: url.trim() || undefined,
           tweetAuthor: fetchedFrom?.screen_name,
+          locale,
         }),
       });
       const json = await res.json();

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 import type {
   AnalysisResult,
   Grade,
@@ -125,6 +126,7 @@ interface AuditResultProps {
 }
 
 export function AuditResultCompact({ result }: AuditResultProps) {
+  const t = useTranslations("result_card");
   const { score, tone, weakest, recommendedIdx } = useResultDerivations(result);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
@@ -136,25 +138,25 @@ export function AuditResultCompact({ result }: AuditResultProps) {
     )[0];
     return [
       {
-        label: "Reply bait",
+        label: t("chip_reply_bait"),
         value: reply?.grade ?? "—",
         icon: MessageCircle,
         kind: "grade" as const,
       },
       {
-        label: "Click intent",
+        label: t("chip_click_intent"),
         value: click?.grade ?? "—",
         icon: MousePointerClick,
         kind: "grade" as const,
       },
       {
-        label: "Risk level",
+        label: t("chip_risk_level"),
         value: highestRisk?.risk ?? "—",
         icon: ShieldCheck,
         kind: "risk" as const,
       },
     ];
-  }, [result]);
+  }, [result, t]);
 
   const recommendedRewrite = result.rewrites[recommendedIdx];
 
@@ -162,8 +164,8 @@ export function AuditResultCompact({ result }: AuditResultProps) {
     <div className="space-y-3">
       {result.is_mock && (
         <div className="rounded-lg border border-vermillion/30 bg-vermillion/5 px-3 py-1.5 text-[11px] text-vermillion-glow">
-          <span className="font-mono uppercase tracking-wider">demo mode</span>
-          <span className="ml-2 text-ink-200">— add GEMINI_API_KEY for live grading.</span>
+          <span className="font-mono uppercase tracking-wider">{t("demo_mode_label")}</span>
+          <span className="ml-2 text-ink-200">{t("demo_mode_body")}</span>
         </div>
       )}
 
@@ -258,7 +260,7 @@ export function AuditResultCompact({ result }: AuditResultProps) {
           className="group flex w-full items-center justify-between border-t border-ink-700/60 bg-ink-900/30 px-5 py-3 text-left transition-colors hover:bg-ink-900/50 md:px-6"
         >
           <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-300">
-            Full breakdown · 14 signals
+            {t("full_breakdown_label")}
           </div>
           <ChevronDown
             size={15}
@@ -270,9 +272,9 @@ export function AuditResultCompact({ result }: AuditResultProps) {
 
         {showBreakdown && (
           <div className="border-t border-ink-700/60 bg-ink-900/20 px-5 py-4 md:px-6 md:py-5">
-            <CompactSignalGrid label="Positive · rewarded" signals={result.positive_signals} kind="positive" />
+            <CompactSignalGrid label={t("positive_rewarded")} signals={result.positive_signals} kind="positive" />
             <div className="mt-4">
-              <CompactSignalGrid label="Negative · punished" signals={result.negative_signals} kind="negative" />
+              <CompactSignalGrid label={t("negative_punished")} signals={result.negative_signals} kind="negative" />
             </div>
           </div>
         )}
@@ -286,6 +288,7 @@ export function AuditResultCompact({ result }: AuditResultProps) {
 // ─────────────────────────────────────────────────────────────
 
 export function RewritesGrid({ result, draftText = "" }: AuditResultProps & { draftText?: string }) {
+  const t = useTranslations("result_card");
   const { score } = useResultDerivations(result);
   const [showAlternates, setShowAlternates] = useState(false);
 
@@ -357,11 +360,12 @@ export function RewritesGrid({ result, draftText = "" }: AuditResultProps & { dr
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-vermillion-glow">
                 <Sparkles size={11} strokeWidth={2.4} />
-                {showAlternates ? "Hide" : "See"} {alternates.length} alternative{" "}
-                {alternates.length === 1 ? "angle" : "angles"}
+                {showAlternates
+                  ? t("hide_alternatives", { count: alternates.length })
+                  : t("see_alternatives", { count: alternates.length })}
               </span>
               <span className="text-[12px] text-ink-300">
-                {showAlternates ? "" : "For a narrower fix without changing voice"}
+                {showAlternates ? "" : t("alternatives_narrower_fix")}
               </span>
             </div>
             <ChevronDown
@@ -387,7 +391,7 @@ export function RewritesGrid({ result, draftText = "" }: AuditResultProps & { dr
                       <div className="flex min-w-0 items-center gap-2">
                         <Sparkles size={12} className="shrink-0 text-moss" strokeWidth={2.4} />
                         <span className="truncate font-mono text-[10px] uppercase tracking-[0.22em] text-moss">
-                          Alternative angle
+                          {t("alternative_angle_eyebrow")}
                         </span>
                       </div>
                       {lift > 0 && (
@@ -413,7 +417,7 @@ export function RewritesGrid({ result, draftText = "" }: AuditResultProps & { dr
                     </div>
                     <footer className="relative z-10 flex items-center justify-between gap-2 border-t border-moss/20 bg-moss/[0.035] px-4 py-2.5">
                       <span className="font-mono text-[10px] text-ink-400">
-                        {r.text.length} chars
+                        {t("chars_suffix", { count: r.text.length })}
                       </span>
                       <CopyBtn text={r.text} />
                     </footer>
@@ -685,12 +689,13 @@ function alternativeHighlightLabel(label: string) {
 // ─────────────────────────────────────────────────────────────
 
 export function StructuralCompact({ result }: AuditResultProps) {
+  const t = useTranslations("result_card");
   if (!result.structural?.length) return null;
   return (
     <div className="mt-10 rounded-2xl border border-ink-700 bg-ink-900/30">
       <div className="border-b border-ink-700/60 px-5 py-3 md:px-6">
         <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-400">
-          Structural notes
+          {t("structural_notes_label")}
         </div>
       </div>
       <ul className="divide-y divide-ink-700/60">

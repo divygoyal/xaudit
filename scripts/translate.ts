@@ -159,7 +159,12 @@ function flatten(obj: JsonValue, prefix = ""): Record<string, string> {
 }
 
 function extractPlaceholders(s: string): string[] {
-  return s.match(/\{[^{}]+\}/g) ?? [];
+  // Match ONLY simple ICU args like {name}, {count} — NOT the inner branches
+  // of plural/select forms (those contain free text that translators legitimately
+  // rewrite). Restricting to `\w+` between braces with no spaces or commas
+  // captures argument references without false-positiving on translated
+  // branch bodies like {# alternative angles}.
+  return s.match(/\{[a-zA-Z_]\w*\}/g) ?? [];
 }
 
 function extractTags(s: string): string[] {

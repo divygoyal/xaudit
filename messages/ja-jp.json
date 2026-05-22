@@ -4,10 +4,10 @@
     "translated_by": "gemini-3.5-pro"
   },
   "hero": {
-    "headline_line1": "Xの下書きをペースト。",
+    "headline_line1": "Xのポスト下書きをペースト。",
     "headline_line2": "<emph>アルゴリズム</emph>に評価されるか、確かめよう。",
     "subhead": "ツイート、スレッド、またはスクリーンショットをドロップ。<strong>13のエンゲージメントシグナル</strong>に基づいてスコアリングし、パフォーマンスを予測。30秒以内に、より強力なポストへとリライトします。",
-    "cta_primary": "ポストを採点する（無料）",
+    "cta_primary": "無料でポストを採点する",
     "cta_secondary": "サンプルを見る",
     "trust_no_signup": "サインアップ不要",
     "trust_no_storage": "下書きは保存されません",
@@ -27,7 +27,7 @@
     "link_privacy": "プライバシー",
     "link_terms": "利用規約",
     "link_contact": "お問い合わせ",
-    "disclaimer": "letxcookは、Xのオープンソースのランキングリポジトリに文書化されているエンゲージメントシグナルのみを使用して下書きを採点します。数値の重み付けと本番モデルは非公開であり、使用されていません。これはコーチングツールであり、リーチを保証するものではありません。"
+    "disclaimer": "letxcookは、Xのオープンソースランキングリポジトリに記載されているエンゲージメントシグナルのみを使用して下書きを採点します。数値の重み付けや本番環境のモデルは非公開であり、使用されていません。これはコーチングツールであり、結果がリーチを保証するものではありません。"
   },
   "how_it_works": {
     "eyebrow": "仕組み",
@@ -35,69 +35,69 @@
     "steps": {
       "paste": {
         "title": "ペースト",
-        "body": "下書き、スレッド、または参考にしたい他の人のツイートのスクリーンショットをドロップします。マルチモーダル入力対応。",
+        "body": "下書き、スレッド、または参考にしたい他人のツイートのスクリーンショットをドロップ。マルチモーダル入力に対応。",
         "detail": "TXT · PNG · JPG"
       },
       "grade": {
         "title": "採点",
-        "body": "13のシグナル（アルゴリズムが評価する10項目、ペナルティとなる4項目）すべてについてスコアリングし、各判定のトリガーとなった行を提示します。",
+        "body": "13のシグナル（アルゴリズムが評価する10項目、ペナルティとなる4項目）すべてについてスコアリングし、各判定のトリガーとなった箇所を提示します。",
         "detail": "約12秒"
       },
       "ship": {
-        "title": "ポスト",
-        "body": "異なる弱いシグナルを強化する3つのリライト案を提示。目的に合ったものをコピーして使用できます。",
+        "title": "投稿",
+        "body": "弱いシグナルをそれぞれ強化する3つのリライト案を提示。目的に合ったアングルをコピーして使用できます。",
         "detail": "コピー → ポスト"
       }
     }
   },
   "faq": {
     "eyebrow": "よくある質問",
-    "heading": "誠実な<emph>回答</emph>を。",
-    "intro": "このカテゴリのツールは過剰な約束をしがちです。私たちは控えめに伝え、すべての情報源を明示し、あなた自身に判断してもらいたいと考えています。",
+    "heading": "誠実な<emph>回答</emph>。",
+    "intro": "このカテゴリのツールは過剰な期待を抱かせがちです。私たちは控えめに伝え、すべての情報源を明示し、あなた自身に判断を委ねます。",
     "items": {
       "store_drafts": {
         "q": "下書きは保存されますか？",
-        "a": "いいえ。下書きは採点システムに送信され、応答後に破棄されます。データを保存するためのアカウントシステムはありません。今後アカウント機能を追加する場合でも、下書きの保存はオプトイン方式になります。"
+        "a": "いいえ。下書きは採点エンジンに送信され、レスポンス後に破棄されます。データを保存するためのアカウントシステムもありません。将来アカウント機能を追加する場合でも、下書きの保存はオプトイン方式になります。"
       },
       "vs_competitors": {
-        "q": "Hypefury、Tweet Hunter、Typefullyのアナリティクスとはどう違うのですか？",
-        "a": "これらのツールは、投稿時間のチャート、ハッシュタグの数、コメント欄へのリンク配置など、Xの公開コードには存在しない「都市伝説」に基づいて最適化しています。私たちは、X自身がxai-org/x-algorithmで公開しているエンゲージメントシグナルのみに基づいて採点します。"
+        "q": "Hypefury、Tweet Hunter、Typefullyのアナリティクスとは何が違うのですか？",
+        "a": "それらのツールは、投稿時間のチャート、ハッシュタグの数、コメント欄へのリンク配置といった「都市伝説」に対して最適化しています。これらはXの公開コードには存在しない主張です。私たちは、X自身がxai-org/x-algorithmで公開しているエンゲージメントシグナルのみに基づいて採点します。"
       },
       "viral_guarantee": {
         "q": "これを使えば確実にバズりますか？",
-        "a": "いいえ。それを保証する人がいれば、それは嘘です。私たちはアルゴリズムが予測しようとするシグナルを採点し、方向性を示します。オーディエンスとの適合性、タイミング、そして運は依然として重要です。私たちは、あなたがコントロールできる要素を可視化します。"
+        "a": "いいえ。それを保証する人がいれば、それは嘘です。私たちはアルゴリズムが予測しようとするシグナルを採点し、方向性を示します。オーディエンスとの相性、タイミング、そして運の要素は依然として存在します。私たちは「あなたがコントロールできること」を可視化します。"
       },
       "algorithm_basis": {
         "q": "なぜXのアルゴリズムに基づいていると言えるのですか？",
-        "a": "github.com/xai-org/x-algorithmにあるXのオープンソースのランキングリポジトリに文書化されているシグナルのみを使用しているからです。数値の重み付けは把握していません（Xの外部の人間は誰も知りません）。私たちは規模（どれくらい影響するか）ではなく、方向性（どのシグナルが重要か）に焦点を当てています。"
+        "a": "github.com/xai-org/x-algorithmにあるXのオープンソースランキングリポジトリに文書化されているシグナルのみを使用しているからです。数値の重み付けは把握していません（Xの外部の人間は誰も知りません）。私たちは影響の大きさではなく、方向性（どのシグナルが重要か）に焦点を当てています。"
       },
       "secret_weights": {
         "q": "非公開の重み付けについてはどうですか？",
-        "a": "それらは非公開です。私たちは決して推測しません。そのため、正確さを装うパーセンテージではなく、すべての評価を段階（Weak/Moderate/Strong）で示しています。"
+        "a": "それらは非公開情報であり、推測することはありません。そのため、各評価はパーセンテージではなく、段階（Weak/Moderate/Strong）で示されます。私たちは偽りの精度を提示することを拒否します。"
       },
       "other_platforms": {
         "q": "LinkedIn、Threads、Blueskyでも使えますか？",
-        "a": "まだ使えません。letxcookはXのリポジトリに特化して構築されています。5つのプラットフォームで推測するよりも、1つのプラットフォームで優れたツールでありたいと考えています。"
+        "a": "まだ使えません。letxcookはXのリポジトリに特化して構築されています。5つのプラットフォームで推測を行うよりも、1つのプラットフォームで卓越した存在でありたいと考えています。"
       }
     }
   },
   "bottom_cta": {
     "eyebrow": "最後に",
-    "heading_prefix": "勘に頼るのはやめよう。まずは",
-    "heading_emphasis": "知る",
-    "heading_suffix": "ことから。",
-    "body": "次の下書きをペーストしてください。30秒で判定結果が出ます。Xのアルゴリズムが実際に予測するシグナルを押さえたリライトをポストしましょう。",
-    "cta_primary": "ポストを採点する（無料）",
+    "heading_prefix": "推測はもうやめよう。まずは",
+    "heading_emphasis": "確信",
+    "heading_suffix": "を持とう。",
+    "body": "次の下書きをペーストして、30秒で判定結果を確認。Xのアルゴリズムが実際に予測するシグナルを押さえたリライトを投稿しましょう。",
+    "cta_primary": "無料でポストを採点する",
     "cta_secondary": "ソースリポジトリを読む ↗",
     "trust_line": "サインアップ不要 · 下書きは保存されません · 無料"
   },
   "signals_strip": {
     "eyebrow": "13のシグナル",
     "heading": "13のシグナル。<br/>1つの<emph>判定</emph>。",
-    "intro": "すべての下書きは、Xのオープンソースアルゴリズムが明示的に予測しようとするエンゲージメントアクションに基づいてスコアリングされます。10項目が評価され、4項目がペナルティとなります。",
+    "intro": "すべての下書きは、Xのオープンソースアルゴリズムが明確に予測しようとするエンゲージメントアクションに基づいてスコアリングされます。10項目がプラス評価、4項目がマイナス評価となります。",
     "source": "ソース: xai-org/x-algorithm",
-    "rewarded_label": "評価されるシグナル — 10",
-    "punished_label": "ペナルティとなるシグナル — 4",
+    "rewarded_label": "プラス評価 — 10",
+    "punished_label": "マイナス評価 — 4",
     "positive_signals": {
       "like": "Like",
       "reply": "Reply",
@@ -119,40 +119,40 @@
   },
   "vs_folklore": {
     "eyebrow": "事実 vs 都市伝説",
-    "heading": "多くのツールは<emph>推測</emph>するだけ。私たちは違います。",
-    "intro": "letxcookはXのオープンソースアルゴリズムと同じエンゲージメントシグナルを読み取るため、すべてのアドバイスは<strong>検証可能</strong>です。",
+    "heading": "多くのツールは<emph>推測</emph>で語る。私たちは違う。",
+    "intro": "letxcookは、Xのオープンソースアルゴリズムと同じエンゲージメントシグナルを読み取ります。そのため、すべてのアドバイスは<strong>検証可能</strong>です。",
     "folklore_label": "都市伝説",
-    "folklore_heading": "本当のように聞こえるまで<br/>繰り返された<emph>アドバイス</emph>。",
+    "folklore_heading": "真実のように語り継がれる<br/><emph>アドバイス</emph>。",
     "folklore_claims": {
-      "post_time": "リーチを最大化するには午前9時にポストする",
+      "post_time": "リーチを最大化するには午前9時に投稿する",
       "hashtags": "ハッシュタグは正確に2つ使う",
       "link_comment": "リンクは最初のコメントに貼る",
-      "end_question": "常に質問で終わらせる"
+      "end_question": "常に質問で締めくくる"
     },
     "center_signals_scanned": "13のシグナルをスキャン",
-    "center_folklore_label": "都市伝説の<br/>一致数",
+    "center_folklore_label": "都市伝説との<br/>一致",
     "center_source_verified": "ソース検証済み",
     "repo_label": "リポジトリに基づく",
     "repo_link_github": "GitHub",
     "repo_heading": "letxcook シグナルマップ",
     "repo_intro": "アドバイスは、オープンソースアルゴリズムが最適化する予測ラベルに紐付いています。",
-    "repo_stat_rewarded": "評価ターゲット",
-    "repo_stat_penalty": "ペナルティターゲット",
+    "repo_stat_rewarded": "プラス評価のターゲット",
+    "repo_stat_penalty": "マイナス評価のターゲット",
     "repo_positive_label": "ポジティブシグナル",
     "repo_negative_label": "ネガティブシグナル",
     "verified_from_prefix": "検証元:",
     "trail_step1_label": "リポジトリ",
     "trail_step1_detail": "xai-org/x-algorithm",
     "trail_step2_label": "ラベル",
-    "trail_step2_detail": "正確なアルゴリズムのターゲット",
+    "trail_step2_detail": "アルゴリズムの正確なターゲット",
     "trail_step3_label": "アドバイス",
-    "trail_step3_detail": "これらのターゲットから構築",
-    "tagline_lead": "同じ下書き。同じ日。違うアドバイス。",
+    "trail_step3_detail": "ターゲットに基づいて構築",
+    "tagline_lead": "同じ下書き。同じ日。異なるアドバイス。",
     "tagline_emphasis": "根拠があるのは、1つだけ。"
   },
   "analyze_panel": {
     "url_trick_label": "URLトリック",
-    "url_trick_body": "任意のポストの <code>x.com</code> を <code>letxcook.com</code> に置き換える",
+    "url_trick_body": "任意のポストの<code>x.com</code>を<code>letxcook.com</code>に置き換える",
     "your_draft_label": "あなたの下書き",
     "tab_paste_full": "下書きをペースト",
     "tab_paste_short": "ペースト",
@@ -163,8 +163,8 @@
     "fetched_from_prefix": "取得元:",
     "views_suffix": "表示",
     "clear_fetched_aria": "取得インジケーターをクリア",
-    "draft_textarea_label": "Xの下書き",
-    "draft_placeholder": "ここにXの下書きをペーストしてください。\n\nまたは、このカードの任意の場所にスクリーンショットをドロップします。",
+    "draft_textarea_label": "Xのポスト下書き",
+    "draft_placeholder": "ここにXのポスト下書きをペースト。\n\nまたは、このカードのどこかにスクリーンショットをドロップしてください。",
     "attached_screenshot_alt": "添付されたスクリーンショット",
     "remove_image_aria": "画像を削除",
     "screenshot_btn": "スクリーンショット",
@@ -172,26 +172,145 @@
     "stats_13_signals": "13のシグナル",
     "stats_2_sec": "約2秒",
     "usage_free_tier": "無料枠",
-    "usage_anon_one": "残り1回の無料トライアル",
-    "usage_anon_other": "残り{count}回の無料トライアル",
-    "usage_anon_used": "無料トライアル終了",
+    "usage_anon_one": "無料トライアル残り1回",
+    "usage_anon_other": "無料トライアル残り{count}回",
+    "usage_anon_used": "無料トライアル使用済み",
     "usage_monthly": "今月 {used} / {limit} 回",
     "usage_bonus_chip": "+{count} ボーナス",
     "usage_bonus_tooltip": "紹介によるボーナスクレジット。毎月の無料枠を使い切った後にのみ消費されます。",
     "gate_anon_title": "無料トライアルを使い切りました。",
     "gate_free_title": "今月の無料分析枠（{limit}回）をすべて使い切りました。",
-    "gate_anon_body": "サインインすると、毎月3回の無料分析をご利用いただけます（クレジットカード不要）。",
-    "gate_free_body": "アップグレードして採点を続けましょう。（Stripe決済を準備中）",
+    "gate_anon_body": "サインインすると毎月3回の無料分析が利用できます（クレジットカード不要）。",
+    "gate_free_body": "採点を続けるにはアップグレードしてください。（Stripe決済準備中）",
     "gate_anon_cta": "無料でサインイン",
     "gate_free_cta": "アップグレード",
     "cta_grading": "採点中...",
     "cta_grade": "ポストを採点する",
-    "privacy_note": "デフォルトで非公開です。採点後に下書きが保存されることはありません。",
+    "privacy_note": "デフォルトで非公開。採点後、下書きが保存されることはありません。",
     "share_bar_ready": "比較の準備が完了しました",
     "share_bar_preparing": "共有リンクを準備中…",
     "share_bar_copy": "リンクをコピー",
     "share_bar_copied": "コピーしました",
     "share_bar_tweet": "Xで共有",
     "share_tweet_text": "letxcookでツイートを診断しました。13のアルゴリズムシグナルに基づき、すべてのアドバイスが公開リポジトリで検証可能です。"
+  },
+  "signal_storm": {
+    "title": "<emph>下書き</emph>を採点中",
+    "subtitle": "14のアルゴリズムシグナル · 約28秒",
+    "signals_graded_label": "採点済みシグナル",
+    "kicker_original_draft": "元の下書き",
+    "kicker_awaiting_rewrite": "リライト待機中",
+    "char_count": "{count}文字",
+    "stage_eyebrow": "シグナル処理エンジン",
+    "stage_sub": "14のアルゴリズムシグナルを段階的に分析中",
+    "progress_label": "シグナル {graded}/14 · 公開リポジトリに基づいて採点中",
+    "skeleton_foot": "採点が完了すると表示されます",
+    "pill_rewarded": "プラス評価",
+    "pill_punished": "マイナス評価",
+    "draft_fallback": "あなたの下書き",
+    "desc_like": "テキストの形状から「いいね」率を予測。",
+    "desc_reply": "リプを誘発する強さを測定。",
+    "desc_repost": "拡散の可能性を予測。",
+    "desc_quote": "引用リポストを引き出す力を測定。",
+    "desc_follow": "フォロー転換の意図を測定。",
+    "desc_profile_click": "プロフィールへの誘導シグナルを予測。",
+    "desc_click": "クリックスルーの意図を予測。",
+    "desc_video_view": "動画の視聴完了率を予測。",
+    "desc_photo_expand": "写真の拡大率を予測。",
+    "desc_dwell": "閲覧の滞在時間の質を測定。",
+    "desc_not_interested": "「興味がない」と思われるリスクを確認。",
+    "desc_bookmark": "ブロックを誘発するリスクを確認。",
+    "desc_share": "ミュートされるリスクを確認。",
+    "desc_report": "ポリシー違反 / スパムのリスクを確認。"
+  },
+  "annotated_draft": {
+    "eyebrow": "下書きのマークアップ",
+    "heading": "<emph>アルゴリズム</emph>の評価が漏れる箇所。",
+    "from_screenshot_badge": "スクリーンショットから読み取り",
+    "leaks_count": "{count, plural, one {#件のリーク} other {#件のリーク}}",
+    "biggest_prefix": "最大:",
+    "no_major_leaks": "大きなリークは見つかりませんでした",
+    "step_draft": "下書き",
+    "step_diagnosis": "診断",
+    "step_signal_check": "シグナルチェック",
+    "draft_canvas_eyebrow": "あなたの下書き（マークアップ済み）",
+    "issues_summary": "{count, plural, one {#件の課題が} other {#件の課題が}}リプライの意図、明確さ、および知覚価値を低下させています。",
+    "working_label": "機能している点",
+    "working_subtitle": "すでにこのポストのパフォーマンス向上に貢献しているシグナル",
+    "strengthen_label": "強化すべき点",
+    "strengthen_subtitle": "リプライとクリックを改善できる小さな修正",
+    "signals_count": "{count, plural, one {#個のシグナル} other {#個のシグナル}}",
+    "no_strong_signals_yet": "強いシグナルはまだありません。",
+    "no_weak_signals_found": "弱いシグナルは見つかりませんでした。",
+    "show_fewer": "表示を減らす",
+    "show_more": "さらに{count}件表示",
+    "potential_lift_label": "潜在的な向上幅:",
+    "view_full_signal_report": "シグナルレポート全体を見る",
+    "moderate_pill": "中程度",
+    "issue_tooltip": "課題 {n}: {label}",
+    "leak_tooltip": "リーク #{n} — {label}",
+    "summary_biggest_leak": "最大のリーク",
+    "summary_quickest_win": "最も簡単な改善点",
+    "summary_potential_lift": "潜在的な向上幅",
+    "summary_biggest_leak_fallback_title": "なし",
+    "summary_biggest_leak_fallback_subtitle": "下書きに大きなリークはありません。",
+    "summary_quickest_win_fallback_title": "投稿しましょう",
+    "summary_quickest_win_fallback_subtitle": "緊急に修正すべき点はありません。",
+    "summary_potential_lift_subtitle": "リプライ + クリックの合計",
+    "lift_range": "+{low} 〜 +{high} pt"
+  },
+  "recommended_rewrite": {
+    "eyebrow": "推奨リライト",
+    "subtitle": "元の下書きと最適化されたバージョンを比較します。",
+    "signal_score_label": "シグナルスコア",
+    "mode_final": "最終バージョン",
+    "mode_compare": "比較",
+    "mode_why": "変更の理由",
+    "projected_prefix": "予測:",
+    "your_draft_eyebrow": "あなたの下書き",
+    "optimized_eyebrow": "最適化されたバージョン",
+    "original_draft_eyebrow": "元の下書き",
+    "no_draft_text": "(下書きテキストなし)",
+    "key_improvements": "{count}つの主な改善点",
+    "copy_button": "コピー",
+    "copied_button": "コピーしました",
+    "before_badge": "変更前",
+    "after_badge": "変更後",
+    "alternative_angle_eyebrow": "別のアングル",
+    "show_alternatives": "{count, plural, one {#つの別のアングルを表示} other {#つの別のアングルを表示}}",
+    "hide_alternatives": "{count, plural, one {#つの別のアングルを非表示} other {#つの別のアングルを非表示}}"
+  },
+  "result_card": {
+    "demo_mode_label": "デモモード",
+    "demo_mode_body": "— 実際の採点を行うにはGEMINI_API_KEYを追加してください。",
+    "chip_reply_bait": "リプライベイト",
+    "chip_click_intent": "クリック意図",
+    "chip_risk_level": "リスクレベル",
+    "full_breakdown_label": "詳細な内訳 · 14のシグナル",
+    "positive_rewarded": "ポジティブ · プラス評価",
+    "negative_punished": "ネガティブ · マイナス評価",
+    "see_alternatives": "{count, plural, one {#つの別のアングルを見る} other {#つの別のアングルを見る}}",
+    "hide_alternatives": "{count, plural, one {#つの別のアングルを隠す} other {#つの別のアングルを隠す}}",
+    "alternatives_narrower_fix": "トーンを変えずに部分的な修正を行う場合",
+    "alternative_angle_eyebrow": "別のアングル",
+    "chars_suffix": "{count}文字",
+    "structural_notes_label": "構造上のメモ"
+  },
+  "hero_compare_mobile": {
+    "header_eyebrow": "推奨リライト",
+    "stat_signal_score": "シグナルスコア",
+    "stat_predicted": "予測",
+    "stat_improvement": "改善",
+    "tab_original": "オリジナル",
+    "tab_changes": "変更点",
+    "tab_optimized": "最適化",
+    "key_improvements": "{count}つの主な改善点",
+    "diff_badge": "差分",
+    "peek_original_label": "元の下書き",
+    "peek_optimized_label": "最適化されたバージョン",
+    "peek_before_sub": "変更前",
+    "peek_after_sub": "変更後",
+    "peek_badge": "ピーク",
+    "tap_to_see_diff": "タップして差分を表示。"
   }
 }

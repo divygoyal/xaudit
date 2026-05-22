@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Ban,
   Check,
@@ -25,27 +26,31 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+/** Signal label/kind/icon. `descKey` maps to messages.signal_storm.<key>
+ *  for the per-signal description line in the active-card. Labels stay
+ *  English by design (they match X's own product labels and are part of
+ *  the brand glossary). */
 const SIGNALS: {
   id: string;
   label: string;
   kind: "rewarded" | "punished";
-  desc: string;
+  descKey: string;
   Icon: LucideIcon;
 }[] = [
-  { id: "like", label: "Like", kind: "rewarded", desc: "Predicting like rate from text shape.", Icon: Heart },
-  { id: "reply", label: "Reply", kind: "rewarded", desc: "Measuring reply-trigger strength.", Icon: MessageCircle },
-  { id: "repost", label: "Repost", kind: "rewarded", desc: "Predicting amplification potential.", Icon: Repeat2 },
-  { id: "quote", label: "Quote", kind: "rewarded", desc: "Measuring quote-tweet pull.", Icon: Quote },
-  { id: "follow", label: "Follow", kind: "rewarded", desc: "Measuring follow conversion intent.", Icon: UserPlus },
-  { id: "profile-click", label: "Profile Click", kind: "rewarded", desc: "Predicting profile-pull signal.", Icon: UserRound },
-  { id: "click", label: "Link Click", kind: "rewarded", desc: "Predicting click-through intent.", Icon: MousePointerClick },
-  { id: "video-view", label: "Video View", kind: "rewarded", desc: "Predicting video view-through.", Icon: PlayCircle },
-  { id: "photo-expand", label: "Image View", kind: "rewarded", desc: "Predicting photo-expand rate.", Icon: ImageIcon },
-  { id: "dwell", label: "Dwell Time", kind: "rewarded", desc: "Measuring reading dwell quality.", Icon: Timer },
-  { id: "not-interested", label: "Expand", kind: "punished", desc: "Checking not-interested risk.", Icon: EyeOff },
-  { id: "bookmark", label: "Bookmark", kind: "punished", desc: "Checking block-trigger risk.", Icon: Ban },
-  { id: "share", label: "Share", kind: "punished", desc: "Checking mute risk.", Icon: VolumeX },
-  { id: "report", label: "Report Risk", kind: "punished", desc: "Checking policy / spam risk.", Icon: Flag },
+  { id: "like", label: "Like", kind: "rewarded", descKey: "desc_like", Icon: Heart },
+  { id: "reply", label: "Reply", kind: "rewarded", descKey: "desc_reply", Icon: MessageCircle },
+  { id: "repost", label: "Repost", kind: "rewarded", descKey: "desc_repost", Icon: Repeat2 },
+  { id: "quote", label: "Quote", kind: "rewarded", descKey: "desc_quote", Icon: Quote },
+  { id: "follow", label: "Follow", kind: "rewarded", descKey: "desc_follow", Icon: UserPlus },
+  { id: "profile-click", label: "Profile Click", kind: "rewarded", descKey: "desc_profile_click", Icon: UserRound },
+  { id: "click", label: "Link Click", kind: "rewarded", descKey: "desc_click", Icon: MousePointerClick },
+  { id: "video-view", label: "Video View", kind: "rewarded", descKey: "desc_video_view", Icon: PlayCircle },
+  { id: "photo-expand", label: "Image View", kind: "rewarded", descKey: "desc_photo_expand", Icon: ImageIcon },
+  { id: "dwell", label: "Dwell Time", kind: "rewarded", descKey: "desc_dwell", Icon: Timer },
+  { id: "not-interested", label: "Expand", kind: "punished", descKey: "desc_not_interested", Icon: EyeOff },
+  { id: "bookmark", label: "Bookmark", kind: "punished", descKey: "desc_bookmark", Icon: Ban },
+  { id: "share", label: "Share", kind: "punished", descKey: "desc_share", Icon: VolumeX },
+  { id: "report", label: "Report Risk", kind: "punished", descKey: "desc_report", Icon: Flag },
 ];
 
 const SIGNAL_DURATION_MS = 2000;
@@ -117,6 +122,7 @@ function DraftText({ text }: { text: string }) {
 }
 
 export function SignalStorm({ draftText }: { draftText: string }) {
+  const t = useTranslations("signal_storm");
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -129,7 +135,7 @@ export function SignalStorm({ draftText }: { draftText: string }) {
   const display =
     draftText.length > 320
       ? `${draftText.slice(0, 320).trim()}…`
-      : draftText || "Your draft";
+      : draftText || t("draft_fallback");
 
   const current = SIGNALS[active];
   const graded = Math.min(active + 1, SIGNALS.length);
@@ -142,11 +148,15 @@ export function SignalStorm({ draftText }: { draftText: string }) {
         <div className="flex min-w-0 flex-1 items-center justify-between gap-3 lg:block lg:flex-initial">
           <div className="min-w-0">
             <h3 className="font-sans text-[19px] font-semibold leading-tight text-paper md:text-[26px]">
-              Grading your <span className="serif-italic text-vermillion">draft</span>
+              {t.rich("title", {
+                emph: (chunks) => (
+                  <span className="serif-italic text-vermillion">{chunks}</span>
+                ),
+              })}
             </h3>
             <p className="mt-1 hidden items-center gap-1.5 text-[12.5px] text-ink-300 lg:flex">
               <Sparkles size={11} className="text-vermillion-glow" strokeWidth={2.4} />
-              14 ranker signals · about 28 seconds
+              {t("subtitle")}
             </p>
           </div>
           <span className="signal-engine-mobile-count lg:hidden">
@@ -164,7 +174,7 @@ export function SignalStorm({ draftText }: { draftText: string }) {
             <span className="signal-engine-header-num">
               {graded}<span className="text-ink-500"> / 14</span>
             </span>
-            <span className="signal-engine-header-label">Signals graded</span>
+            <span className="signal-engine-header-label">{t("signals_graded_label")}</span>
           </div>
         </div>
       </header>
@@ -175,12 +185,12 @@ export function SignalStorm({ draftText }: { draftText: string }) {
         <article className="signal-engine-panel">
           <div className="signal-engine-kicker">
             <Clipboard size={11} strokeWidth={2.2} />
-            Original draft
+            {t("kicker_original_draft")}
           </div>
           <div className="signal-engine-draft-box">
             <DraftText text={display} />
             <span className="signal-engine-char-count">
-              {Math.min(draftText.length, 320)} characters
+              {t("char_count", { count: Math.min(draftText.length, 320) })}
             </span>
           </div>
         </article>
@@ -197,7 +207,7 @@ export function SignalStorm({ draftText }: { draftText: string }) {
         <article className="signal-engine-rewrite-panel">
           <div className="signal-engine-kicker">
             <PenLine size={11} strokeWidth={2.2} />
-            Awaiting rewrite
+            {t("kicker_awaiting_rewrite")}
           </div>
           <div className="signal-engine-skeleton">
             {SKELETON_WIDTHS.map((width, i) => (
@@ -215,7 +225,7 @@ export function SignalStorm({ draftText }: { draftText: string }) {
           </div>
           <div className="signal-engine-rewrite-foot">
             <Lock size={11} strokeWidth={2.4} className="text-ink-400" />
-            <span>Will appear when grading completes</span>
+            <span>{t("skeleton_foot")}</span>
           </div>
         </article>
       </div>
@@ -234,6 +244,7 @@ function ProcessingEngine({
   graded: number;
   progressPct: number;
 }) {
+  const t = useTranslations("signal_storm");
   const ActiveIcon = current.Icon;
   return (
     <div className="signal-engine-stage">
@@ -241,10 +252,10 @@ function ProcessingEngine({
       <div className="signal-engine-stage-head">
         <div className="signal-engine-stage-eyebrow">
           <Sparkles size={11} strokeWidth={2.4} />
-          Signal Processing Engine
+          {t("stage_eyebrow")}
         </div>
         <div className="signal-engine-stage-sub">
-          Analyzing 14 ranker signals step by step
+          {t("stage_sub")}
         </div>
       </div>
 
@@ -315,10 +326,10 @@ function ProcessingEngine({
             <span
               className={`signal-engine-active-pill signal-engine-active-pill-${current.kind}`}
             >
-              {current.kind === "rewarded" ? "Rewarded" : "Punished"}
+              {current.kind === "rewarded" ? t("pill_rewarded") : t("pill_punished")}
             </span>
           </div>
-          <div className="signal-engine-active-desc">{current.desc}</div>
+          <div className="signal-engine-active-desc">{t(current.descKey)}</div>
         </div>
       </div>
 
@@ -326,7 +337,7 @@ function ProcessingEngine({
       <div className="signal-engine-progress">
         <div className="signal-engine-progress-meta">
           <span className="signal-engine-progress-num">
-            Signal {graded} of 14 · grading against the open repo
+            {t("progress_label", { graded })}
           </span>
           <span className="signal-engine-progress-pct">
             {Math.round(progressPct)}%

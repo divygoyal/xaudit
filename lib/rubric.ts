@@ -1,4 +1,8 @@
-export const SYSTEM_PROMPT = `You are letxcook, a grader that scores X (Twitter) post drafts against the publicly documented engagement signals from X's open-source ranking algorithm at github.com/xai-org/x-algorithm.
+/** Long-form ranker system prompt. Identical across locales — only the
+ *  RESPONSE LANGUAGE footer (added by buildSystemPrompt) changes per
+ *  locale. Kept as a const so existing English-only callers can still
+ *  reference it directly. */
+const BASE_SYSTEM_PROMPT = `You are letxcook, a grader that scores X (Twitter) post drafts against the publicly documented engagement signals from X's open-source ranking algorithm at github.com/xai-org/x-algorithm.
 
 GROUND TRUTH (the ONLY facts you may rely on):
 - Positive engagement signals the ranker tries to predict: like, reply, repost, quote, click, profile_click, video_view, photo_expand, dwell, follow.
@@ -141,6 +145,59 @@ REWRITES — produce 5 to 6 rewrites total:
   Do not repeat the same angle twice. The Combined rewrite should have the HIGHEST predicted_lift since it addresses multiple signals at once.
 
 Set "trigger" to the EXACT substring (verbatim) so the UI can find it via case-sensitive search — do NOT paraphrase.`;
+
+/** Human-readable language name for the response-language instruction.
+ *  Kept short — Gemini just needs to know what language to write in. */
+const LANGUAGE_NAMES: Record<string, string> = {
+  "ja-jp": "Japanese (日本語)",
+  "pt-br": "Brazilian Portuguese (Português do Brasil)",
+  "es-mx": "Spanish (Español)",
+  "ar-sa": "Modern Standard Arabic (العربية الفصحى)",
+  "id-id": "Indonesian (Bahasa Indonesia)",
+};
+
+/** Build the full ranker system prompt for a given locale.
+ *  English passes the prompt through unchanged. Non-English locales get
+ *  a RESPONSE LANGUAGE footer telling Gemini to translate all
+ *  human-readable text fields (issue labels, reasons, descriptions,
+ *  rewrite text…) while preserving canonical identifier strings that
+ *  the UI keys on (signal names, angle names, band names). */
+export function buildSystemPrompt(locale?: string): string {
+  const lang = locale ? LANGUAGE_NAMES[locale.toLowerCase()] : undefined;
+  if (!lang) return BASE_SYSTEM_PROMPT;
+  return (
+    BASE_SYSTEM_PROMPT +
+    `
+
+RESPONSE LANGUAGE
+Write all human-readable text fields in ${lang}. That includes:
+  • leaks[].short_label, why_it_leaks, ranker_assumes, fix_strategy, suggested_rewrite
+  • verdict.reason
+  • positive_signals[].reason and fix_label
+  • negative_signals[].reason and fix_label
+  • structural[].note
+  • rewrites[].text, why_better
+  • rewrites[].edits[].new_phrase and description
+  • rewrites[].edits[].improvement_label
+  • rewrites[].highlights[].label (use a natural local equivalent of the original English term)
+
+KEEP THESE STRINGS IN ENGLISH (the UI matches on them as stable identifiers, translating them breaks rendering):
+  • Signal names: "Like", "Reply", "Repost", "Quote", "Click", "Profile click", "Photo expand", "Video view", "Dwell", "Follow", "Not interested", "Block", "Mute", "Report"
+  • Angle names: "Combined", "Reply-hook", "Click-hook", "Follow-hook", "Quote-hook", "Repost-hook", "Dwell-hook", "Like-hook", "Profile-hook"
+  • Verdict bands: "Weak", "Moderate", "Strong"
+  • Risk levels: "Low", "Moderate", "High"
+  • Structural names: "Author diversity", "Safety pipeline", "Media"
+  • Severity: "Weak", "Risk"
+  • Phrase/trigger fields ("phrase", "trigger", "original_phrase") — these are verbatim substrings of the user's draft and must NEVER be translated.
+
+TONE
+Match the brand voice — confident, peer-to-peer, slightly casual, not corporate. For Japanese: warm-confident keigo, not vending-machine sonkeigo, not anime casual.`
+  );
+}
+
+/** Back-compat alias for code that imported the constant before the
+ *  locale-aware refactor. New code should call buildSystemPrompt(locale). */
+export const SYSTEM_PROMPT = BASE_SYSTEM_PROMPT;
 
 export type AttachedMedia = {
   type: "image" | "video";

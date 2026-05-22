@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sparkles,
   TrendingUp,
@@ -158,21 +159,22 @@ export function RecommendedRewrite({ result, draftText, primary, currentScore }:
 // ─────────────────────────────────────────────────────────────
 
 function Header({ currentScore, lift }: { currentScore: number; lift: number }) {
+  const t = useTranslations("recommended_rewrite");
   return (
     <header className="flex flex-wrap items-start justify-between gap-4 border-b border-ink-700/60 px-5 py-4 md:px-7 md:py-5">
       <div>
         <div className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-vermillion-glow">
           <Sparkles size={11} strokeWidth={2.4} />
-          Recommended rewrite
+          {t("eyebrow")}
         </div>
         <p className="mt-1.5 text-[13px] leading-snug text-ink-300">
-          Compare your original draft against the optimized version.
+          {t("subtitle")}
         </p>
       </div>
       <div className="flex items-center gap-2">
         <div className="rounded-full border border-ink-700 bg-ink-900/60 px-3 py-1.5 text-[12px] text-ink-200">
           <span className="font-mono text-[10px] uppercase tracking-wider text-ink-400">
-            Signal Score
+            {t("signal_score_label")}
           </span>
           <span className="ml-2 inline-flex items-baseline font-mono text-[13px] tabular-nums text-paper">
             <CountUp value={currentScore} duration={1400} delay={0.9} />
@@ -195,11 +197,12 @@ function Header({ currentScore, lift }: { currentScore: number; lift: number }) 
 // ─────────────────────────────────────────────────────────────
 
 function ModeBar({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
+  const t = useTranslations("recommended_rewrite");
   return (
     <div className="flex items-center gap-2 border-b border-ink-700/60 px-5 py-3 md:px-7">
-      <ModeTab active={mode === "final"} onClick={() => onChange("final")} icon={Eye} label="Final version" />
-      <ModeTab active={mode === "compare"} onClick={() => onChange("compare")} icon={ArrowLeftRight} label="Compare" />
-      <ModeTab active={mode === "why"} onClick={() => onChange("why")} icon={HelpCircle} label="Why it changed" />
+      <ModeTab active={mode === "final"} onClick={() => onChange("final")} icon={Eye} label={t("mode_final")} />
+      <ModeTab active={mode === "compare"} onClick={() => onChange("compare")} icon={ArrowLeftRight} label={t("mode_compare")} />
+      <ModeTab active={mode === "why"} onClick={() => onChange("why")} icon={HelpCircle} label={t("mode_why")} />
     </div>
   );
 }
@@ -243,6 +246,7 @@ function FinalView({
   projectedScore: number;
   lift: number;
 }) {
+  const t = useTranslations("recommended_rewrite");
   return (
     <div className="mx-auto max-w-2xl">
       <div className="rounded-2xl border border-ink-700 bg-ink-900/40 px-5 py-5 md:px-6 md:py-6">
@@ -261,7 +265,7 @@ function FinalView({
         <div className="flex items-center gap-2 font-mono text-[11.5px] text-ink-300">
           <Award size={12} className="text-moss" strokeWidth={2.4} />
           <span>
-            Projected: <span className="tabular-nums text-moss">{projectedScore}/100</span>
+            {t("projected_prefix")} <span className="tabular-nums text-moss">{projectedScore}/100</span>
             {lift > 0 && <span className="ml-1 tabular-nums text-moss">(+{lift})</span>}
           </span>
         </div>
@@ -292,6 +296,7 @@ function CompareView({
   projectedScore: number;
   lift: number;
 }) {
+  const tShared = useTranslations("recommended_rewrite");
   const aligned = useMemo(() => buildAlignedDiff(draftText, primary), [draftText, primary]);
   const fallbackImprovements = useMemo(() => buildFallbackImprovements(primary), [primary]);
   const improvements = aligned.hasEdits ? aligned.edits : fallbackImprovements;
@@ -310,8 +315,8 @@ function CompareView({
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_280px_minmax(0,1fr)] xl:items-stretch xl:gap-5 2xl:grid-cols-[minmax(0,1fr)_270px_minmax(0,1fr)_280px]">
         <DraftCard
           tone="original"
-          eyebrow="Your draft"
-          text={draftText || "(no draft text)"}
+          eyebrow={tShared("your_draft_eyebrow")}
+          text={draftText || tShared("no_draft_text")}
         />
         <SuperpowersBridge
           edits={improvements}
@@ -320,7 +325,7 @@ function CompareView({
         />
         <DraftCard
           tone="optimized"
-          eyebrow="Optimized version"
+          eyebrow={tShared("optimized_eyebrow")}
           text={primary.text}
           highlights={primary.highlights}
         />
@@ -341,7 +346,7 @@ function CompareView({
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_280px_minmax(0,1fr)] xl:items-stretch xl:gap-5 2xl:grid-cols-[minmax(0,1fr)_270px_minmax(0,1fr)_280px]">
       <DiffCard
         tone="original"
-        eyebrow="Your draft"
+        eyebrow={tShared("your_draft_eyebrow")}
         text={draftText}
         annotations={aligned.originalAnnotations}
         activeEditIndex={active}
@@ -354,7 +359,7 @@ function CompareView({
       />
       <DiffCard
         tone="optimized"
-        eyebrow="Optimized version"
+        eyebrow={tShared("optimized_eyebrow")}
         text={aligned.optimizedText}
         annotations={aligned.optimizedAnnotations}
         activeEditIndex={active}
@@ -1036,6 +1041,7 @@ function WhyChangedView({
   originalAnnotations: { phrase: string; label: string; signal?: string }[];
   primary: Rewrite;
 }) {
+  const tWhy = useTranslations("recommended_rewrite");
   // Use the same aligned-diff data as Compare view — guarantees structural alignment
   const aligned = useMemo(() => buildAlignedDiff(draftText, primary), [draftText, primary]);
   const originalIssueLabels = useMemo(() => {
@@ -1180,7 +1186,7 @@ function WhyChangedView({
     >
       <DiffCard
         tone="original"
-        eyebrow="Original draft"
+        eyebrow={tWhy("original_draft_eyebrow")}
         text={draftText}
         annotations={whyOriginalAnnotations}
         phraseRefs={origPhraseRefs}
@@ -1194,7 +1200,7 @@ function WhyChangedView({
       <div className="flex w-full flex-col gap-3">
         <div className="text-center font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion-glow">
           <Sparkles size={10} className="mb-0.5 mr-1 inline" strokeWidth={2.4} />
-          {aligned.edits.length} key improvements
+          {tWhy("key_improvements", { count: aligned.edits.length })}
         </div>
         {aligned.edits.map((edit, idx) => {
           const Icon = SIGNAL_ICONS[edit.signal] ?? MessageCircle;
@@ -1236,7 +1242,7 @@ function WhyChangedView({
       <div className="flex flex-col gap-3">
         <DiffCard
           tone="optimized"
-          eyebrow="Optimized version"
+          eyebrow={tWhy("optimized_eyebrow")}
           text={aligned.optimizedText}
           annotations={whyOptimizedAnnotations}
           phraseRefs={newPhraseRefs}
@@ -1548,6 +1554,7 @@ function WhyRail({
 // ─────────────────────────────────────────────────────────────
 
 function CopyButton({ text, compact }: { text: string; compact?: boolean }) {
+  const tCopy = useTranslations("recommended_rewrite");
   const [copied, setCopied] = useState(false);
   const onClick = async () => {
     try {
@@ -1566,7 +1573,7 @@ function CopyButton({ text, compact }: { text: string; compact?: boolean }) {
       } font-mono text-[10.5px] uppercase tracking-wider text-ink-200 transition-colors hover:border-ink-500 hover:text-paper`}
     >
       {copied ? <Check size={10} strokeWidth={2.6} /> : <Copy size={10} />}
-      {copied ? "Copied" : "Copy"}
+      {copied ? tCopy("copied_button") : tCopy("copy_button")}
     </button>
   );
 }

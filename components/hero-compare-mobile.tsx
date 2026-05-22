@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sparkles,
   TrendingUp,
@@ -35,6 +36,7 @@ const TAB_ORDER: Tab[] = ["original", "changes", "optimized"];
 const SWIPE_THRESHOLD = 48; // pixels
 
 export function HeroCompareMobile({ result, draftText, primary, currentScore }: Props) {
+  const t = useTranslations("hero_compare_mobile");
   const [activeTab, setActiveTab] = useState<Tab>("optimized");
   const lift = primary.predicted_lift ?? 0;
   const projectedScore = Math.min(100, currentScore + lift);
@@ -98,21 +100,21 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
       <header className="relative flex items-center justify-between gap-3 border-b border-ink-700/60 px-4 py-2.5">
         <div className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.22em] text-vermillion-glow drop-shadow-[0_0_10px_rgba(255,138,77,0.45)]">
           <Sparkles size={11} strokeWidth={2.4} />
-          Recommended rewrite
+          {t("header_eyebrow")}
         </div>
       </header>
 
       {/* 3-stat row — values tick up to dramatize the lift */}
       <div className="relative grid grid-cols-3 gap-2 border-b border-ink-700/60 px-3 py-3">
         <StatCard
-          label="Signal score"
+          label={t("stat_signal_score")}
           value={currentScore}
           suffix="/100"
           tone="rust"
           delay={0.9}
         />
         <StatCard
-          label="Predicted"
+          label={t("stat_predicted")}
           value={projectedScore}
           suffix="/100"
           tone="moss"
@@ -120,7 +122,7 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
           duration={1500}
         />
         <StatCard
-          label="Improvement"
+          label={t("stat_improvement")}
           value={lift}
           prefix="+"
           suffix="pts"
@@ -138,21 +140,21 @@ export function HeroCompareMobile({ result, draftText, primary, currentScore }: 
           active={activeTab === "original"}
           onClick={() => setActiveTab("original")}
           icon={FileText}
-          label="Original"
+          label={t("tab_original")}
           tone="rust"
         />
         <TabButton
           active={activeTab === "changes"}
           onClick={() => setActiveTab("changes")}
           icon={ArrowLeftRight}
-          label="Changes"
+          label={t("tab_changes")}
           tone="vermillion"
         />
         <TabButton
           active={activeTab === "optimized"}
           onClick={() => setActiveTab("optimized")}
           icon={Award}
-          label="Optimized"
+          label={t("tab_optimized")}
           tone="moss"
         />
       </div>
@@ -524,15 +526,16 @@ function AnnotatedBody({
 // ─────────────────────────────────────────────────────────────
 
 function ChangesView({ edits }: { edits: DiffEdit[] }) {
+  const t = useTranslations("hero_compare_mobile");
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-vermillion-glow">
           <Sparkles size={10} strokeWidth={2.4} />
-          {edits.length} key improvements
+          {t("key_improvements", { count: edits.length })}
         </span>
         <span className="rounded-full border border-vermillion/55 bg-vermillion/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-vermillion-glow shadow-[0_0_12px_-4px_rgba(255,138,77,0.55)]">
-          Diff
+          {t("diff_badge")}
         </span>
       </div>
       {edits.map((edit, idx) => (
@@ -603,6 +606,7 @@ function PeekCard({
   optimizedText: string;
   onSwitch: () => void;
 }) {
+  const t = useTranslations("hero_compare_mobile");
   const isOriginal = tab === "original";
   const isChanges = tab === "changes";
   // Changes peek is not contextual here — peekTab is always optimized or original.
@@ -610,8 +614,8 @@ function PeekCard({
   const text = isOriginal ? draftText : optimizedText;
   const toneCls = isOriginal ? "text-rust-glow" : "text-moss-glow";
   const Icon = isOriginal ? Eye : Award;
-  const label = isOriginal ? "Original draft" : "Optimized version";
-  const subLabel = isOriginal ? "before" : "after";
+  const label = isOriginal ? t("peek_original_label") : t("peek_optimized_label");
+  const subLabel = isOriginal ? t("peek_before_sub") : t("peek_after_sub");
 
   return (
     <button
@@ -626,11 +630,11 @@ function PeekCard({
             {label} ({subLabel})
           </span>
           <span className="rounded-full border border-ink-700/80 bg-ink-900/60 px-1.5 py-[1px] font-mono text-[8.5px] uppercase tracking-[0.18em] text-ink-400">
-            Peek
+            {t("peek_badge")}
           </span>
         </div>
         <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-ink-300">
-          {isChanges ? "Tap to see the diff." : text}
+          {isChanges ? t("tap_to_see_diff") : text}
         </p>
       </div>
       <ChevronRight
