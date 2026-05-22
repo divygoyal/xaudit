@@ -69,6 +69,21 @@ export const metadata: Metadata = {
     title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
   },
+  // Search-engine site-ownership verification. Each env var is the
+  // token a given Webmaster Tools dashboard hands you. Google is
+  // already verified via files in /public — included here as the
+  // env-var path for completeness.
+  //   - Bing:   https://www.bing.com/webmasters/  → Add site → meta tag → copy content
+  //   - Yandex: https://webmaster.yandex.com/     → Add site → meta tag → copy content
+  //   - Google: https://search.google.com/search-console (alt to file method)
+  // When an env var is unset the corresponding tag is simply omitted.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    yandex: process.env.YANDEX_SITE_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
+  },
   // og:logo is emitted manually in the <head> (see RootLayout below)
   // because Next.js's metadata.other field emits <meta name=…> and
   // OG conventions / validators want <meta property=…>. Spec-strict
