@@ -13,6 +13,7 @@ import type {
 import { computeScore, toneByBand } from "@/lib/score";
 import { CountUp } from "./count-up";
 import { RecommendedRewrite } from "./recommended-rewrite";
+import { HeroCompareMobile } from "./hero-compare-mobile";
 import {
   Heart,
   MessageCircle,
@@ -323,13 +324,24 @@ export function RewritesGrid({ result, draftText = "" }: AuditResultProps & { dr
 
   return (
     <div>
-      {/* PRIMARY — the premium Recommended Rewrite section */}
-      <RecommendedRewrite
-        result={result}
-        draftText={draftText}
-        primary={primary}
-        currentScore={score}
-      />
+      {/* PRIMARY — the premium Recommended Rewrite section.
+          Mobile gets the tabbed compact view; desktop keeps the full 3-col. */}
+      <div className="lg:hidden">
+        <HeroCompareMobile
+          result={result}
+          draftText={draftText}
+          primary={primary}
+          currentScore={score}
+        />
+      </div>
+      <div className="hidden lg:block">
+        <RecommendedRewrite
+          result={result}
+          draftText={draftText}
+          primary={primary}
+          currentScore={score}
+        />
+      </div>
 
       {/* ALTERNATES — collapsible */}
       {alternates.length > 0 && (

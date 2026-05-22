@@ -324,11 +324,11 @@ button {
 }
 
 /* ─────────────── Hero compare embed (compact comparison card) ─────────────── */
-/* The standalone <SampleAnalysis /> renders <RecommendedRewrite /> with very
-   generous heights and paddings tuned for its own section. In the hero we
-   shrink those so the full stack (pill → headline → CTAs → comparison) fits
-   the viewport. All overrides scope to .hero-compare so SampleAnalysis stays
-   intact for reuse. */
+/* <RecommendedRewrite /> renders with generous heights and paddings tuned for
+   its standalone post-submit and verdict-page usage. In the hero we shrink
+   those so the full stack (pill → headline → CTAs → comparison) fits the
+   viewport. All overrides scope to .hero-compare so other usages are
+   unaffected. */
 .hero-compare #rewrite-recommended {
   margin-top: 0 !important;
   /* Solid card surface so the hero trajectory doesn't bleed through the body

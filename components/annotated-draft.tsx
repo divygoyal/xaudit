@@ -172,11 +172,17 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
         fromScreenshot={fromScreenshot}
       />
 
-      <ProgressionNav />
+      {/* Progression nav is the 3-step Draft → Diagnosis → Signal Check meta
+          narrative. On mobile we hide the Draft + Working columns, so the
+          3-step framing no longer applies — only show on md+. */}
+      <div className="hidden md:block">
+        <ProgressionNav />
+      </div>
 
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-4">
-        {/* COL 1 — Draft */}
-        <div className="col-reveal" style={{ animationDelay: "0.1s" }}>
+        {/* COL 1 — Draft. Hidden on mobile: the draft is already shown in the
+            HeroCompareMobile comparison above this section. */}
+        <div className="hidden md:block col-reveal" style={{ animationDelay: "0.1s" }}>
           <DraftCanvas
             draft={draft}
             leaks={sortedLeaks}
@@ -186,12 +192,15 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
           />
         </div>
 
-        {/* COL 2 — What's Working */}
-        <div className="col-reveal" style={{ animationDelay: "0.3s" }}>
+        {/* COL 2 — What's Working. Hidden on mobile: this is reassurance, not
+            action — mobile users come here to fix leaks, not be reassured. */}
+        <div className="hidden md:block col-reveal" style={{ animationDelay: "0.3s" }}>
           <WhatsWorkingColumn result={result} />
         </div>
 
-        {/* COL 3 — What To Strengthen */}
+        {/* COL 3 — What To Strengthen. The only column kept on mobile —
+            actionable fix list, with each fix anchored to a trigger phrase
+            from the draft. */}
         <div className="col-reveal" style={{ animationDelay: "0.5s" }}>
           <WhatToStrengthenColumn result={result} liftRange={liftRange} />
         </div>

@@ -592,8 +592,8 @@ export function AnalyzePanel() {
                   tweetAuthor={fetchedFrom?.screen_name ?? null}
                 />
               )}
-              <MarkedUpDraft result={result} draftText={draftAtSubmit} />
               <RewritesGrid result={result} draftText={draftAtSubmit} />
+              <MarkedUpDraft result={result} draftText={draftAtSubmit} />
               <StructuralCompact result={result} />
             </div>
           )}
