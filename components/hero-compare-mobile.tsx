@@ -337,6 +337,8 @@ function OriginalView({
   draftText: string;
   annotations: DiffAnnotation[];
 }) {
+  const tCallout = useTranslations("recommended_rewrite");
+  const tPeek = useTranslations("hero_compare_mobile");
   // Transform raw labels ("Hook rewritten") into problem-oriented copy
   // ("Vague hook") so it reads as a *diagnosis* on the original side,
   // matching the desktop callout copy exactly.
@@ -344,19 +346,19 @@ function OriginalView({
     () =>
       annotations.map((a) => ({
         ...a,
-        label: originalCalloutFallback(a.label, a.signal),
+        label: originalCalloutFallback(a.label, a.signal, tCallout),
       })),
-    [annotations]
+    [annotations, tCallout]
   );
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-rust-glow">
           <Eye size={10} strokeWidth={2.4} />
-          Original draft
+          {tPeek("peek_original_label")}
         </span>
         <span className="rounded-full border border-rust/55 bg-rust/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-rust-glow shadow-[0_0_12px_-4px_rgba(230,115,86,0.5)]">
-          BEFORE
+          {tCallout("diff_before_badge")}
         </span>
       </div>
       <AnnotatedBody text={draftText} annotations={calloutAnnotations} tone="rust" />
@@ -371,25 +373,27 @@ function OptimizedView({
   text: string;
   annotations: DiffAnnotation[];
 }) {
+  const tCallout = useTranslations("recommended_rewrite");
+  const tPeek = useTranslations("hero_compare_mobile");
   // Solution-oriented copy ("Hook written", "Reply trigger") for the
   // after side — same transformer the desktop callout uses.
   const calloutAnnotations = useMemo(
     () =>
       annotations.map((a) => ({
         ...a,
-        label: optimizedCalloutLabel(a.label, a.signal),
+        label: optimizedCalloutLabel(a.label, a.signal, tCallout),
       })),
-    [annotations]
+    [annotations, tCallout]
   );
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-moss-glow">
           <Award size={10} strokeWidth={2.4} />
-          Optimized version
+          {tPeek("peek_optimized_label")}
         </span>
         <span className="rounded-full border border-moss/55 bg-moss/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-moss-glow shadow-[0_0_12px_-4px_rgba(168,220,138,0.55)]">
-          AFTER
+          {tCallout("diff_after_badge")}
         </span>
       </div>
       <AnnotatedBody text={text} annotations={calloutAnnotations} tone="moss" />

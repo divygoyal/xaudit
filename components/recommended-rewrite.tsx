@@ -49,47 +49,29 @@ export const SIGNAL_ICONS: Record<string, typeof MessageCircle> = {
   "Profile click": UserRound,
 };
 
-// Reasons map: each signal a Combined rewrite addresses gets a friendly title + body
-const SIGNAL_REASONS: Record<string, { title: string; body: string }> = {
-  Reply: {
-    title: "Reply trigger added",
-    body: "A direct question invites discussion.",
-  },
-  Click: {
-    title: "Stronger click intent",
-    body: "Concrete hook pulls the eye in.",
-  },
-  Follow: {
-    title: "Follow case built",
-    body: "Distinctive POV signals more to come.",
-  },
-  Quote: {
-    title: "Quotable line sharpened",
-    body: "Punchy phrasing invites amplification.",
-  },
-  Repost: {
-    title: "Easier to repost",
-    body: "Tight, benefit-forward copy.",
-  },
-  Dwell: {
-    title: "More reason to dwell",
-    body: "Specific details earn attention.",
-  },
-  Like: {
-    title: "Clearer like intent",
-    body: "Explicit benefit invites approval.",
-  },
+// Reasons map: each signal a Combined rewrite addresses gets a friendly title + body.
+// Values are TRANSLATION KEYS — callsites resolve them via t() at render time
+// so JP / other locales pick up native phrasings. The signal name (English) is
+// the canonical lookup index, but the displayed text is locale-aware.
+const SIGNAL_REASON_KEYS: Record<string, { titleKey: string; bodyKey: string }> = {
+  Reply: { titleKey: "signal_reason_title_reply", bodyKey: "signal_reason_body_reply" },
+  Click: { titleKey: "signal_reason_title_click", bodyKey: "signal_reason_body_click" },
+  Follow: { titleKey: "signal_reason_title_follow", bodyKey: "signal_reason_body_follow" },
+  Quote: { titleKey: "signal_reason_title_quote", bodyKey: "signal_reason_body_quote" },
+  Repost: { titleKey: "signal_reason_title_repost", bodyKey: "signal_reason_body_repost" },
+  Dwell: { titleKey: "signal_reason_title_dwell", bodyKey: "signal_reason_body_dwell" },
+  Like: { titleKey: "signal_reason_title_like", bodyKey: "signal_reason_body_like" },
   "Profile click": {
-    title: "Profile pull added",
-    body: "Teases more of you to discover.",
+    titleKey: "signal_reason_title_profile_click",
+    bodyKey: "signal_reason_body_profile_click",
   },
   "Photo expand": {
-    title: "Visual context strengthened",
-    body: "Image deepens the message.",
+    titleKey: "signal_reason_title_photo_expand",
+    bodyKey: "signal_reason_body_photo_expand",
   },
   "Video view": {
-    title: "Native video leverage",
-    body: "Video drives higher attention.",
+    titleKey: "signal_reason_title_video_view",
+    bodyKey: "signal_reason_body_video_view",
   },
 };
 
@@ -298,7 +280,7 @@ function CompareView({
 }) {
   const tShared = useTranslations("recommended_rewrite");
   const aligned = useMemo(() => buildAlignedDiff(draftText, primary), [draftText, primary]);
-  const fallbackImprovements = useMemo(() => buildFallbackImprovements(primary), [primary]);
+  const fallbackImprovements = useMemo(() => buildFallbackImprovements(primary, tShared), [primary, tShared]);
   const improvements = aligned.hasEdits ? aligned.edits : fallbackImprovements;
   const [activeEditIndex, setActiveEditIndex] = useState<number | null>(
     improvements[0]?.index ?? null
@@ -599,33 +581,39 @@ function rectsForNode(node: Node): DOMRect[] | DOMRectList | null {
   return null;
 }
 
-function buildFallbackImprovements(primary: Rewrite): DiffEdit[] {
+type RecommendedRewriteT = (key: string, values?: Record<string, string | number>) => string;
+
+function buildFallbackImprovements(primary: Rewrite, t: RecommendedRewriteT): DiffEdit[] {
   const signals = primary.addresses_signals ?? [];
   const highlights = primary.highlights ?? [];
   const fromHighlights = highlights.slice(0, 4).map((h, index) => {
     const signal = signals[index] ?? inferSignalFromLabel(h.label);
+    const reason = SIGNAL_REASON_KEYS[signal];
     return {
       index,
       originalPhrase: "",
       newPhrase: h.phrase,
       signal,
-      improvementLabel: titleFromHighlight(h.label),
-      description:
-        SIGNAL_REASONS[signal]?.body ??
-        "Stronger wording makes the rewrite easier to understand and act on.",
+      improvementLabel: titleFromHighlight(h.label, t),
+      description: reason ? t(reason.bodyKey) : t("fallback_improvement_body"),
     };
   });
 
   if (fromHighlights.length > 0) return fromHighlights;
 
-  return signals.slice(0, 4).map((signal, index) => ({
-    index,
-    originalPhrase: "",
-    newPhrase: "",
-    signal,
-    improvementLabel: SIGNAL_REASONS[signal]?.title ?? `Strengthened ${signal.toLowerCase()}`,
-    description: SIGNAL_REASONS[signal]?.body ?? "Signal strengthened.",
-  }));
+  return signals.slice(0, 4).map((signal, index) => {
+    const reason = SIGNAL_REASON_KEYS[signal];
+    return {
+      index,
+      originalPhrase: "",
+      newPhrase: "",
+      signal,
+      improvementLabel: reason
+        ? t(reason.titleKey)
+        : t("fallback_signal_strengthened_template", { signal: signal.toLowerCase() }),
+      description: reason ? t(reason.bodyKey) : t("fallback_signal_strengthened"),
+    };
+  });
 }
 
 function inferSignalFromLabel(label: string) {
@@ -637,13 +625,16 @@ function inferSignalFromLabel(label: string) {
   return "Reply";
 }
 
-function titleFromHighlight(label: string) {
+function titleFromHighlight(label: string, t: RecommendedRewriteT): string {
   const clean = label.trim();
-  if (!clean) return "Signal sharpened";
-  if (clean.toLowerCase().includes("hook")) return "Hook rewritten";
-  if (clean.toLowerCase().includes("proof")) return "Concrete proof added";
-  if (clean.toLowerCase().includes("reply")) return "Reply trigger added";
-  return `${clean.charAt(0).toUpperCase()}${clean.slice(1)} strengthened`;
+  if (!clean) return t("title_from_highlight_signal_sharpened");
+  if (clean.toLowerCase().includes("hook")) return t("title_from_highlight_hook_rewritten");
+  if (clean.toLowerCase().includes("proof")) return t("title_from_highlight_proof_added");
+  if (clean.toLowerCase().includes("reply")) return t("title_from_highlight_reply_added");
+  if (clean.toLowerCase().includes("format")) return t("title_from_highlight_format_polished");
+  return t("title_from_highlight_default_template", {
+    label: `${clean.charAt(0).toUpperCase()}${clean.slice(1)}`,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -671,6 +662,7 @@ function DiffCard({
   onActiveEdit?: (index: number) => void;
   labelStyle?: "pill" | "callout";
 }) {
+  const tDiff = useTranslations("recommended_rewrite");
   const isOptimized = tone === "optimized";
   return (
     <article
@@ -703,7 +695,7 @@ function DiffCard({
               : "border-rust/30 bg-rust/8 text-rust"
           }`}
         >
-          {isOptimized ? "after" : "before"}
+          {isOptimized ? tDiff("diff_after_badge") : tDiff("diff_before_badge")}
         </span>
       </div>
 
@@ -897,6 +889,7 @@ function SuperpowersBridge({
   activeEditIndex: number | null;
   onActiveEdit: (index: number) => void;
 }) {
+  const tBridge = useTranslations("recommended_rewrite");
   const visibleEdits = edits.slice(0, 6);
 
   return (
@@ -907,14 +900,14 @@ function SuperpowersBridge({
           Rewrite superpowers
         </div>
         <div className="mt-1 font-mono text-[10px] tabular-nums text-ink-400">
-          {visibleEdits.length} upgrade{visibleEdits.length === 1 ? "" : "s"} mapped
+          {tBridge("upgrades_mapped", { count: visibleEdits.length })}
         </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-center gap-3">
         {visibleEdits.length === 0 ? (
           <div className="rounded-xl border border-dashed border-ink-700 px-3 py-5 text-center text-[12px] text-ink-300">
-            Final rewrite ready.
+            {tBridge("final_rewrite_ready")}
           </div>
         ) : (
           visibleEdits.map((edit, idx) => {
@@ -952,7 +945,7 @@ function SuperpowersBridge({
                           className={isActive ? "shrink-0 text-vermillion-glow" : "shrink-0 text-ink-300"}
                         />
                         <h4 className="text-[13px] font-semibold leading-snug text-paper">
-                          {edit.improvementLabel}
+                          {titleFromHighlight(edit.improvementLabel, tBridge)}
                         </h4>
                       </div>
                       <span className="shrink-0 rounded-full border border-ink-700 bg-ink-900/60 px-1.5 py-[1px] font-mono text-[8.5px] uppercase tracking-[0.14em] text-ink-300">
@@ -1008,23 +1001,25 @@ function formatCalloutLabel(label: string) {
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 }
 
-export function originalCalloutFallback(label: string, signal: string) {
+export function originalCalloutFallback(label: string, signal: string, t: RecommendedRewriteT): string {
   const normalized = label.toLowerCase();
-  if (normalized.includes("hook") || signal === "Click") return "Vague hook";
+  if (normalized.includes("hook") || signal === "Click") return t("callout_original_vague_hook");
   if (normalized.includes("reply") || normalized.includes("question") || signal === "Reply") {
-    return "No question";
+    return t("callout_original_no_question");
   }
-  if (normalized.includes("proof")) return "Missing proof";
-  if (normalized.includes("payoff")) return "Missing payoff";
+  if (normalized.includes("proof")) return t("callout_original_missing_proof");
+  if (normalized.includes("payoff")) return t("callout_original_missing_payoff");
+  if (normalized.includes("format")) return t("callout_original_format_leak");
   return formatCalloutLabel(label);
 }
 
-export function optimizedCalloutLabel(label: string, signal: string) {
+export function optimizedCalloutLabel(label: string, signal: string, t: RecommendedRewriteT): string {
   const normalized = label.toLowerCase();
-  if (normalized.includes("hook") || signal === "Click") return "Hook written";
-  if (normalized.includes("reply") || signal === "Reply") return "Reply trigger";
-  if (normalized.includes("proof")) return "Proof added";
-  if (normalized.includes("quote")) return "Quote sharpened";
+  if (normalized.includes("hook") || signal === "Click") return t("callout_optimized_hook_written");
+  if (normalized.includes("reply") || signal === "Reply") return t("callout_optimized_reply_trigger");
+  if (normalized.includes("proof")) return t("callout_optimized_proof_added");
+  if (normalized.includes("quote")) return t("callout_optimized_quote_sharpened");
+  if (normalized.includes("format")) return t("callout_optimized_format_improved");
   return formatCalloutLabel(label.replace(/rewritten/gi, "written"));
 }
 
@@ -1047,28 +1042,29 @@ function WhyChangedView({
   const originalIssueLabels = useMemo(() => {
     const labels = new Map<string, string>();
     originalAnnotations.forEach((annotation) => {
-      labels.set(annotation.phrase, formatCalloutLabel(annotation.label));
+      labels.set(annotation.phrase, originalCalloutFallback(annotation.label, annotation.signal ?? "", tWhy));
     });
     return labels;
-  }, [originalAnnotations]);
+  }, [originalAnnotations, tWhy]);
   const whyOriginalAnnotations = useMemo(
     () =>
       aligned.originalAnnotations.map((annotation) => ({
         ...annotation,
         label: originalCalloutFallback(
           originalIssueLabels.get(annotation.phrase) ?? annotation.label,
-          annotation.signal
+          annotation.signal,
+          tWhy
         ),
       })),
-    [aligned.originalAnnotations, originalIssueLabels]
+    [aligned.originalAnnotations, originalIssueLabels, tWhy]
   );
   const whyOptimizedAnnotations = useMemo(
     () =>
       aligned.optimizedAnnotations.map((annotation) => ({
         ...annotation,
-        label: optimizedCalloutLabel(annotation.label, annotation.signal),
+        label: optimizedCalloutLabel(annotation.label, annotation.signal, tWhy),
       })),
-    [aligned.optimizedAnnotations]
+    [aligned.optimizedAnnotations, tWhy]
   );
   const [activeEditIndex, setActiveEditIndex] = useState<number | null>(null);
 
@@ -1231,7 +1227,7 @@ function WhyChangedView({
                 </div>
               </div>
               <div className="mt-1 text-[12.5px] font-semibold leading-snug text-paper">
-                {edit.improvementLabel}
+                {titleFromHighlight(edit.improvementLabel, tWhy)}
               </div>
               <p className="mt-0.5 text-[11px] leading-snug text-ink-300">{edit.description}</p>
             </button>
@@ -1477,31 +1473,35 @@ function WhyRail({
   addressesSignals: string[];
   text: string;
 }) {
-  const reasonItems = addressesSignals.slice(0, 4).map((sig) => ({
-    signal: sig,
-    ...(SIGNAL_REASONS[sig] ?? {
-      title: `Strengthened ${sig.toLowerCase()}`,
-      body: "Signal strengthened.",
-    }),
-  }));
+  const tWhyRail = useTranslations("recommended_rewrite");
+  const reasonItems = addressesSignals.slice(0, 4).map((sig) => {
+    const reason = SIGNAL_REASON_KEYS[sig];
+    return {
+      signal: sig,
+      title: reason
+        ? tWhyRail(reason.titleKey)
+        : tWhyRail("fallback_signal_strengthened_template", { signal: sig.toLowerCase() }),
+      body: reason ? tWhyRail(reason.bodyKey) : tWhyRail("fallback_signal_strengthened"),
+    };
+  });
 
   return (
     <aside className="flex flex-col gap-3 rounded-2xl border border-ink-700 bg-ink-900/40 px-4 py-4 md:px-4">
       <div>
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-moss">
           <TrendingUp size={11} className="mr-1 inline" strokeWidth={2.4} />
-          Why this wins
+          {tWhyRail("why_this_wins")}
         </div>
         <div className="mt-2 flex items-baseline gap-1.5">
           <span className="font-serif text-[36px] leading-none tracking-tight text-moss tabular-nums">
             +{lift}
           </span>
-          <span className="font-mono text-[12px] text-moss">pts lift</span>
+          <span className="font-mono text-[12px] text-moss">{tWhyRail("pts_lift_suffix")}</span>
         </div>
         <p className="mt-1 text-[11.5px] leading-snug text-ink-300">
           {addressesSignals.length > 0
-            ? `Strengthens ${addressesSignals.length} of X's ranking signals.`
-            : "Optimizes for X's ranking signals."}
+            ? tWhyRail("strengthens_n_signals", { count: addressesSignals.length })
+            : tWhyRail("optimizes_for_signals")}
         </p>
       </div>
 

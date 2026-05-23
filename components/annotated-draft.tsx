@@ -143,7 +143,7 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
         title: biggestImpact.short_label,
         subtitle: biggestImpact.why_it_leaks
           ? shortTrigger(biggestImpact.why_it_leaks, 70)
-          : `Weakens the ${biggestImpact.signal.toLowerCase()} signal.`,
+          : t("weakens_signal_template"),
       }
     : null;
 
@@ -161,8 +161,10 @@ export function MarkedUpDraft({ result, draftText }: MarkedUpProps) {
 
   const quickestWin = quickestWinSig
     ? {
-        title: WEAKNESS_TITLES[quickestWinSig.signal] ?? `Strengthen ${quickestWinSig.signal.toLowerCase()}`,
-        subtitle: `One ${quickestWinSig.signal.toLowerCase()} edit can unlock more engagement.`,
+        title: WEAKNESS_TITLE_KEYS[quickestWinSig.signal]
+          ? t(WEAKNESS_TITLE_KEYS[quickestWinSig.signal])
+          : t("boost_signal_fallback"),
+        subtitle: t("quickest_win_subtitle_template"),
       }
     : null;
 
@@ -963,104 +965,75 @@ function signalStyle(name: string) {
 // Titles + generic descriptions per signal
 // ─────────────────────────────────────────────────────────────
 
-const STRENGTH_TITLES: Record<string, string> = {
-  Like: "Strong like signal",
-  Reply: "Strong reply trigger",
-  Repost: "Strong repost shape",
-  Quote: "Quotable angle",
-  Click: "Strong click intent",
-  "Profile click": "Distinctive profile pull",
-  "Photo expand": "Engaging photo",
-  "Video view": "Strong video engagement",
-  Dwell: "High dwell time",
-  Follow: "Clear follow signal",
+// Maps from canonical signal name → translation key. The keys are
+// looked up via t() inside each component (signal names come from the
+// English-canonical API contract and stay the lookup index). Locale-
+// aware text comes from messages/<locale>.json's annotated_draft.*
+// entries.
+const STRENGTH_TITLE_KEYS: Record<string, string> = {
+  Like: "strength_title_like",
+  Reply: "strength_title_reply",
+  Repost: "strength_title_repost",
+  Quote: "strength_title_quote",
+  Click: "strength_title_click",
+  "Profile click": "strength_title_profile_click",
+  "Photo expand": "strength_title_photo_expand",
+  "Video view": "strength_title_video_view",
+  Dwell: "strength_title_dwell",
+  Follow: "strength_title_follow",
 };
 
-const STRENGTH_DESCRIPTIONS: Record<string, string> = {
-  Like: "Clear utility framing invites lightweight approval.",
-  Reply: "A direct prompt opens the door to discussion.",
-  Repost: "Concise, benefit-forward copy is easy to repost.",
-  Quote: "Quotable phrasing invites people to amplify with their own take.",
-  Click: "Concrete features and benefits drive curiosity and clicks.",
-  "Profile click": "Unique position and product build profile trust and follows.",
-  "Photo expand": "Image-supported content earns longer attention.",
-  "Video view": "Native video format drives higher attention and completion.",
-  Dwell: "Detailed specifics give people a reason to read closely.",
-  Follow: "Distinctive POV signals there's more worth following.",
+const STRENGTH_DESC_KEYS: Record<string, string> = {
+  Like: "strength_desc_like",
+  Reply: "strength_desc_reply",
+  Repost: "strength_desc_repost",
+  Quote: "strength_desc_quote",
+  Click: "strength_desc_click",
+  "Profile click": "strength_desc_profile_click",
+  "Photo expand": "strength_desc_photo_expand",
+  "Video view": "strength_desc_video_view",
+  Dwell: "strength_desc_dwell",
+  Follow: "strength_desc_follow",
 };
 
-const WEAKNESS_TITLES: Record<string, string> = {
-  Like: "Add explicit like intent",
-  Reply: "Add a reply trigger",
-  Repost: "Make it more shareable",
-  Quote: "Make it more quotable",
-  Click: "Stronger click motivation",
-  "Profile click": "Add a profile nudge",
-  "Photo expand": "Add a visual",
-  "Video view": "Add native video",
-  Dwell: "Reward more dwell",
-  Follow: "Sharpen the hook",
+const WEAKNESS_TITLE_KEYS: Record<string, string> = {
+  Like: "weakness_title_like",
+  Reply: "weakness_title_reply",
+  Repost: "weakness_title_repost",
+  Quote: "weakness_title_quote",
+  Click: "weakness_title_click",
+  "Profile click": "weakness_title_profile_click",
+  "Photo expand": "weakness_title_photo_expand",
+  "Video view": "weakness_title_video_view",
+  Dwell: "weakness_title_dwell",
+  Follow: "weakness_title_follow",
 };
 
-const WEAKNESS_DESCRIPTIONS: Record<string, string> = {
-  Like: "Add a clear benefit or stance to invite explicit approval.",
-  Reply: "Pose a direct question to unlock more replies.",
-  Repost: "Make the value easier to share in one line.",
-  Quote: "Add a short, punchy line worth quoting.",
-  Click: "Lead with a concrete hook that pulls people in.",
-  "Profile click": "Invite curiosity to drive profile visits.",
-  "Photo expand": "Visual posts earn 2.3x more engagement.",
-  "Video view": "Embed a short native video to boost dwell.",
-  Dwell: "Add a specific detail people will pause to read.",
-  Follow: "Lead with a specific benefit or surprising claim.",
+const WEAKNESS_DESC_KEYS: Record<string, string> = {
+  Like: "weakness_desc_like",
+  Reply: "weakness_desc_reply",
+  Repost: "weakness_desc_repost",
+  Quote: "weakness_desc_quote",
+  Click: "weakness_desc_click",
+  "Profile click": "weakness_desc_profile_click",
+  "Photo expand": "weakness_desc_photo_expand",
+  "Video view": "weakness_desc_video_view",
+  Dwell: "weakness_desc_dwell",
+  Follow: "weakness_desc_follow",
 };
 
-const NEG_TITLES: Record<string, string> = {
-  "Not interested": "Reduce perceived risk",
-  Block: "Soften abrasive tone",
-  Mute: "Trim repetitive patterns",
-  Report: "Review policy concerns",
+const NEG_TITLE_KEYS: Record<string, string> = {
+  "Not interested": "neg_title_not_interested",
+  Block: "neg_title_block",
+  Mute: "neg_title_mute",
+  Report: "neg_title_report",
 };
 
-const NEG_DESCRIPTIONS: Record<string, string> = {
-  "Not interested": "Tighten relevance and trim filler so viewers don't tap away.",
-  Block: "Soften aggressive or polarizing tone.",
-  Mute: "Avoid repetitive patterns that fatigue feeds.",
-  Report: "Review against platform safety guidelines.",
-};
-
-// Generic micro-stats per signal — used in WHAT'S WORKING right-side EVIDENCE block.
-// Handcrafted from public-pattern observations; not from the open repo.
-const EVIDENCE_BY_SIGNAL: Record<string, string> = {
-  Like: "Utility posts earn more likes than opinion posts.",
-  Reply: "Question-led posts unlock 4x more replies.",
-  Repost: "Short, scannable posts are reposted 1.8x more.",
-  Quote: "Quotable lines get amplified 1.5x more often.",
-  Click: "Feature-led posts drive 1.6x more profile clicks.",
-  "Profile click": "Distinctive POV drives 3x more profile visits.",
-  "Photo expand": "Image-supported posts hold attention 30% longer.",
-  "Video view": "Videos get 2.3x more engagement on average.",
-  Dwell: "Detailed posts hold attention 2x longer.",
-  Follow: "Recurring POV posts earn 2x more follows.",
-};
-
-// Fallback "TRY THIS" suggestions per signal — used in WHAT TO STRENGTHEN right-side block
-// when the model didn't return a matching leak's suggested_rewrite.
-const TRY_THIS_BY_SIGNAL: Record<string, string> = {
-  Like: "Make the benefit explicit and easy to agree with.",
-  Reply: "Pose a direct question your audience would actually answer.",
-  Repost: "Strip filler so the takeaway fits in 1–2 lines.",
-  Quote: "Distill the insight into one quotable line.",
-  Click: "Add a concrete hook or specific number.",
-  "Profile click": "Tease a follow-up: \"see example on my profile.\"",
-  "Photo expand": "Add a 10–15s demo clip or before/after image.",
-  "Video view": "Embed a 15s native video clip.",
-  Dwell: "Add a specific data point or surprising detail.",
-  Follow: "Lead with a recurring POV like \"every week I…\".",
-  "Not interested": "Lead with a specific claim, not a saturated trope.",
-  Block: "Soften absolute statements to invite discussion.",
-  Mute: "Vary your topic angles to avoid feeling repetitive.",
-  Report: "Review against platform safety guidelines.",
+const NEG_DESC_KEYS: Record<string, string> = {
+  "Not interested": "neg_desc_not_interested",
+  Block: "neg_desc_block",
+  Mute: "neg_desc_mute",
+  Report: "neg_desc_report",
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -1078,11 +1051,11 @@ function WhatsWorkingColumn({ result }: { result: AnalysisResult }) {
       .map((s) => ({
         key: `working-${s.name}`,
         signal: s.name,
-        title: STRENGTH_TITLES[s.name] ?? s.name,
-        description: STRENGTH_DESCRIPTIONS[s.name] ?? s.reason,
+        title: STRENGTH_TITLE_KEYS[s.name] ? t(STRENGTH_TITLE_KEYS[s.name]) : s.name,
+        description: STRENGTH_DESC_KEYS[s.name] ? t(STRENGTH_DESC_KEYS[s.name]) : s.reason,
         grade: s.grade,
       }));
-  }, [result]);
+  }, [result, t]);
 
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, VISIBLE_LIMIT);
@@ -1146,8 +1119,10 @@ function WhatToStrengthenColumn({
       .map((s): SignalBoardItem => ({
         key: `w-${s.name}`,
         signal: s.name,
-        title: WEAKNESS_TITLES[s.name] ?? `Boost ${s.name.toLowerCase()}`,
-        description: WEAKNESS_DESCRIPTIONS[s.name] ?? s.reason,
+        title: WEAKNESS_TITLE_KEYS[s.name]
+          ? t(WEAKNESS_TITLE_KEYS[s.name])
+          : t("boost_signal_fallback"),
+        description: WEAKNESS_DESC_KEYS[s.name] ? t(WEAKNESS_DESC_KEYS[s.name]) : s.reason,
       }));
     const risks = result.negative_signals
       .filter((n) => n.risk !== "Low")
@@ -1155,11 +1130,11 @@ function WhatToStrengthenColumn({
       .map((n): SignalBoardItem => ({
         key: `n-${n.name}`,
         signal: n.name,
-        title: NEG_TITLES[n.name] ?? `Reduce ${n.name.toLowerCase()} risk`,
-        description: NEG_DESCRIPTIONS[n.name] ?? n.reason,
+        title: NEG_TITLE_KEYS[n.name] ? t(NEG_TITLE_KEYS[n.name]) : t("signal_risk_fallback"),
+        description: NEG_DESC_KEYS[n.name] ? t(NEG_DESC_KEYS[n.name]) : n.reason,
       }));
     return [...weak, ...risks];
-  }, [result]);
+  }, [result, t]);
 
   const [showFullReport, setShowFullReport] = useState(false);
   const [expanded, setExpanded] = useState(false);

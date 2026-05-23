@@ -588,6 +588,7 @@ function AlternativeRewriteText({
   text: string;
   highlights: RewriteHighlight[];
 }) {
+  const tAltLabel = useTranslations("result_card");
   const segments = useMemo(() => buildAlternativeSegments(text, highlights), [text, highlights]);
 
   return (
@@ -613,7 +614,7 @@ function AlternativeRewriteText({
             >
               <span className="diff-callout-line" />
               <span className="diff-callout-badge">{seg.index + 1}</span>
-              <span className="diff-callout-label">{alternativeHighlightLabel(seg.label)}</span>
+              <span className="diff-callout-label">{alternativeHighlightLabel(seg.label, tAltLabel)}</span>
             </span>
           </span>
         );
@@ -668,20 +669,21 @@ function buildAlternativeSegments(text: string, highlights: RewriteHighlight[]):
   return segments;
 }
 
-function alternativeHighlightLabel(label: string) {
+type AltHighlightT = (key: string, values?: Record<string, string | number>) => string;
+function alternativeHighlightLabel(label: string, t: AltHighlightT): string {
   const normalized = label.toLowerCase();
-  if (normalized.includes("hook")) return "Hook written";
-  if (normalized.includes("reply") || normalized.includes("ask")) return "Reply trigger";
-  if (normalized.includes("proof") || normalized.includes("concrete")) return "Proof added";
-  if (normalized.includes("quote")) return "Quote sharpened";
-  if (normalized.includes("click")) return "Click intent";
+  if (normalized.includes("hook")) return t("alt_highlight_hook_written");
+  if (normalized.includes("reply") || normalized.includes("ask")) return t("alt_highlight_reply_trigger");
+  if (normalized.includes("proof") || normalized.includes("concrete")) return t("alt_highlight_proof_added");
+  if (normalized.includes("quote")) return t("alt_highlight_quote_sharpened");
+  if (normalized.includes("click")) return t("alt_highlight_click_intent");
 
   const clean = label
     .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
-  return clean ? `${clean.charAt(0).toUpperCase()}${clean.slice(1)}` : "Signal";
+  return clean ? `${clean.charAt(0).toUpperCase()}${clean.slice(1)}` : t("alt_highlight_fallback");
 }
 
 // ─────────────────────────────────────────────────────────────

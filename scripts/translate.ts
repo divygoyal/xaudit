@@ -109,7 +109,8 @@ Use the most native local term for common UI elements when one exists — don't 
 GLOSSARY — KEEP THESE EXACT ENGLISH FORMS (do not translate):
 ${GLOSSARY.map((g) => `  • "${g}"`).join("\n")}
   • "X" when it refers to the platform (formerly Twitter). When it just means the letter or appears in a sentence about something else, translate normally.
-  • Signal names (these stay English so the UI matches X's own labels):
+  • (For Japanese ja-jp only: signal-display label values inside the keys signals_strip.positive_signals.*, signals_strip.negative_signals.*, vs_folklore.repo_chip_*, and signal_storm.label_* SHOULD be translated to natural Japanese (いいね, 返信, リポスト, 引用, クリック, プロフィールクリック, 画像表示, 動画再生, 滞在時間, フォロー, 興味なし, ブロック, ミュート, 報告) — these match X's own JP UI. For all OTHER locales the signal names listed below stay English by default.)
+  • Default signal-name behavior (other locales): keep English
 ${SIGNAL_NAMES.map((s) => `      - "${s}"`).join("\n")}
 
 TRANSCREATE (creative rewrite for cultural fit — capture the brand voice, do not translate word-for-word) these key paths:
