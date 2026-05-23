@@ -1,17 +1,30 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { HandwrittenUnderline } from "./handwritten-underline";
 import { HeroCompareMobile } from "./hero-compare-mobile";
 import { HeroTrajectory } from "./hero-trajectory";
 import { RecommendedRewrite } from "./recommended-rewrite";
 import { Button } from "./ui/button";
-import { SAMPLE_DRAFT, SAMPLE_RESULT } from "@/lib/sample-data";
+import {
+  SAMPLE_DRAFT,
+  SAMPLE_DRAFT_JA,
+  SAMPLE_RESULT,
+  SAMPLE_RESULT_JA,
+} from "@/lib/sample-data";
 import { computeScore } from "@/lib/score";
 
 export async function Hero() {
   const t = await getTranslations("hero");
+  // Pick the sample by locale. JP visitors get a recognizable JP-creator
+  // archetype ("英語学習アプリを作りました。…" — a real Gemini analysis
+  // captured via scripts/extract-sample.ts) so the demo lands instead
+  // of reading as a foreign press release.
+  const locale = await getLocale();
+  const isJa = locale === "ja-jp";
+  const sampleDraft = isJa ? SAMPLE_DRAFT_JA : SAMPLE_DRAFT;
+  const sampleResult = isJa ? SAMPLE_RESULT_JA : SAMPLE_RESULT;
   const primary =
-    SAMPLE_RESULT.rewrites.find((r) => r.is_primary) ?? SAMPLE_RESULT.rewrites[0];
-  const currentScore = computeScore(SAMPLE_RESULT);
+    sampleResult.rewrites.find((r) => r.is_primary) ?? sampleResult.rewrites[0];
+  const currentScore = computeScore(sampleResult);
 
   return (
     <section className="relative overflow-hidden">
@@ -72,8 +85,8 @@ export async function Hero() {
           {/* mobile: tabbed comparison with stat row + peek */}
           <div className="lg:hidden">
             <HeroCompareMobile
-              result={SAMPLE_RESULT}
-              draftText={SAMPLE_DRAFT}
+              result={sampleResult}
+              draftText={sampleDraft}
               primary={primary}
               currentScore={currentScore}
             />
@@ -81,8 +94,8 @@ export async function Hero() {
           {/* desktop: full 3-column WhyChanged view */}
           <div className="hero-compare hidden lg:block">
             <RecommendedRewrite
-              result={SAMPLE_RESULT}
-              draftText={SAMPLE_DRAFT}
+              result={sampleResult}
+              draftText={sampleDraft}
               primary={primary}
               currentScore={currentScore}
             />
