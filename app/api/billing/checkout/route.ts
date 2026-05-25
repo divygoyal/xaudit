@@ -68,7 +68,6 @@ export async function POST(req: Request) {
     },
     return_url: `${origin}/dashboard/billing?checkout=success`,
     cancel_url: `${origin}/dashboard/billing?checkout=cancelled`,
-    allowed_payment_method_types: ["credit", "debit"],
     customization: {
       theme: "dark",
       theme_config: {
