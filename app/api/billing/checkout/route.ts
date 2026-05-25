@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { CheckoutSessionCreateParams } from "dodopayments/resources/checkout-sessions";
 import { getBillingStatus, recordCheckoutSession } from "@/lib/billing";
 import { getDodoClient, getDodoProProductId } from "@/lib/dodo";
 import { getSupabaseServer } from "@/lib/supabase-server";
@@ -6,6 +7,15 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 export const runtime = "nodejs";
 
 const INR_SUBSCRIPTION_MANDATE_FLOOR_PAISE = 200_000;
+
+function requestCountry(req: Request) {
+  return (
+    req.headers.get("x-vercel-ip-country") ||
+    req.headers.get("cf-ipcountry") ||
+    req.headers.get("x-country-code") ||
+    ""
+  ).toUpperCase();
+}
 
 function siteOrigin(req: Request) {
   const requestOrigin = new URL(req.url).origin;
@@ -49,6 +59,14 @@ export async function POST(req: Request) {
   }
 
   const productId = getDodoProProductId();
+  const isIndiaCheckout = requestCountry(req) === "IN";
+  const indiaCheckoutOptions: Partial<CheckoutSessionCreateParams> = isIndiaCheckout
+    ? {
+        allowed_payment_method_types: ["upi_collect", "credit", "debit"],
+        billing_address: { country: "IN" },
+        billing_currency: "INR",
+      }
+    : {};
   const customer = billing.subscription?.dodo_customer_id
     ? { customer_id: billing.subscription.dodo_customer_id }
     : {
@@ -62,6 +80,7 @@ export async function POST(req: Request) {
   const checkout = await getDodoClient().checkoutSessions.create({
     product_cart: [{ product_id: productId, quantity: 1 }],
     customer,
+    ...indiaCheckoutOptions,
     metadata: {
       app: "letxcook",
       plan: "pro",
