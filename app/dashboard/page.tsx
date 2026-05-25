@@ -32,7 +32,16 @@ export default async function DashboardOverviewPage() {
 
   const rows = (audits.data ?? []) as AuditRow[];
   const friendsJoined = refCount.count ?? 0;
-  const monthlyRemaining = Math.max(0, usage.limit - usage.used);
+  const monthlyRemaining = usage.isUnlimited ? null : Math.max(0, usage.limit - usage.used);
+  const usagePct = usage.isUnlimited
+    ? 100
+    : Math.min(100, Math.round((usage.used / Math.max(1, usage.limit)) * 100));
+  const usageLimitLabel = usage.isUnlimited ? "unlimited" : String(usage.limit);
+  const usageStatusText = usage.isUnlimited
+    ? "No monthly cap on Pro."
+    : monthlyRemaining && monthlyRemaining > 0
+      ? `${monthlyRemaining} free audit${monthlyRemaining === 1 ? "" : "s"} left`
+      : "Free allowance used — bonus credits below kick in next.";
   const greetingName = (user.email ?? "there").split("@")[0];
 
   return (
@@ -71,19 +80,13 @@ export default async function DashboardOverviewPage() {
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="font-serif text-4xl text-paper tabular-nums">{usage.used}</span>
-            <span className="font-mono text-[12px] text-ink-500">/ {usage.limit}</span>
+            <span className="font-mono text-[12px] text-ink-500">/ {usageLimitLabel}</span>
           </div>
-          <div className="mt-1 text-[12.5px] text-ink-300">
-            {monthlyRemaining > 0
-              ? `${monthlyRemaining} free audit${monthlyRemaining === 1 ? "" : "s"} left`
-              : "Free allowance used — bonus credits below kick in next."}
-          </div>
+          <div className="mt-1 text-[12.5px] text-ink-300">{usageStatusText}</div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-800">
             <div
               className="h-full rounded-full bg-gradient-to-r from-vermillion to-vermillion-glow"
-              style={{
-                width: `${Math.min(100, Math.round((usage.used / Math.max(1, usage.limit)) * 100))}%`,
-              }}
+              style={{ width: `${usagePct}%` }}
             />
           </div>
         </article>

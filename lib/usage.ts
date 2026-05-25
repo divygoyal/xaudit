@@ -46,6 +46,7 @@ function readAnonCount(): number {
 
 /** Pretty-print "X / Y used this month" for UI surfaces. */
 export function formatUsageBadge(u: UsageInfo): string {
+  if (u.isUnlimited) return `${u.used} / unlimited this month`;
   return `${u.used} / ${u.limit} this month`;
 }
 
