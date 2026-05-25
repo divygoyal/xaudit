@@ -5,6 +5,8 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 
+const INR_SUBSCRIPTION_MANDATE_FLOOR_PAISE = 200_000;
+
 function siteOrigin(req: Request) {
   const requestOrigin = new URL(req.url).origin;
   if (requestOrigin.includes("localhost") || requestOrigin.includes("127.0.0.1")) {
@@ -68,6 +70,8 @@ export async function POST(req: Request) {
     },
     return_url: `${origin}/dashboard/billing?checkout=success`,
     cancel_url: `${origin}/dashboard/billing?checkout=cancelled`,
+    force_3ds: true,
+    mandate_min_amount_inr_paise: INR_SUBSCRIPTION_MANDATE_FLOOR_PAISE,
     customization: {
       theme: "dark",
       theme_config: {
