@@ -72,9 +72,7 @@ export async function Hero() {
 
           {/* trust microline */}
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-ink-300">
-            <TrustItem>{t("trust_no_signup")}</TrustItem>
-            <span className="text-ink-600">·</span>
-            <TrustItem>{t("trust_no_storage")}</TrustItem>
+            <TrustItem>{t("trust_private")}</TrustItem>
             <span className="text-ink-600">·</span>
             <TrustItem>{t("trust_free")}</TrustItem>
           </div>

@@ -29,7 +29,7 @@ export function buildVerdictMetadata(row: VerdictRow): Metadata {
   const title = "Make your X posts perform better";
   const description = `An honest grade of ${
     authorHandle ? `${authorHandle}'s X draft` : "this X draft"
-  } against the 13 engagement signals X's open-source ranker tries to predict.`;
+  } against 13 engagement signals.`;
   const canonical = canonicalPathFor(row);
   // OG image lives under /v/[id]/opengraph-image regardless of which
   // page URL the visitor used. Path is independent of canonical so we

@@ -45,7 +45,7 @@ const siteUrl =
 export const metadata: Metadata = {
   title: "letxcook — Paste your X draft. See if the algorithm will care.",
   description:
-    "We grade your X draft against the 13 engagement signals X's open-source ranker tries to predict — and rewrite it stronger. Verdict in under 30 seconds.",
+    "We grade your X draft against 13 engagement signals — and rewrite it stronger. Verdict in under 30 seconds.",
   metadataBase: new URL(siteUrl),
   // IMPORTANT: setting any field inside metadata.icons OVERRIDES the
   // file-convention link Next.js generates from app/icon.svg. So we
@@ -120,7 +120,7 @@ const organizationJsonLd = {
   url: siteUrl,
   logo: `${siteUrl}/logo-hero.svg`,
   description:
-    "Grade your X drafts against the 13 engagement signals X's open-source ranker tries to predict — and rewrite them stronger.",
+    "Grade your X drafts against 13 engagement signals — and rewrite them stronger.",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

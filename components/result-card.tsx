@@ -570,7 +570,7 @@ function SignalTag({ name, tone }: { name: string; tone: "pos" | "neg-weak" | "n
   return (
     <span
       className={`inline-flex items-center rounded-full border px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-[0.14em] ${styles}`}
-      title="Signal from xai-org/x-algorithm"
+      title="Signal used by letxcook"
     >
       {name}
     </span>

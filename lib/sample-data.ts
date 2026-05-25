@@ -68,7 +68,7 @@ export const SAMPLE_RESULT: AnalysisResult = {
   verdict: {
     band: "Moderate",
     reason:
-      "Solid premise and a real product, but leaks on click (vague hook), dwell (wall-of-arrows body), and reply (declarative close) — three of the signals the open-source ranker explicitly tries to predict.",
+      "Solid premise and a real product, but leaks on click (vague hook), dwell (wall-of-arrows body), and reply (declarative close) — three signals that shape how readers engage.",
   },
   positive_signals: [
     {

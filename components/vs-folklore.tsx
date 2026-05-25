@@ -2,9 +2,7 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
-  ArrowUpRight,
   CheckCircle2,
-  Github,
   MinusCircle,
   ShieldCheck,
   Target,
@@ -14,8 +12,6 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { SectionEyebrow } from "./signals-strip";
-
-const REPO_URL = "https://github.com/xai-org/x-algorithm";
 
 const FOLKLORE_CLAIM_KEYS = [
   "post_time",
@@ -324,7 +320,7 @@ async function CenterFlow() {
         </div>
       </div>
 
-      {/* Source verified */}
+      {/* Method checked */}
       <FlowPill
         tone="moss"
         icon={<CheckCircle2 size={12} className="text-moss" strokeWidth={2.6} />}
@@ -357,7 +353,7 @@ function FlowPill({
 }
 
 // ─────────────────────────────────────────────────────────────
-// RIGHT · REPO-GROUNDED
+// RIGHT · SIGNAL-GROUNDED
 // ─────────────────────────────────────────────────────────────
 
 async function RepoPanel() {
@@ -372,20 +368,6 @@ async function RepoPanel() {
           </span>
           {t("repo_label")}
         </div>
-        <a
-          href={REPO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group inline-flex items-center gap-1.5 rounded-lg border border-ink-700 bg-ink-950/60 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-300 transition-colors hover:border-moss/45 hover:bg-moss/[0.06] hover:text-moss"
-        >
-          <Github size={11} strokeWidth={2.2} />
-          {t("repo_link_github")}
-          <ArrowUpRight
-            size={10}
-            strokeWidth={2.4}
-            className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-          />
-        </a>
       </header>
 
       <h3 className="mt-5 font-sans text-[1.65rem] font-medium leading-[1.14] tracking-tight text-paper md:text-[1.85rem]">
@@ -419,15 +401,12 @@ async function RepoPanel() {
         </div>
         <div className="flex flex-wrap gap-1.5">
           {REPO_POSITIVE.map((sig) => (
-            <a
+            <span
               key={sig}
-              href={`${REPO_URL}?q=${encodeURIComponent(sig)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-md border border-moss/25 bg-moss/[0.06] px-2.5 py-1 font-mono text-[11.5px] text-moss transition-all hover:-translate-y-px hover:border-moss/55 hover:bg-moss/[0.12]"
+              className="rounded-md border border-moss/25 bg-moss/[0.06] px-2.5 py-1 font-mono text-[11.5px] text-moss"
             >
               {t(`repo_chip_${sig}`)}
-            </a>
+            </span>
           ))}
         </div>
       </div>
@@ -440,15 +419,12 @@ async function RepoPanel() {
         </div>
         <div className="flex flex-wrap gap-1.5">
           {REPO_NEGATIVE.map((sig) => (
-            <a
+            <span
               key={sig}
-              href={`${REPO_URL}?q=${encodeURIComponent(sig)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-md border border-vermillion/30 bg-vermillion/[0.05] px-2.5 py-1 font-mono text-[11.5px] text-vermillion transition-all hover:-translate-y-px hover:border-vermillion/55 hover:bg-vermillion/[0.10]"
+              className="rounded-md border border-vermillion/30 bg-vermillion/[0.05] px-2.5 py-1 font-mono text-[11.5px] text-vermillion"
             >
               {t(`repo_chip_${sig}`)}
-            </a>
+            </span>
           ))}
         </div>
       </div>
@@ -457,8 +433,7 @@ async function RepoPanel() {
       <div className="mt-6 border-t border-ink-700/60 pt-5">
         <div className="mb-4 flex items-center gap-2 text-[12.5px] text-ink-200">
           <CheckCircle2 size={13} strokeWidth={2.4} className="text-moss" />
-          {t("verified_from_prefix")}{" "}
-          <code className="font-mono text-paper">xai-org/x-algorithm</code>
+          {t("verified_from_prefix")}
         </div>
         <div className="flex items-start justify-between gap-1">
           {VERIFICATION_TRAIL_KEYS.map(({ step, key }, i) => (

@@ -111,7 +111,7 @@ export function VerdictPage({ row, referrerId }: Props) {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-ink-300">
             Same 13-signal audit. Paste an X post URL or your draft text — get a
-            verifiable, repo-grounded grade and a rewrite in seconds.
+            practical signal grade and a rewrite in seconds.
           </p>
           <Link
             href="/#analyze"

@@ -46,7 +46,6 @@ const MODEL = "gemini-3.1-pro-preview";
 // Used in both the prompt (instruction) and the post-call validator.
 const GLOSSARY = [
   "letxcook",
-  "xai-org/x-algorithm",
 ];
 
 // Signal names appearing inside signals_strip.positive_signals /
@@ -92,7 +91,7 @@ function buildSystemPrompt(localeCode: LocaleCode, localeMeta: (typeof LOCALES)[
   return `You are a professional translator and transcreator for a small-SaaS marketing website.
 
 CONTEXT
-The site is "letxcook" — an AI tool that grades X (formerly Twitter) post drafts against the engagement signals from X's open-source ranker. The audience is X content creators / indie hackers / marketers who want their tweets to perform better.
+The site is "letxcook" — an AI tool that grades X (formerly Twitter) post drafts against engagement signals. The audience is X content creators / indie hackers / marketers who want their tweets to perform better.
 
 TARGET
 ${localeMeta.name} — locale code ${localeCode}, native form: ${localeMeta.nativeName}

@@ -31,14 +31,6 @@ export async function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-sm text-ink-300">
-            <a
-              href="https://github.com/xai-org/x-algorithm"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-paper"
-            >
-              xai-org/x-algorithm ↗
-            </a>
             <a href={`${homePath}#faq`} className="transition-colors hover:text-paper">{t("link_faq")}</a>
             <a href="/privacy" className="transition-colors hover:text-paper">{t("link_privacy")}</a>
             <a href="/terms" className="transition-colors hover:text-paper">{t("link_terms")}</a>

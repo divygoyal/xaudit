@@ -9,7 +9,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "letxcook",
     short_name: "letxcook",
     description:
-      "Grade your X drafts before you ship — across the 13 engagement signals X's own ranker tries to predict.",
+      "Grade your X drafts before you ship — across 13 engagement signals.",
     start_url: "/",
     display: "standalone",
     background_color: "#0c0b09",

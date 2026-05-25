@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "./ui/button";
 import { HandwrittenUnderline } from "./handwritten-underline";
@@ -35,11 +34,11 @@ export async function BottomCTA() {
               <span>→</span>
             </Button>
           </a>
-          <Link href="https://github.com/xai-org/x-algorithm" target="_blank">
+          <a href="#pricing">
             <Button variant="ghost" className="px-5 py-4 text-[14px]">
               {t("cta_secondary")}
             </Button>
-          </Link>
+          </a>
         </div>
 
         <div className="mt-8 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-400">

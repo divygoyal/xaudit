@@ -425,7 +425,7 @@
 
             <div class="xaudit-engine-progress">
               <div class="xaudit-engine-progress-meta">
-                <span class="xaudit-engine-progress-num">Signal <span data-engine-progress-num>1</span> of 14 · grading against the open repo</span>
+                <span class="xaudit-engine-progress-num">Signal <span data-engine-progress-num>1</span> of 14 · mapping engagement signals</span>
                 <span class="xaudit-engine-progress-pct"><span data-engine-progress-pct>7</span>%</span>
               </div>
               <div class="xaudit-engine-progress-bar">

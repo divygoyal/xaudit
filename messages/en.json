@@ -1,7 +1,7 @@
 {
   "_meta": {
     "locale": "en",
-    "note": "Source of truth for marketing copy. Other locales (messages/ja-jp.json etc.) are produced by scripts/translate.ts via Gemini and reviewed by Claude. Rich-text tags inside values (<emph>, <strong>, <link>, <br/>) are consumed by t.rich() in components — do NOT escape them. Glossary terms that stay in English across all locales: 'letxcook', 'X' (the platform), signal names (Like, Reply, Repost, …), and 'xai-org/x-algorithm'."
+    "note": "Source of truth for marketing copy. Other locales (messages/ja-jp.json etc.) are produced by scripts/translate.ts via Gemini and reviewed by Claude. Rich-text tags inside values (<emph>, <strong>, <link>, <br/>) are consumed by t.rich() in components — do NOT escape them. Glossary terms that stay in English across all locales: 'letxcook', 'X' (the platform), and signal names (Like, Reply, Repost, …)."
   },
 
   "hero": {
@@ -10,8 +10,7 @@
     "subhead": "Drop your tweet, thread, or screenshot. We score it across <strong>13 engagement signals</strong>, predict how it'll perform, and rewrite it stronger in under 30 seconds.",
     "cta_primary": "Grade my post — free",
     "cta_secondary": "See a sample",
-    "trust_no_signup": "No signup",
-    "trust_no_storage": "Drafts never stored",
+    "trust_private": "Private by default",
     "trust_free": "Free"
   },
 
@@ -31,7 +30,7 @@
     "link_privacy": "Privacy",
     "link_terms": "Terms",
     "link_contact": "Contact",
-    "disclaimer": "letxcook grades drafts using only the engagement signals documented in X's open-source ranking repository. Numeric weights and the production model are proprietary and not used. This is a coaching tool — no result guarantees reach."
+    "disclaimer": "letxcook grades drafts using a directional signal rubric. Numeric weights and production ranking models are proprietary and not used. This is a coaching tool — no result guarantees reach."
   },
 
   "how_it_works": {
@@ -59,15 +58,15 @@
   "faq": {
     "eyebrow": "FAQ",
     "heading": "Honest <emph>answers</emph>.",
-    "intro": "Tools in this category overpromise. We'd rather underclaim, source everything, and let you decide.",
+    "intro": "Tools in this category overpromise. We'd rather underclaim, show our reasoning, and let you decide.",
     "items": {
       "store_drafts": {
         "q": "Do you store my drafts?",
-        "a": "No. Drafts are sent to the grader and discarded after the response. We don't have an account system to store anything against. If we add accounts, storing drafts will be opt-in."
+        "a": "Private by default. Anonymous drafts are not saved to an account. Signed-in users get audit history so they can revisit prior results, and can delete their account from settings."
       },
       "vs_competitors": {
         "q": "How is this different from Hypefury / Tweet Hunter / Typefully analytics?",
-        "a": "Those tools optimize against folklore: post-time charts, hashtag counts, link-in-comments tricks — claims that aren't in X's open code. We only grade against the engagement signals X published themselves in xai-org/x-algorithm."
+        "a": "Those tools often optimize against folklore: post-time charts, hashtag counts, link-in-comments tricks. We focus on engagement signals you can actually strengthen in the draft itself."
       },
       "viral_guarantee": {
         "q": "Will this guarantee my post goes viral?",
@@ -75,7 +74,7 @@
       },
       "algorithm_basis": {
         "q": "Why can you say it's based on X's algorithm?",
-        "a": "Because we only use the signals documented in X's open-source ranking repository at github.com/xai-org/x-algorithm. We do not have the numeric weights — nobody outside X does. We work on direction (which signals matter), not magnitude."
+        "a": "We do not claim access to X's production model or numeric weights. We work on direction — which engagement behaviors a draft is likely to encourage or discourage — not hidden ranking magnitude."
       },
       "secret_weights": {
         "q": "What about the secret weights?",
@@ -83,7 +82,7 @@
       },
       "other_platforms": {
         "q": "Can I use this for LinkedIn, Threads, or Bluesky?",
-        "a": "Not yet. letxcook is built on X's repo specifically. We'd rather be excellent on one platform than guess on five."
+        "a": "Not yet. letxcook is tuned for X drafts specifically. We'd rather be excellent on one platform than guess on five."
       }
     }
   },
@@ -95,8 +94,8 @@
     "heading_suffix": "first.",
     "body": "Paste your next draft. Get a verdict in 30 seconds. Ship the rewrite that hits the signals X's ranker actually predicts.",
     "cta_primary": "Grade my post — free",
-    "cta_secondary": "Read the source repo ↗",
-    "trust_line": "No signup · Drafts never stored · Free"
+    "cta_secondary": "See pricing",
+    "trust_line": "Private by default · Free to try"
   },
 
   "pricing": {
@@ -126,8 +125,8 @@
   "signals_strip": {
     "eyebrow": "The 13 signals",
     "heading": "13 signals.<br></br>One <emph>verdict</emph>.",
-    "intro": "Every draft is scored against the engagement actions X's open-source ranker explicitly tries to predict. Ten the algorithm rewards. Four it punishes.",
-    "source": "Source: xai-org/x-algorithm",
+    "intro": "Every draft is scored against engagement actions that shape how people react on X. Ten are positive targets. Four are risk signals.",
+    "source": "10 rewarded · 4 risk signals",
     "rewarded_label": "Rewarded — 10",
     "punished_label": "Punished — 4",
     "positive_signals": {
@@ -153,7 +152,7 @@
   "vs_folklore": {
     "eyebrow": "Facts vs folklore",
     "heading": "Most tweet tools <emph>guess</emph>. We don't.",
-    "intro": "letxcook reads the same engagement signals from X's open-source ranker, so every recommendation is <strong>verifiable</strong>.",
+    "intro": "letxcook checks your draft against concrete engagement signals, so every recommendation is <strong>explainable</strong>.",
     "folklore_label": "Folklore claims",
     "folklore_heading": "<emph>Advice</emph> repeated<br></br>until it sounds true.",
     "folklore_claims": {
@@ -164,22 +163,21 @@
     },
     "center_signals_scanned": "13 signals scanned",
     "center_folklore_label": "folklore<br></br>matches",
-    "center_source_verified": "Source verified",
-    "repo_label": "Repo-grounded",
-    "repo_link_github": "GitHub",
+    "center_source_verified": "Method checked",
+    "repo_label": "Signal-grounded",
     "repo_heading": "letxcook signal map",
-    "repo_intro": "Recommendations are tied to the prediction labels the open-source ranker optimizes for.",
+    "repo_intro": "Recommendations are tied to the engagement behaviors your draft can encourage or reduce.",
     "repo_stat_rewarded": "Rewarded targets",
     "repo_stat_penalty": "Penalty targets",
     "repo_positive_label": "Positive signals",
     "repo_negative_label": "Negative signals",
-    "verified_from_prefix": "Verified from",
-    "trail_step1_label": "Repo",
-    "trail_step1_detail": "xai-org/x-algorithm",
-    "trail_step2_label": "Labels",
-    "trail_step2_detail": "Exact ranker targets",
+    "verified_from_prefix": "Method trail",
+    "trail_step1_label": "Draft",
+    "trail_step1_detail": "Text + context",
+    "trail_step2_label": "Signals",
+    "trail_step2_detail": "Engagement behaviors",
     "trail_step3_label": "Advice",
-    "trail_step3_detail": "Built from those targets",
+    "trail_step3_detail": "Built from those signals",
     "tagline_lead": "Same draft. Same day. Different advice.",
     "tagline_emphasis": "Only one is grounded.",
     "repo_chip_like": "Like",
@@ -235,13 +233,13 @@
     "gate_free_cta": "Upgrade",
     "cta_grading": "Grading...",
     "cta_grade": "Grade my post",
-    "privacy_note": "Private by default. Drafts are never stored after grading.",
+    "privacy_note": "Private by default. Signed-in audit history stays in your account.",
     "share_bar_ready": "Comparison ready",
     "share_bar_preparing": "Preparing share link…",
     "share_bar_copy": "Copy link",
     "share_bar_copied": "Copied",
     "share_bar_tweet": "Share on X",
-    "share_tweet_text": "Just audited a tweet with letxcook — 13 ranker signals, every recommendation verifiable in the open repo."
+    "share_tweet_text": "Just audited a tweet with letxcook — 13 engagement signals, every recommendation mapped to a concrete improvement."
   },
 
   "signal_storm": {
@@ -253,7 +251,7 @@
     "char_count": "{count} characters",
     "stage_eyebrow": "Signal Processing Engine",
     "stage_sub": "Analyzing 14 ranker signals step by step",
-    "progress_label": "Signal {graded} of 14 · grading against the open repo",
+    "progress_label": "Signal {graded} of 14 · mapping engagement signals",
     "skeleton_foot": "Will appear when grading completes",
     "pill_rewarded": "Rewarded",
     "pill_punished": "Punished",

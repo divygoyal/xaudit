@@ -42,7 +42,7 @@ export default async function ReferralsPage() {
 
   const inviteUrl = `${getSiteOrigin()}/?ref=${user.id}&utm_source=referral&utm_medium=invite&utm_campaign=dash`;
   const tweetText = encodeURIComponent(
-    `I've been using letxcook.com to grade my drafts against X's open ranker before I post. Try it free — first audit is on me:`
+    `I've been using letxcook.com to grade my X drafts before I post. Try it free — first audit is on me:`
   );
   const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}&url=${encodeURIComponent(inviteUrl)}`;
 

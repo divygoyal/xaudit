@@ -2,9 +2,9 @@
 
 > Paste your X draft. See if the algorithm will care.
 
-xAudit grades X (Twitter) post drafts against the engagement signals X publishes themselves in their open-source ranking repository: [`xai-org/x-algorithm`](https://github.com/xai-org/x-algorithm).
+xAudit grades X (Twitter) post drafts against a directional engagement-signal rubric.
 
-No folklore. No "post at 9am" hacks. Just the 10 positive and 4 negative signals the ranker explicitly tries to predict — plus 2-3 rewrites that strengthen the weakest ones.
+No folklore. No "post at 9am" hacks. Just practical signal checks plus rewrites that strengthen the weakest ones.
 
 ## Stack
 
@@ -37,8 +37,8 @@ Then restart `npm run dev`. Default model is `gemini-3.5-flash` — swap to `gem
 ## Architecture
 
 - `app/page.tsx` — landing page composition
-- `app/api/analyze/route.ts` — POST endpoint; calls Claude with the repo-grounded rubric, falls back to mock if no key
-- `lib/rubric.ts` — system prompt with hard rules: only repo-grounded signals, no invented weights, no folklore
+- `app/api/analyze/route.ts` — POST endpoint; calls Gemini with the signal rubric, falls back to mock if no key
+- `lib/rubric.ts` — system prompt with hard rules: signal-based feedback, no invented weights, no folklore
 - `lib/sample-data.ts` — the canned analysis used for the public sample + the no-key fallback
 - `components/*` — section components (hero, analyzer, signals strip, etc.)
 - `tailwind.config.ts` — warm dark palette + display fonts
