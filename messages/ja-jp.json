@@ -17,6 +17,7 @@
     "link_signals": "シグナル",
     "link_sample": "サンプル",
     "link_how": "仕組み",
+    "link_pricing": "料金",
     "link_faq": "よくある質問",
     "btn_dashboard": "ダッシュボード",
     "btn_signin": "ログイン"
@@ -90,6 +91,29 @@
     "cta_primary": "無料でポストを採点する",
     "cta_secondary": "ソースリポジトリを読む ↗",
     "trust_line": "登録不要 · 下書きは保存されません · 無料"
+  },
+  "pricing": {
+    "eyebrow": "料金",
+    "heading": "<emph>月額9ドル</emph>で下書きテストを無制限に。",
+    "intro": "無料プランはシグナルマップを試すのに十分です。Proは、毎日下書きを作り、角度を比較し、投稿前にもっと強くしたい人向けです。",
+    "proof": {
+      "unlimited": "分析無制限",
+      "private": "初期設定でプライベート",
+      "fast": "優先キュー"
+    },
+    "badge": "提供中",
+    "description": "フック、リライト、スクリーンショット、XのURLを、翌月のリセット待ちなしで13シグナル採点にかけられます。",
+    "per_month": "/ 月",
+    "cancel": "いつでも管理可能",
+    "features": {
+      "unlimited": "月間上限なしでX下書き分析が無制限",
+      "rewrites": "リライトと別角度案が無制限",
+      "inputs": "下書き、スクリーンショット、X投稿URLを分析",
+      "history": "分析履歴と共有できる判定ページ",
+      "priority": "優先分析とスレッド対応採点への早期アクセス"
+    },
+    "cta": "Proにアップグレード",
+    "powered_by": "Dodo決済"
   },
   "signals_strip": {
     "eyebrow": "13のシグナル",
@@ -190,12 +214,13 @@
     "usage_anon_other": "無料トライアル残り{count}回",
     "usage_anon_used": "無料トライアル終了",
     "usage_monthly": "今月 {used} / {limit} 回",
+    "usage_pro": "Pro・無制限",
     "usage_bonus_chip": "+{count} ボーナス",
     "usage_bonus_tooltip": "紹介によるボーナスクレジット。毎月の無料枠を使い切った後にのみ消費されます。",
     "gate_anon_title": "無料トライアルを使い切りました。",
     "gate_free_title": "今月の無料分析枠（{limit}回）をすべて使い切りました。",
     "gate_anon_body": "ログインすると毎月3回の無料分析が利用できます（クレジットカード不要）。",
-    "gate_free_body": "引き続き採点するにはアップグレードしてください。（Stripe決済準備中）",
+    "gate_free_body": "Proにアップグレードすると、Xドラフトの分析とリライトを無制限で使えます。",
     "gate_anon_cta": "無料でログイン",
     "gate_free_cta": "アップグレード",
     "cta_grading": "採点中...",

@@ -39,6 +39,7 @@ export async function Navbar() {
         <a href={`${homePath}#signals`} className="transition-colors hover:text-paper">{t("link_signals")}</a>
         <a href={`${homePath}#sample`} className="transition-colors hover:text-paper">{t("link_sample")}</a>
         <a href={`${homePath}#how`} className="transition-colors hover:text-paper">{t("link_how")}</a>
+        <a href={`${homePath}#pricing`} className="transition-colors hover:text-paper">{t("link_pricing")}</a>
         <a href={`${homePath}#faq`} className="transition-colors hover:text-paper">{t("link_faq")}</a>
       </div>
 

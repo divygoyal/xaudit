@@ -5,6 +5,7 @@ import { AnalyzePanel } from "@/components/analyze-panel";
 import { SignalsStrip } from "@/components/signals-strip";
 import { VsFolklore } from "@/components/vs-folklore";
 import { HowItWorks } from "@/components/how-it-works";
+import { Pricing } from "@/components/pricing";
 import { FAQ } from "@/components/faq";
 import { BottomCTA } from "@/components/bottom-cta";
 import { Footer } from "@/components/footer";
@@ -40,6 +41,7 @@ export default async function HomePage() {
       <SignalsStrip />
       <VsFolklore />
       <HowItWorks />
+      <Pricing />
       <FAQ />
       <BottomCTA />
       <Footer />

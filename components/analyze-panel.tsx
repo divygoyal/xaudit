@@ -56,6 +56,14 @@ function UsageBadge({ usage }: { usage: UsageInfo | null }) {
       </span>
     );
   }
+  if (usage.isUnlimited) {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <Sparkles size={11} className="text-vermillion" />
+        {t("usage_pro")}
+      </span>
+    );
+  }
   if (usage.isAnon) {
     return (
       <span className="inline-flex items-center gap-1.5">
@@ -104,7 +112,7 @@ function GateCallout({
         {isAnon ? t("gate_anon_body") : t("gate_free_body")}
       </p>
       <Link
-        href={isAnon ? "/login?next=%2F%23analyze" : "#pricing"}
+        href={isAnon ? "/login?next=%2F%23analyze" : "/dashboard/billing"}
         className="group mt-3 inline-flex items-center gap-1.5 rounded-full bg-vermillion px-5 py-2 font-mono text-[11.5px] font-semibold uppercase tracking-[0.18em] text-paper-warm shadow-[0_14px_30px_-16px_rgba(214,58,0,0.55)] transition hover:bg-vermillion-soft"
       >
         {isAnon ? t("gate_anon_cta") : t("gate_free_cta")}
@@ -268,6 +276,8 @@ type UsageInfo = {
   bonusCredits: number;
   remaining: number;
   isAnon: boolean;
+  plan: "free" | "pro";
+  isUnlimited: boolean;
 };
 
 type CurrentUser = { id: string; email: string | null } | null;

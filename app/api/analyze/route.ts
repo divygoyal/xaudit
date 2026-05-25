@@ -11,6 +11,7 @@ import {
   FREE_LIMIT,
   getUsage,
   nextAnonCookieValue,
+  PRO_USAGE_REMAINING,
 } from "@/lib/usage";
 import type { AnalysisResult } from "@/lib/types";
 
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
     data: { user },
   } = await sb.auth.getUser();
   const usage = await getUsage(user?.id ?? null);
-  if (usage.remaining <= 0) {
+  if (!usage.isUnlimited && usage.remaining <= 0) {
     return NextResponse.json(
       {
         error: usage.isAnon
@@ -144,7 +145,7 @@ export async function POST(req: Request) {
     // Burn a bonus credit if the user has exceeded their monthly free
     // allowance. Signed-in users only — anon has no credits to spend.
     let updatedBonusCredits = usage.bonusCredits;
-    if (!usage.isAnon && user && usage.used >= FREE_LIMIT) {
+    if (!usage.isUnlimited && !usage.isAnon && user && usage.used >= FREE_LIMIT) {
       const newBalance = await decrementBonusCredit(user.id);
       if (newBalance !== null) {
         updatedBonusCredits = newBalance;
@@ -154,15 +155,21 @@ export async function POST(req: Request) {
     // Updated usage AFTER this analysis lands. For anon users we also
     // bump the signed-cookie counter on the response.
     const newUsed = usage.used + 1;
-    const monthlyRemaining = usage.isAnon
-      ? Math.max(0, usage.limit - newUsed)
-      : Math.max(0, FREE_LIMIT - newUsed);
+    const monthlyRemaining = usage.isUnlimited
+      ? PRO_USAGE_REMAINING
+      : usage.isAnon
+        ? Math.max(0, usage.limit - newUsed)
+        : Math.max(0, FREE_LIMIT - newUsed);
     const nextUsage = {
       used: newUsed,
       limit: usage.limit,
       bonusCredits: updatedBonusCredits,
-      remaining: monthlyRemaining + (usage.isAnon ? 0 : updatedBonusCredits),
+      remaining: usage.isUnlimited
+        ? PRO_USAGE_REMAINING
+        : monthlyRemaining + (usage.isAnon ? 0 : updatedBonusCredits),
       isAnon: usage.isAnon,
+      plan: usage.plan,
+      isUnlimited: usage.isUnlimited,
     };
 
     const httpResponse = NextResponse.json({

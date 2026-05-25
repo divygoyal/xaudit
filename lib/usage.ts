@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { getSupabaseAdmin } from "./supabase-admin";
+import { getBillingStatus, type BillingPlan } from "./billing";
 
 // ─────────────────────────────────────────────────────────────
 // FREE TIER LIMITS — adjust here, used everywhere
@@ -7,6 +8,7 @@ import { getSupabaseAdmin } from "./supabase-admin";
 export const ANON_FREE_LIMIT = 1;
 export const FREE_LIMIT = 3;
 export const REFERRAL_REWARD = 5; // bonus credits to each side on a successful referral
+export const PRO_USAGE_REMAINING = Number.MAX_SAFE_INTEGER;
 const ANON_COOKIE_NAME = "xaudit_anon";
 
 export type UsageInfo = {
@@ -15,6 +17,8 @@ export type UsageInfo = {
   bonusCredits: number; // permanent rolling balance from referrals
   remaining: number; // effective remaining = (limit - used) + bonusCredits, clamped
   isAnon: boolean;
+  plan: BillingPlan;
+  isUnlimited: boolean;
 };
 
 function currentMonthKey(date = new Date()) {
@@ -52,8 +56,8 @@ export function formatUsageBadge(u: UsageInfo): string {
 export async function getUsage(userId: string | null): Promise<UsageInfo> {
   if (userId) {
     const sb = getSupabaseAdmin();
-    // Run count + credits lookup in parallel — both target the user_id index.
-    const [countRes, creditsRes] = await Promise.all([
+    // Run count + credits + billing lookup in parallel — all target indexed user fields.
+    const [countRes, creditsRes, billing] = await Promise.all([
       sb
         .from("analyses")
         .select("id", { count: "exact", head: true })
@@ -64,16 +68,30 @@ export async function getUsage(userId: string | null): Promise<UsageInfo> {
         .select("bonus_credits")
         .eq("user_id", userId)
         .maybeSingle(),
+      getBillingStatus(userId),
     ]);
     const used = countRes.count ?? 0;
     const bonusCredits = creditsRes.data?.bonus_credits ?? 0;
     const monthlyRemaining = Math.max(0, FREE_LIMIT - used);
+    if (billing.isPro) {
+      return {
+        used,
+        limit: FREE_LIMIT,
+        bonusCredits,
+        remaining: PRO_USAGE_REMAINING,
+        isAnon: false,
+        plan: billing.plan,
+        isUnlimited: true,
+      };
+    }
     return {
       used,
       limit: FREE_LIMIT,
       bonusCredits,
       remaining: monthlyRemaining + bonusCredits,
       isAnon: false,
+      plan: "free",
+      isUnlimited: false,
     };
   }
 
@@ -84,6 +102,8 @@ export async function getUsage(userId: string | null): Promise<UsageInfo> {
     bonusCredits: 0,
     remaining: Math.max(0, ANON_FREE_LIMIT - used),
     isAnon: true,
+    plan: "free",
+    isUnlimited: false,
   };
 }
 

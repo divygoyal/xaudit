@@ -19,6 +19,7 @@
     "link_signals": "Signals",
     "link_sample": "Sample",
     "link_how": "How it works",
+    "link_pricing": "Pricing",
     "link_faq": "FAQ",
     "btn_dashboard": "Dashboard",
     "btn_signin": "Sign in"
@@ -96,6 +97,30 @@
     "cta_primary": "Grade my post — free",
     "cta_secondary": "Read the source repo ↗",
     "trust_line": "No signup · Drafts never stored · Free"
+  },
+
+  "pricing": {
+    "eyebrow": "Pricing",
+    "heading": "Unlimited draft testing for <emph>$9/month</emph>.",
+    "intro": "Free is enough to try the signal map. Pro is for people who draft daily, compare angles, and want every post to leave the queue stronger.",
+    "proof": {
+      "unlimited": "Unlimited audits",
+      "private": "Private by default",
+      "fast": "Priority queue"
+    },
+    "badge": "Live now",
+    "description": "Run every hook, rewrite, screenshot, and X URL through the 13-signal grader without waiting for next month's reset.",
+    "per_month": "/ month",
+    "cancel": "Manage anytime",
+    "features": {
+      "unlimited": "Unlimited X draft audits with no monthly cap",
+      "rewrites": "Unlimited rewrites and alternate angles",
+      "inputs": "Analyze pasted drafts, screenshots, and X post URLs",
+      "history": "Full audit history and shareable verdict pages",
+      "priority": "Priority analysis plus early access to thread-aware grading"
+    },
+    "cta": "Upgrade to Pro",
+    "powered_by": "Powered by Dodo"
   },
 
   "signals_strip": {
@@ -199,12 +224,13 @@
     "usage_anon_other": "{count} free trials left",
     "usage_anon_used": "Free trial used",
     "usage_monthly": "{used} / {limit} this month",
+    "usage_pro": "Pro · unlimited",
     "usage_bonus_chip": "+{count} bonus",
     "usage_bonus_tooltip": "Bonus credits from referrals. Spent only after your monthly free tier is used.",
     "gate_anon_title": "You've used your free trial.",
     "gate_free_title": "You've used all {limit} free analyses this month.",
     "gate_anon_body": "Sign in for 3 free analyses every month — no card required.",
-    "gate_free_body": "Upgrade to keep grading. (Stripe wiring coming.)",
+    "gate_free_body": "Upgrade to Pro for unlimited X draft audits and rewrites.",
     "gate_anon_cta": "Sign in free",
     "gate_free_cta": "Upgrade",
     "cta_grading": "Grading...",
