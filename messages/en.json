@@ -125,8 +125,8 @@
   "signals_strip": {
     "eyebrow": "The 13 signals",
     "heading": "13 signals.<br></br>One <emph>verdict</emph>.",
-    "intro": "Every draft is scored against engagement actions that shape how people react on X. Ten are positive targets. Four are risk signals.",
-    "source": "10 rewarded · 4 risk signals",
+    "intro": "Every draft is scored against patterns learned from 1M+ real viral tweets. Ten signals reward momentum. Four catch risk.",
+    "source": "Trained on 1M+ real viral tweets",
     "rewarded_label": "Rewarded — 10",
     "punished_label": "Punished — 4",
     "positive_signals": {
