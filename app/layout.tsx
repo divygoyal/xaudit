@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, Hanken_Grotesk, JetBrains_Mono, Caveat } from "next/font/google";
+import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import "./globals.css";
@@ -118,6 +119,12 @@ const noFlashScript = `
 }})();
 `;
 
+// Microsoft Clarity project id. Hardcoded because it's a public id
+// (Clarity's snippet emits it on every page anyway) and we don't want
+// the analytics tag to silently drop when an env var is missing on a
+// new environment.
+const CLARITY_PROJECT_ID = "wx8b8ucek5";
+
 // Schema.org Organization JSON-LD. This is what Google reads to build
 // the Knowledge Panel, brand search results, and AI overviews. Far
 // more impactful than og:logo for actual SEO — and the format Google
@@ -161,6 +168,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: JSON.stringify(organizationJsonLd),
           }}
         />
+        {/* Microsoft Clarity — session-recording + heatmaps. Loaded via
+            next/script with afterInteractive so it never blocks initial
+            paint or hydration. Dashboard: https://clarity.microsoft.com/ */}
+        <Script id="ms-clarity" strategy="afterInteractive">
+          {`(function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");`}
+        </Script>
       </head>
       <body className="bg-ink-950 text-paper antialiased font-sans selection:bg-vermillion selection:text-ink-950">
         <NextIntlClientProvider messages={messages}>
