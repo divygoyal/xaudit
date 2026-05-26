@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { getSupabaseAdmin } from "./supabase-admin";
 import type { VerdictRow } from "@/components/verdict-page";
 
+// Same precedence used in app/layout.tsx + sitemap.ts. Used to emit an
+// absolute og:image URL — X's unfurler is much happier with a fully
+// qualified https:// URL and an explicit width/height/alt than with
+// the relative path Next.js would otherwise resolve via metadataBase.
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+).replace(/\/$/, "");
+
 /** Single source of truth for fetching a shared analysis row. Both
  *  /v/[id] and /[handle]/[shortid] go through this. */
 export async function loadAnalysis(id: string): Promise<VerdictRow | null> {
@@ -34,7 +43,19 @@ export function buildVerdictMetadata(row: VerdictRow): Metadata {
   // OG image lives under /v/[id]/opengraph-image regardless of which
   // page URL the visitor used. Path is independent of canonical so we
   // don't have to duplicate the image route.
-  const ogImage = `/v/${row.id}/opengraph-image`;
+  //
+  // Emit a fully qualified URL (not just /v/.../opengraph-image) so
+  // crawlers that don't resolve relative URLs against metadataBase
+  // (notably X / Twitterbot) still get a working preview. We also
+  // declare width/height/alt explicitly because the file-convention
+  // dimensions are NOT auto-attached when og:image is set manually.
+  const ogImageUrl = `${SITE_URL}/v/${row.id}/opengraph-image`;
+  const ogImage = {
+    url: ogImageUrl,
+    width: 1200,
+    height: 630,
+    alt: `${authorHandle ? `${authorHandle}'s ` : ""}X draft graded by letxcook`,
+  };
   return {
     title,
     description,
@@ -50,7 +71,7 @@ export function buildVerdictMetadata(row: VerdictRow): Metadata {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage],
+      images: [ogImageUrl],
     },
   };
 }

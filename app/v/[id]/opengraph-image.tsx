@@ -49,23 +49,20 @@ let fontCache: {
 
 async function loadFonts() {
   if (fontCache) return fontCache;
+  // All three fonts are self-hosted under /public/fonts so we stay on
+  // a single same-origin fetch path. Pulling Instrument Serif from
+  // raw.githubusercontent.com (the old approach) cost 1-3s on cold
+  // Edge starts and occasionally failed outright, which pushed the
+  // total OG image latency past X's unfurl timeout and made share
+  // previews fall back to the broken-image placeholder.
+  // Satori only accepts .woff and .ttf — not .woff2.
   const [regular, semibold, serifItalic] = await Promise.all([
     fetch(`${ORIGIN}/fonts/Inter-Regular.woff`).then((r) => r.arrayBuffer()),
     fetch(`${ORIGIN}/fonts/Inter-SemiBold.woff`).then((r) => r.arrayBuffer()),
-    fetchInstrumentSerifItalic(),
+    fetch(`${ORIGIN}/fonts/InstrumentSerif-Italic.ttf`).then((r) => r.arrayBuffer()),
   ]);
   fontCache = { regular, semibold, serifItalic };
   return fontCache;
-}
-
-async function fetchInstrumentSerifItalic(): Promise<ArrayBuffer> {
-  // Satori only accepts .woff and .ttf — Google Fonts' CSS API serves
-  // .woff2 which fails with "Unsupported OpenType signature wOF2".
-  // Pull the .ttf directly from Google's open-source fonts repo on
-  // GitHub instead; this file is stable and reliably formatted.
-  return fetch(
-    "https://raw.githubusercontent.com/google/fonts/main/ofl/instrumentserif/InstrumentSerif-Italic.ttf"
-  ).then((r) => r.arrayBuffer());
 }
 
 // ─────────────────────────────────────────────────────────────
