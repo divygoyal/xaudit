@@ -125,6 +125,10 @@ const noFlashScript = `
 // new environment.
 const CLARITY_PROJECT_ID = "wx8b8ucek5";
 
+// Google Analytics 4 measurement id. Same hardcoding reasoning as
+// Clarity above — it's emitted in plaintext on every page request.
+const GA_MEASUREMENT_ID = "G-4GMENDHEL7";
+
 // Schema.org Organization JSON-LD. This is what Google reads to build
 // the Knowledge Panel, brand search results, and AI overviews. Far
 // more impactful than og:logo for actual SEO — and the format Google
@@ -177,6 +181,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
           })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");`}
+        </Script>
+        {/* Google Analytics 4. Two-part install per Google's standard
+            snippet — the loader fetches gtag.js, and the inline init
+            populates dataLayer + sends the initial page_view. Both run
+            afterInteractive so analytics never block paint. */}
+        <Script
+          id="ga-loader"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');`}
         </Script>
       </head>
       <body className="bg-ink-950 text-paper antialiased font-sans selection:bg-vermillion selection:text-ink-950">
