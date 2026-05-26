@@ -10,6 +10,8 @@ import {
   FileText,
   ArrowLeftRight,
   ChevronRight,
+  Check,
+  Copy,
   MessageCircle,
 } from "lucide-react";
 import type { AnalysisResult, Rewrite } from "@/lib/types";
@@ -397,7 +399,36 @@ function OptimizedView({
         </span>
       </div>
       <AnnotatedBody text={text} annotations={calloutAnnotations} tone="moss" />
+      <div className="flex justify-end">
+        <MobileCopyButton text={text} />
+      </div>
     </div>
+  );
+}
+
+function MobileCopyButton({ text }: { text: string }) {
+  const tCopy = useTranslations("recommended_rewrite");
+  const [copied, setCopied] = useState(false);
+
+  const onClick = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch {
+      // Clipboard failures should not interrupt the result view.
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-moss/35 bg-moss/[0.08] px-3.5 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-moss-glow shadow-[0_10px_26px_-20px_rgba(168,220,138,0.55)] transition-colors hover:border-moss/55 hover:bg-moss/[0.12] active:scale-[0.98]"
+    >
+      {copied ? <Check size={11} strokeWidth={2.6} /> : <Copy size={11} strokeWidth={2.4} />}
+      {copied ? tCopy("copied_button") : tCopy("copy_button")}
+    </button>
   );
 }
 

@@ -41,6 +41,7 @@ const caveat = Caveat({
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+const rootOgImage = "/ogimage.png";
 
 export const metadata: Metadata = {
   title: "letxcook — Paste your X draft. See if the algorithm will care.",
@@ -59,6 +60,14 @@ export const metadata: Metadata = {
     title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
     type: "website",
+    images: [
+      {
+        url: rootOgImage,
+        width: 1717,
+        height: 912,
+        alt: "letxcook homepage preview",
+      },
+    ],
     // url + siteName + locale satisfy the strict OG spec (og:url is one
     // of the four required properties) and let Slack/Discord render the
     // site label above the share card.
@@ -70,6 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "letxcook",
     description: "Paste your X draft. See if the algorithm will care.",
+    images: [rootOgImage],
   },
   // Search-engine site-ownership verification. Each env var is the
   // token a given Webmaster Tools dashboard hands you. Google is
