@@ -221,19 +221,20 @@ function buildChunks(
 // ─────────────────────────────────────────────────────────────
 
 export default async function Image({ params }: { params: { id: string } }) {
-  const { regular, semibold, serifItalic } = await loadFonts();
+  // Run font loading and Supabase row fetch in parallel — they're
+  // independent, and each takes 300-800ms on a cold edge invocation.
+  // Sequentially they used to add ~1s of latency for no reason.
+  const [fontsRaw, row] = await Promise.all([loadFonts(), loadRow(params.id)]);
   const fonts = [
-    { name: "Inter", data: regular, style: "normal" as const, weight: 400 as const },
-    { name: "Inter", data: semibold, style: "normal" as const, weight: 600 as const },
+    { name: "Inter", data: fontsRaw.regular, style: "normal" as const, weight: 400 as const },
+    { name: "Inter", data: fontsRaw.semibold, style: "normal" as const, weight: 600 as const },
     {
       name: "InstrumentSerif",
-      data: serifItalic,
+      data: fontsRaw.serifItalic,
       style: "italic" as const,
       weight: 400 as const,
     },
   ];
-
-  const row = await loadRow(params.id);
   if (!row) return new ImageResponse(<FallbackCard />, { ...size, fonts });
 
   const primary: Rewrite | undefined =

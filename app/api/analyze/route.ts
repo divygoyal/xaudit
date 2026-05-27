@@ -136,8 +136,12 @@ export async function POST(req: Request) {
           result: parsed,
           user_id: user?.id ?? null,
         });
-      if (!insErr) share_id = id;
-      else console.error("[analyze] supabase insert error:", insErr);
+      if (!insErr) {
+        share_id = id;
+        prewarmOgImage(id);
+      } else {
+        console.error("[analyze] supabase insert error:", insErr);
+      }
     } catch (e) {
       console.error("[analyze] persist exception:", e);
     }
@@ -192,6 +196,39 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+// Same precedence used in lib/verdict.ts + app/layout.tsx.
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+).replace(/\/$/, "");
+
+/** Fire-and-forget pre-warm of the verdict's OG image. The Edge image
+ *  route is the slow part of the share flow — a cold render takes 4-6s
+ *  on Vercel (Edge init + Satori render of a complex BEFORE/AFTER
+ *  layout), which exceeds X / Twitterbot's unfurl tolerance and causes
+ *  the broken-image placeholder users see when pasting fresh share
+ *  links. By kicking off the render here, the moment the analysis row
+ *  is persisted, Vercel's edge cache (Cache-Control: public, immutable,
+ *  max-age=31536000 on the response) holds a ready PNG by the time
+ *  the user clicks Share → pastes into X.
+ *
+ *  We intentionally don't await this: the Vercel Node runtime keeps
+ *  the lambda alive briefly after the response is returned, which is
+ *  more than enough time for the outbound TCP/HTTP request to land at
+ *  our own edge endpoint and trigger the render. The render itself
+ *  then runs to completion regardless of whether our originating socket
+ *  is still open. */
+function prewarmOgImage(id: string) {
+  const url = `${SITE_URL}/v/${id}/opengraph-image`;
+  fetch(url, {
+    method: "GET",
+    headers: { "User-Agent": "letxcook-prewarm/1.0" },
+    cache: "no-store",
+  }).catch((err) => {
+    console.error("[analyze] og prewarm fetch failed:", err);
+  });
 }
 
 function extractJSON(raw: string): AnalysisResult | null {
