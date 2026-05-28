@@ -16,14 +16,7 @@ const OG_RESPONSE_HEADERS = {
   "X-Content-Type-Options": "nosniff",
 };
 
-const FONT_URLS = {
-  regular: new URL("../../../public/fonts/Inter-Regular.woff", import.meta.url),
-  semibold: new URL("../../../public/fonts/Inter-SemiBold.woff", import.meta.url),
-  serifItalic: new URL(
-    "../../../public/fonts/InstrumentSerif-Italic.ttf",
-    import.meta.url
-  ),
-};
+const FONT_URL = new URL("../../../public/fonts/Inter-SemiBold.woff", import.meta.url);
 
 // ─────────────────────────────────────────────────────────────
 // Brand palette — Satori can't read CSS vars, so dark-theme hexes
@@ -47,29 +40,18 @@ const RUST = "#C8553D";
 const RUST_GLOW = "#E67356";
 
 // ─────────────────────────────────────────────────────────────
-// Font loading — Inter for body/UI, Instrument Serif Italic for the
-// editorial emphasis on "perform better." in the headline.
+// Font loading — one bundled font, registered at all weights. Keeping
+// the Edge bundle below Vercel's 1 MB limit matters more than custom
+// type nuance here; this route's job is to return an image reliably.
 // Cached at module scope across warm Edge invocations.
 // ─────────────────────────────────────────────────────────────
-let fontCache: {
-  regular: ArrayBuffer;
-  semibold: ArrayBuffer;
-  serifItalic: ArrayBuffer;
-} | null = null;
+let fontCache: ArrayBuffer | null = null;
 
-async function loadFonts() {
+async function loadFonts(): Promise<ArrayBuffer> {
   if (fontCache) return fontCache;
-  // Bundle the font files into the OG route instead of making the Edge
-  // function call the public site over HTTP. Those self-fetches were
-  // the biggest cold-start tax and they made fresh X unfurls race the
-  // crawler timeout.
-  const [regular, semibold, serifItalic] = await Promise.all([
-    fetch(FONT_URLS.regular).then((r) => r.arrayBuffer()),
-    fetch(FONT_URLS.semibold).then((r) => r.arrayBuffer()),
-    fetch(FONT_URLS.serifItalic).then((r) => r.arrayBuffer()),
-  ]);
-  fontCache = { regular, semibold, serifItalic };
-  return fontCache;
+  const data = await fetch(FONT_URL).then((r) => r.arrayBuffer());
+  fontCache = data;
+  return data;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -231,16 +213,11 @@ export default async function Image({ params }: { params: { id: string } }) {
   // Run font loading and Supabase row fetch in parallel — they're
   // independent, and each takes 300-800ms on a cold edge invocation.
   // Sequentially they used to add ~1s of latency for no reason.
-  const [fontsRaw, row] = await Promise.all([loadFonts(), loadRow(params.id)]);
+  const [fontData, row] = await Promise.all([loadFonts(), loadRow(params.id)]);
   const fonts = [
-    { name: "Inter", data: fontsRaw.regular, style: "normal" as const, weight: 400 as const },
-    { name: "Inter", data: fontsRaw.semibold, style: "normal" as const, weight: 600 as const },
-    {
-      name: "InstrumentSerif",
-      data: fontsRaw.serifItalic,
-      style: "italic" as const,
-      weight: 400 as const,
-    },
+    { name: "Inter", data: fontData, style: "normal" as const, weight: 400 as const },
+    { name: "Inter", data: fontData, style: "normal" as const, weight: 600 as const },
+    { name: "Inter", data: fontData, style: "normal" as const, weight: 700 as const },
   ];
   if (!row) {
     return new ImageResponse(<FallbackCard />, {
@@ -314,8 +291,7 @@ export default async function Image({ params }: { params: { id: string } }) {
           <span
             style={{
               display: "flex",
-              fontFamily: "InstrumentSerif",
-              fontStyle: "italic",
+              fontFamily: "Inter",
               fontSize: 44,
               color: PAPER,
               letterSpacing: "-0.01em",
@@ -328,8 +304,7 @@ export default async function Image({ params }: { params: { id: string } }) {
           <span
             style={{
               display: "flex",
-              fontFamily: "InstrumentSerif",
-              fontStyle: "italic",
+              fontFamily: "Inter",
               fontSize: 44,
               color: PAPER,
               letterSpacing: "-0.01em",
@@ -371,8 +346,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 <span
                   style={{
                     display: "flex",
-                    fontFamily: "InstrumentSerif",
-                    fontStyle: "italic",
+                    fontFamily: "Inter",
                     fontWeight: 400,
                     color: MOSS_GLOW,
                     letterSpacing: "-0.02em",
