@@ -13,6 +13,7 @@
     "@google/genai": "^2.3.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.0",
+    "@vercel/functions": "^3.6.1",
     "disposable-email-domains": "^1.0.62",
     "dodopayments": "^2.32.0",
     "lucide-react": "^0.460.0",

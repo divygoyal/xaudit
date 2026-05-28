@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { GoogleGenAI } from "@google/genai";
 import { nanoid } from "nanoid";
 import { buildSystemPrompt, buildUserPrompt, type AttachedMedia } from "@/lib/rubric";
@@ -138,7 +139,7 @@ export async function POST(req: Request) {
         });
       if (!insErr) {
         share_id = id;
-        await prewarmOgImage(id);
+        waitUntil(prewarmOgImage(id));
       } else {
         console.error("[analyze] supabase insert error:", insErr);
       }
@@ -204,10 +205,10 @@ const SITE_URL = (
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
 ).replace(/\/$/, "");
 
-/** Pre-warm the verdict's OG image before returning the share URL.
+/** Pre-warm the verdict's OG image after returning the share URL.
  *  A fresh Vercel render can miss X's unfurl timeout, which produces
- *  the compact broken-image card. Awaiting the warmup gives X a cached
- *  PNG on the first paste instead of asking Twitterbot to be patient. */
+ *  the compact broken-image card. waitUntil keeps the background warmup
+ *  alive without making the user wait for the cached PNG. */
 async function prewarmOgImage(id: string) {
   const url = `${SITE_URL}/v/${id}/opengraph-image`;
   try {
