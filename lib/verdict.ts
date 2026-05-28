@@ -52,6 +52,8 @@ export function buildVerdictMetadata(row: VerdictRow): Metadata {
   const ogImageUrl = `${SITE_URL}/v/${row.id}/opengraph-image`;
   const ogImage = {
     url: ogImageUrl,
+    secureUrl: ogImageUrl,
+    type: "image/png",
     width: 1200,
     height: 630,
     alt: `${authorHandle ? `${authorHandle}'s ` : ""}X draft graded by letxcook`,
@@ -71,7 +73,7 @@ export function buildVerdictMetadata(row: VerdictRow): Metadata {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImageUrl],
+      images: [ogImage],
     },
   };
 }

@@ -11,9 +11,19 @@ export const alt = "letxcook · Tweet analyzed";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const ORIGIN =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+const OG_RESPONSE_HEADERS = {
+  "Cache-Control": "public, immutable, no-transform, max-age=31536000",
+  "X-Content-Type-Options": "nosniff",
+};
+
+const FONT_URLS = {
+  regular: new URL("../../../public/fonts/Inter-Regular.woff", import.meta.url),
+  semibold: new URL("../../../public/fonts/Inter-SemiBold.woff", import.meta.url),
+  serifItalic: new URL(
+    "../../../public/fonts/InstrumentSerif-Italic.ttf",
+    import.meta.url
+  ),
+};
 
 // ─────────────────────────────────────────────────────────────
 // Brand palette — Satori can't read CSS vars, so dark-theme hexes
@@ -49,17 +59,14 @@ let fontCache: {
 
 async function loadFonts() {
   if (fontCache) return fontCache;
-  // All three fonts are self-hosted under /public/fonts so we stay on
-  // a single same-origin fetch path. Pulling Instrument Serif from
-  // raw.githubusercontent.com (the old approach) cost 1-3s on cold
-  // Edge starts and occasionally failed outright, which pushed the
-  // total OG image latency past X's unfurl timeout and made share
-  // previews fall back to the broken-image placeholder.
-  // Satori only accepts .woff and .ttf — not .woff2.
+  // Bundle the font files into the OG route instead of making the Edge
+  // function call the public site over HTTP. Those self-fetches were
+  // the biggest cold-start tax and they made fresh X unfurls race the
+  // crawler timeout.
   const [regular, semibold, serifItalic] = await Promise.all([
-    fetch(`${ORIGIN}/fonts/Inter-Regular.woff`).then((r) => r.arrayBuffer()),
-    fetch(`${ORIGIN}/fonts/Inter-SemiBold.woff`).then((r) => r.arrayBuffer()),
-    fetch(`${ORIGIN}/fonts/InstrumentSerif-Italic.ttf`).then((r) => r.arrayBuffer()),
+    fetch(FONT_URLS.regular).then((r) => r.arrayBuffer()),
+    fetch(FONT_URLS.semibold).then((r) => r.arrayBuffer()),
+    fetch(FONT_URLS.serifItalic).then((r) => r.arrayBuffer()),
   ]);
   fontCache = { regular, semibold, serifItalic };
   return fontCache;
@@ -235,7 +242,13 @@ export default async function Image({ params }: { params: { id: string } }) {
       weight: 400 as const,
     },
   ];
-  if (!row) return new ImageResponse(<FallbackCard />, { ...size, fonts });
+  if (!row) {
+    return new ImageResponse(<FallbackCard />, {
+      ...size,
+      fonts,
+      headers: OG_RESPONSE_HEADERS,
+    });
+  }
 
   const primary: Rewrite | undefined =
     row.result.rewrites?.find((r) => r.is_primary) ?? row.result.rewrites?.[0];
@@ -311,14 +324,7 @@ export default async function Image({ params }: { params: { id: string } }) {
           >
             let
           </span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`${ORIGIN}/logo-hero.svg`}
-            width={62}
-            height={62}
-            alt=""
-            style={{ marginLeft: -2, marginRight: -2 }}
-          />
+          <OgLogoMark />
           <span
             style={{
               display: "flex",
@@ -744,13 +750,42 @@ export default async function Image({ params }: { params: { id: string } }) {
             were redundant and ate vertical space the AFTER card needed. */}
       </div>
     ),
-    { ...size, fonts }
+    { ...size, fonts, headers: OG_RESPONSE_HEADERS }
   );
 }
 
 // ─────────────────────────────────────────────────────────────
 // Sub-components
 // ─────────────────────────────────────────────────────────────
+
+function OgLogoMark() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 54,
+        height: 62,
+        marginLeft: 2,
+        marginRight: 2,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          fontFamily: "Inter",
+          fontSize: 44,
+          fontWeight: 700,
+          lineHeight: 1,
+          color: VERMILLION,
+        }}
+      >
+        X
+      </div>
+    </div>
+  );
+}
 
 function ScorePill({
   value,
