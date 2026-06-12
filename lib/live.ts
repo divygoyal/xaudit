@@ -168,39 +168,43 @@ export async function resolveStream(
   const ex = await tryJson<ExtractResponse>(
     `${DAMI_ORIGIN}/papi/extract-url/${encodeURIComponent(matchId)}`,
   );
+  // HLS-kind sources come FIRST. The HLS player (dami-tv.pro/player/hls)
+  // doesn't have an anti-sandbox check, so we can sandbox it tightly
+  // (no popups, no top-nav) and still get playback. embed.st probes
+  // window.open at boot and refuses to play if it returns null, so it
+  // moves to the bottom as a manual-only fallback.
   if (ex?.success) {
-    if (ex.embedUrl) {
-      sources.push({
-        kind: "embed",
-        url: ex.embedUrl,
-        label: `Server 1 (${ex.source ?? "echo"})`,
-      });
-    }
     const hls = toAbsolute(ex.hlsUrl);
-    if (hls) {
-      sources.push({ kind: "hls", url: hls, label: "Server 2 (HLS)" });
-    }
+    if (hls) sources.push({ kind: "hls", url: hls, label: "Server 1 (HLS)" });
   }
 
   const dl = await tryJson<DlResponse>(
     `${DAMI_ORIGIN}/papi/dl/stream/${encodeURIComponent(matchId)}`,
   );
   if (dl?.success && dl.stream) {
-    sources.push({ kind: "hls", url: dl.stream, label: "Server 3 (DL)" });
+    sources.push({ kind: "hls", url: dl.stream, label: "Server 2 (DL)" });
   }
 
   const s3 = await tryJson<S3Response>(
     `${DAMI_ORIGIN}/papi/s3/stream/${encodeURIComponent(matchId)}`,
   );
   if (s3?.success && s3.stream) {
-    sources.push({ kind: "hls", url: s3.stream, label: "Server 4 (S3)" });
+    sources.push({ kind: "hls", url: s3.stream, label: "Server 3 (S3)" });
     if (s3.backup && s3.backup !== s3.stream) {
       sources.push({
         kind: "hls",
         url: s3.backup,
-        label: "Server 5 (S3 backup)",
+        label: "Server 4 (S3 backup)",
       });
     }
+  }
+
+  if (ex?.success && ex.embedUrl) {
+    sources.push({
+      kind: "embed",
+      url: ex.embedUrl,
+      label: `Server 5 (${ex.source ?? "echo"})`,
+    });
   }
 
   if (sources.length === 0) return null;

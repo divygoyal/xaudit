@@ -350,20 +350,19 @@ function PlayerOverlay({
               src={buildWrapperSrc(currentSource, match.title)}
               title={match.title}
               className="block h-full w-full"
-              // Sandbox the WRAPPER iframe (our /embed/player route).
-              // Sandbox flags cascade to the nested upstream iframe, so
-              // we MUST allow popups — embed.st probes `window.open`
-              // and bails out with "Remove sandbox attributes" if it
-              // returns null. allow-popups-to-escape-sandbox lets ad
-              // tabs render normally once they open.
+              // Tight sandbox: scripts + same-origin (cookies for the
+              // upstream player's token chain) + the minimum extras
+              // playback needs. NO allow-popups (so aclib.runPop's
+              // window.open returns null → popunder dies silently), NO
+              // allow-top-navigation (so window.top.location = adUrl is
+              // blocked). The default HLS player (Server 1) doesn't
+              // probe sandbox, so it plays fine under these flags.
               //
-              // We deliberately DO NOT include allow-top-navigation or
-              // allow-top-navigation-by-user-activation — that's the
-              // popunder vector that takes over the user's current tab
-              // (window.top.location = adUrl). New ad TABS may still
-              // open occasionally; the browser's popup blocker catches
-              // most of those, and they don't hijack the current tab.
-              sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-presentation allow-pointer-lock"
+              // embed.st (Server 5 fallback) DOES probe sandbox and
+              // will show "Remove sandbox attributes" if a user picks
+              // it — that's a known trade-off, surfaced in the UI
+              // below the player.
+              sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-presentation allow-pointer-lock"
               referrerPolicy="no-referrer"
               allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
               allowFullScreen
