@@ -118,8 +118,16 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "application/vnd.apple.mpegurl",
+      // - max-age=4: lets the BROWSER serve hover-prefetched bytes to
+      //   hls.js's first manifest fetch instead of paying upstream
+      //   cost twice. 4s ~= one segment duration, so the staleness
+      //   risk is bounded.
+      // - s-maxage=10 + stale-while-revalidate=60: Vercel's edge
+      //   keeps the playlist warm across users for ~10s fresh +
+      //   ~60s stale-while-revalidate. Lots of viewers on the same
+      //   match cost us one upstream call per minute, not per click.
       "Cache-Control":
-        "public, s-maxage=2, stale-while-revalidate=10, max-age=0",
+        "public, max-age=4, s-maxage=10, stale-while-revalidate=60",
       // hls.js fetches the playlist via XHR/fetch, so CORS matters even
       // though we're same-origin in the common case (defensive for the
       // /embed/player wrapper path).

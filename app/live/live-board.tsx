@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import {
+  getCachedStream,
+  prefetchStream,
+} from "@/lib/live-prefetch";
 import type {
   Match,
   MatchesResult,
@@ -130,6 +134,8 @@ function MatchCard({
   match: Match;
   onPlay: (m: Match) => void;
 }) {
+  // useCallback used below for hover prefetch — declared before any
+  // early returns so React's hook order stays stable.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (match.status !== "upcoming") return;
@@ -154,10 +160,23 @@ function MatchCard({
   // actually playable. Upcoming cards show the countdown instead.
   const playable = match.status === "live";
 
+  // Speculative prefetch: when the user hovers (or focuses, for
+  // keyboard users) a live card, kick the stream resolver + playlist
+  // warm-up in the background. The upstream caches the stream after
+  // first hit — by the time the user actually clicks, the m3u8 is
+  // usually already warm at both their browser and our edge.
+  const handlePrefetch = useCallback(() => {
+    if (!playable) return;
+    void prefetchStream(match.id);
+  }, [playable, match.id]);
+
   return (
     <button
       type="button"
       onClick={() => playable && onPlay(match)}
+      onMouseEnter={handlePrefetch}
+      onFocus={handlePrefetch}
+      onTouchStart={handlePrefetch}
       disabled={!playable}
       className={`group relative flex flex-col gap-2 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-left transition ${
         playable
@@ -231,35 +250,36 @@ function PlayerOverlay({
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    const ctrl = new AbortController();
+    let cancelled = false;
     setState({ kind: "loading" });
     setReloadKey(0);
 
     (async () => {
       try {
-        const r = await fetch(
-          `/api/live/stream/${encodeURIComponent(match.id)}`,
-          { cache: "no-store", signal: ctrl.signal },
-        );
-        if (ctrl.signal.aborted) return;
-        const data = (await r.json()) as
-          | ResolvedStream
-          | { error: string };
-        if (!r.ok || "error" in data) {
+        // First check the hover-prefetch cache. If the user hovered
+        // the card long enough for the resolver to complete, this
+        // resolves to a finished promise and the overlay flips to
+        // "ready" without paying any network cost on click.
+        const cached = getCachedStream(match.id);
+        const data = await (cached ?? prefetchStream(match.id));
+        if (cancelled) return;
+        if (!data) {
           setState({
             kind: "error",
-            message: "error" in data ? data.error : `HTTP ${r.status}`,
+            message: "Could not resolve stream",
           });
           return;
         }
         setState({ kind: "ready", resolved: data, sourceIdx: 0 });
       } catch (e) {
-        if (ctrl.signal.aborted) return;
+        if (cancelled) return;
         setState({ kind: "error", message: (e as Error).message });
       }
     })();
 
-    return () => ctrl.abort();
+    return () => {
+      cancelled = true;
+    };
   }, [match.id]);
 
   useEffect(() => {
@@ -275,14 +295,18 @@ function PlayerOverlay({
     };
   }, [onClose]);
 
-  // dami-tv.pro's /player/hls/ posts these messages to the parent when
-  // playback can't recover: { type: "hls-stall", reason: "no-play" |
-  // "fatal" | "buffer" }. We use them to nudge the user toward another
-  // source rather than auto-switching, since auto-switching mid-watch
-  // is more annoying than helpful when buffering hiccups.
+  // Two stall signals:
+  //   - HlsPlayer's onFatalError (hls.js gave up on the current src)
+  //   - dami-tv.pro/player/hls/'s postMessage (used by the embed.st
+  //     iframe fallback to tell us its own player stalled)
+  // Plus a wall-clock timer: if we never see a "playing" event from
+  // HlsPlayer within ~12s of mount, treat that as a stall too — slow
+  // upstreams sometimes hang indefinitely instead of erroring.
   const [stalled, setStalled] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
   useEffect(() => {
     setStalled(false);
+    setHasPlayed(false);
     const handler = (e: MessageEvent) => {
       const d = e.data as { type?: string; reason?: string } | null;
       if (!d || typeof d !== "object") return;
@@ -291,6 +315,20 @@ function PlayerOverlay({
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, [match.id, reloadKey]);
+
+  // Auto-advance to the next source if the CURRENT one never started
+  // playing. We only do this BEFORE the first successful playing event
+  // — if the stream worked then dropped, the user is mid-watch and
+  // auto-switching them would be jarring. They get the manual button
+  // in that case instead. Cycle stops once every source has been tried
+  // so we never thrash forever on a dead match.
+  const [autoTriedIdx, setAutoTriedIdx] = useState<Set<number>>(
+    () => new Set(),
+  );
+  useEffect(() => {
+    // Reset tried-set whenever the user opens a new match.
+    setAutoTriedIdx(new Set([0]));
+  }, [match.id]);
 
   const tryNextSource = useCallback(() => {
     setState((cur) => {
@@ -301,7 +339,53 @@ function PlayerOverlay({
     });
     setReloadKey((k) => k + 1);
     setStalled(false);
+    setHasPlayed(false);
   }, []);
+
+  const autoAdvanceIfFresh = useCallback(() => {
+    setState((cur) => {
+      if (cur.kind !== "ready") return cur;
+      if (hasPlayed) return cur; // mid-watch — don't auto-swap
+      const total = 1 + cur.resolved.fallbacks.length;
+      if (total <= 1) return cur;
+      // Pick the next index we haven't auto-tried yet. If all of them
+      // have been auto-tried, give up — the user can still manually
+      // click a server button.
+      let next = (cur.sourceIdx + 1) % total;
+      let scanned = 0;
+      while (autoTriedIdx.has(next) && scanned < total) {
+        next = (next + 1) % total;
+        scanned++;
+      }
+      if (autoTriedIdx.has(next)) return cur;
+      setAutoTriedIdx((s) => {
+        const n = new Set(s);
+        n.add(next);
+        return n;
+      });
+      return { ...cur, sourceIdx: next };
+    });
+    setReloadKey((k) => k + 1);
+    setStalled(false);
+    setHasPlayed(false);
+  }, [hasPlayed, autoTriedIdx]);
+
+  useEffect(() => {
+    if (state.kind !== "ready") return;
+    if (hasPlayed) return;
+    if (state.resolved.fallbacks.length === 0) return;
+    // 14s budget for first frame on whatever source is selected. Bumped
+    // from 12s to account for the upstream's cold-start curve.
+    const t = setTimeout(() => {
+      autoAdvanceIfFresh();
+    }, 14_000);
+    return () => clearTimeout(t);
+  }, [state, hasPlayed, reloadKey, autoAdvanceIfFresh]);
+
+  const handlePlayerFatal = useCallback(() => {
+    setStalled(true);
+    autoAdvanceIfFresh();
+  }, [autoAdvanceIfFresh]);
 
   const allSources: StreamSource[] | null =
     state.kind === "ready"
@@ -364,7 +448,8 @@ function PlayerOverlay({
               key={`hls-${state.sourceIdx}-${reloadKey}`}
               src={buildHlsProxyUrl(match.id, currentSource)}
               poster={match.poster}
-              onFatalError={() => setStalled(true)}
+              onFatalError={handlePlayerFatal}
+              onPlaying={() => setHasPlayed(true)}
             />
           )}
           {state.kind === "ready" && currentSource && currentSource.kind === "embed" && (

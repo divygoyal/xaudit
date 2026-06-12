@@ -13,6 +13,11 @@ import { chromium } from "playwright-core";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const TIMEOUT = 60_000;
+// Set HOVER_BEFORE_CLICK=1 to exercise the speculative hover-prefetch
+// path (the most common case once we ship prefetch on every card).
+// Unset to test cold click-to-frame.
+const HOVER_BEFORE_CLICK = process.env.HOVER_BEFORE_CLICK !== "0";
+const HOVER_DURATION_MS = Number(process.env.HOVER_DURATION_MS ?? 2000);
 
 const browser = await chromium.launch({
   channel: "msedge",
@@ -55,6 +60,14 @@ try {
     .locator("button", { has: page.locator("text=Live") })
     .first();
   await liveCardBtn.waitFor({ state: "visible", timeout: TIMEOUT });
+
+  if (HOVER_BEFORE_CLICK) {
+    console.log(
+      `[2a/5] Hovering for ${HOVER_DURATION_MS}ms to exercise prefetch…`,
+    );
+    await liveCardBtn.hover();
+    await page.waitForTimeout(HOVER_DURATION_MS);
+  }
 
   console.log("[2/5] Clicking first live match…");
   const t0 = Date.now();

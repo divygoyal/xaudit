@@ -34,10 +34,14 @@ const HLS_CONFIG: Partial<Hls["config"]> = {
   backBufferLength: 10,
   maxBufferSize: 30 * 1000 * 1000,
   startFragPrefetch: true,
-  manifestLoadingTimeOut: 5000,
+  // Upstream cold-start can be 5-15s for the first viewer of a stream
+  // (dami-tv warms streamed.pk lazily). 5s was triggering a retry
+  // storm in that window. 10s gives the first request a real chance
+  // and PlayerOverlay's 12s wall-clock fallback covers the rest.
+  manifestLoadingTimeOut: 10_000,
   manifestLoadingMaxRetry: 2,
   manifestLoadingRetryDelay: 500,
-  levelLoadingTimeOut: 5000,
+  levelLoadingTimeOut: 10_000,
   levelLoadingMaxRetry: 2,
   levelLoadingRetryDelay: 500,
   fragLoadingTimeOut: 12000,
