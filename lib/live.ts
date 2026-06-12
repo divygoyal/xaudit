@@ -163,31 +163,38 @@ async function tryJson<T>(url: string): Promise<T | null> {
 export async function resolveStream(
   matchId: string,
 ): Promise<ResolvedStream | null> {
+  // Fan out the three upstream resolvers in parallel. Sequential
+  // awaits used to add ~1.5s to the perceived click-to-frame time;
+  // Promise.all collapses them to one round-trip wall-clock cost.
+  const [ex, dl, s3] = await Promise.all([
+    tryJson<ExtractResponse>(
+      `${DAMI_ORIGIN}/papi/extract-url/${encodeURIComponent(matchId)}`,
+    ),
+    tryJson<DlResponse>(
+      `${DAMI_ORIGIN}/papi/dl/stream/${encodeURIComponent(matchId)}`,
+    ),
+    tryJson<S3Response>(
+      `${DAMI_ORIGIN}/papi/s3/stream/${encodeURIComponent(matchId)}`,
+    ),
+  ]);
+
   const sources: StreamSource[] = [];
 
-  const ex = await tryJson<ExtractResponse>(
-    `${DAMI_ORIGIN}/papi/extract-url/${encodeURIComponent(matchId)}`,
-  );
-  // HLS-kind sources come FIRST. The HLS player (dami-tv.pro/player/hls)
-  // doesn't have an anti-sandbox check, so we can sandbox it tightly
-  // (no popups, no top-nav) and still get playback. embed.st probes
-  // window.open at boot and refuses to play if it returns null, so it
-  // moves to the bottom as a manual-only fallback.
+  // HLS-kind sources come FIRST. Our /api/live/playlist/[id] proxy
+  // serves them with the right Referer so the upstream returns a real
+  // manifest instead of its warmup placeholder. embed.st probes the
+  // iframe sandbox and refuses to play under our (intentionally tight)
+  // popunder-blocking config, so it sits at the bottom as a manual
+  // fallback.
   if (ex?.success) {
     const hls = toAbsolute(ex.hlsUrl);
     if (hls) sources.push({ kind: "hls", url: hls, label: "Server 1 (HLS)" });
   }
 
-  const dl = await tryJson<DlResponse>(
-    `${DAMI_ORIGIN}/papi/dl/stream/${encodeURIComponent(matchId)}`,
-  );
   if (dl?.success && dl.stream) {
     sources.push({ kind: "hls", url: dl.stream, label: "Server 2 (DL)" });
   }
 
-  const s3 = await tryJson<S3Response>(
-    `${DAMI_ORIGIN}/papi/s3/stream/${encodeURIComponent(matchId)}`,
-  );
   if (s3?.success && s3.stream) {
     sources.push({ kind: "hls", url: s3.stream, label: "Server 3 (S3)" });
     if (s3.backup && s3.backup !== s3.stream) {

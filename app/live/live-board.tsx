@@ -1,12 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import type {
   Match,
   MatchesResult,
   ResolvedStream,
   StreamSource,
 } from "@/lib/live";
+
+// hls.js is ~75 KB gzipped — only worth pulling in once the user has
+// actually clicked a match. Loading via next/dynamic keeps the home
+// page bundle tiny for the most common visit (browse, don't watch).
+const HlsPlayer = dynamic(
+  () => import("@/components/hls-player").then((m) => m.HlsPlayer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center text-sm text-zinc-400">
+        Loading player…
+      </div>
+    ),
+  },
+);
 
 const CATEGORY_LABELS: Record<string, string> = {
   all: "All",
@@ -175,27 +191,25 @@ function MatchCard({
   );
 }
 
-// Wrap an upstream player URL with our /embed/player route. The wrapper
-// is on letxcook.com so we can sandbox the outer iframe without the
-// upstream player's anti-sandbox script noticing.
-function buildWrapperSrc(source: StreamSource, title: string): string {
-  let upstream: string;
-  if (source.kind === "embed") {
-    upstream = source.url;
-  } else {
-    // For raw HLS, hand the URL to dami-tv.pro/player/hls/. Their player
-    // bundles hls.js, deals with their token chain, and posts stall
-    // events via postMessage. The outer sandbox we apply at the parent
-    // level blocks their popunder ads regardless of whether the ad
-    // script runs inside.
-    upstream =
-      "https://dami-tv.pro/player/hls/?noad=1&v=244" +
-      `&url=${encodeURIComponent(source.url)}` +
-      `&name=${encodeURIComponent(title)}`;
-  }
+// Build the URL we hand to <HlsPlayer> for an HLS-kind source. Goes
+// through our own /api/live/playlist proxy so we can attach the right
+// Referer header to dodge the upstream's anti-direct-fetch placeholder
+// and serve the manifest with edge-cacheable headers. Adding a per-
+// source `src` lets the same match's multiple HLS providers (extract-
+// url vs dl/stream vs s3/stream) live behind the same proxy route.
+function buildHlsProxyUrl(matchId: string, source: StreamSource): string {
+  const base = `/api/live/playlist/${encodeURIComponent(matchId)}`;
+  // For the primary "extract-url"-derived URL (Server 1), letting the
+  // proxy run its own extract-url fetch is cheaper than passing the URL
+  // round-trip — same result, and lets the proxy cache key match.
+  return `${base}?src=${encodeURIComponent(source.url)}`;
+}
+
+// /embed/player wrapper, only used for the embed.st iframe fallback.
+function buildEmbedWrapperSrc(url: string, title: string): string {
   return (
     "/embed/player" +
-    `?src=${encodeURIComponent(upstream)}` +
+    `?src=${encodeURIComponent(url)}` +
     `&title=${encodeURIComponent(title)}`
   );
 }
@@ -342,12 +356,21 @@ function PlayerOverlay({
               <p className="text-xs text-zinc-500">{state.message}</p>
             </div>
           )}
-          {state.kind === "ready" && currentSource && (
+          {state.kind === "ready" && currentSource && currentSource.kind === "hls" && (
+            <HlsPlayer
+              // The key remounts the player when the user switches
+              // sources or retries — otherwise hls.js keeps the old
+              // session alive and we never actually swap streams.
+              key={`hls-${state.sourceIdx}-${reloadKey}`}
+              src={buildHlsProxyUrl(match.id, currentSource)}
+              poster={match.poster}
+              onFatalError={() => setStalled(true)}
+            />
+          )}
+          {state.kind === "ready" && currentSource && currentSource.kind === "embed" && (
             <iframe
-              // The reloadKey forces a remount so swapping sources or
-              // retrying really does load a fresh document.
-              key={`${state.sourceIdx}-${reloadKey}`}
-              src={buildWrapperSrc(currentSource, match.title)}
+              key={`embed-${state.sourceIdx}-${reloadKey}`}
+              src={buildEmbedWrapperSrc(currentSource.url, match.title)}
               title={match.title}
               className="block h-full w-full"
               // Tight sandbox: scripts + same-origin (cookies for the
@@ -355,13 +378,9 @@ function PlayerOverlay({
               // playback needs. NO allow-popups (so aclib.runPop's
               // window.open returns null → popunder dies silently), NO
               // allow-top-navigation (so window.top.location = adUrl is
-              // blocked). The default HLS player (Server 1) doesn't
-              // probe sandbox, so it plays fine under these flags.
-              //
-              // embed.st (Server 5 fallback) DOES probe sandbox and
-              // will show "Remove sandbox attributes" if a user picks
-              // it — that's a known trade-off, surfaced in the UI
-              // below the player.
+              // blocked). embed.st probes sandbox and may show "Remove
+              // sandbox attributes" — a known trade-off the UI flags
+              // by labelling this source as a fallback only.
               sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-presentation allow-pointer-lock"
               referrerPolicy="no-referrer"
               allow="autoplay; fullscreen; picture-in-picture; encrypted-media"

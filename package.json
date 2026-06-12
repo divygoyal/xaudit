@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pack:ext": "node scripts/pack-extension.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^4.5.15",
@@ -16,6 +17,7 @@
     "@vercel/functions": "^3.6.1",
     "disposable-email-domains": "^1.0.62",
     "dodopayments": "^2.32.0",
+    "hls.js": "^1.6.16",
     "lucide-react": "^0.460.0",
     "nanoid": "^5.1.11",
     "next": "14.2.x",
