@@ -68,19 +68,103 @@ export function HlsPlayer({
     setPhase("loading");
     setErrorDetail(null);
 
-    // Safari (iOS, macOS) supports HLS natively and is significantly
-    // faster than hls.js — let the browser handle it whenever it can.
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = src;
-      const onLoaded = () => {
+    // Player selection. hls.js is far more reliable than browser-native
+    // HLS on every browser EXCEPT desktop / mobile Safari (and iOS, full
+    // stop — iOS WebKit blocks MSE entirely). Microsoft Edge on Windows
+    // also reports canPlayType("application/vnd.apple.mpegurl") as
+    // truthy because of their Streams integration, but its native HLS
+    // implementation flakes on unbranded streams like the ones we
+    // proxy — falling through to native there caused the "Native
+    // player failed" we're seeing in production. So: hls.js whenever
+    // it's supported, native HLS only as a last resort for Safari.
+    const ua = navigator.userAgent;
+    const isAppleSafari =
+      /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua) ||
+      /iPhone|iPad|iPod/.test(ua);
+
+    if (Hls.isSupported() && !isAppleSafari) {
+      const hls = new Hls(HLS_CONFIG);
+      hlsRef.current = hls;
+
+      // Validation hook — the e2e player test (scripts/validate-player.mjs)
+      // reads this to see exactly which hls.js phase the player gets
+      // stuck on. Cheap and harmless in production.
+      if (typeof window !== "undefined") {
+        (window as unknown as { __hlsTrace?: string[] }).__hlsTrace = [];
+        const trace = (window as unknown as { __hlsTrace: string[] }).__hlsTrace;
+        const T = (e: string, extra?: unknown) => {
+          trace.push(extra === undefined ? e : `${e}:${JSON.stringify(extra)}`);
+        };
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => T("MEDIA_ATTACHED"));
+        hls.on(Hls.Events.MANIFEST_LOADING, () => T("MANIFEST_LOADING"));
+        hls.on(Hls.Events.MANIFEST_LOADED, () => T("MANIFEST_LOADED"));
+        hls.on(Hls.Events.MANIFEST_PARSED, (_e, d) =>
+          T("MANIFEST_PARSED", { levels: d.levels?.length ?? null }),
+        );
+        hls.on(Hls.Events.LEVEL_LOADED, (_e, d) =>
+          T("LEVEL_LOADED", {
+            details: d.details?.fragments?.length ?? null,
+            live: d.details?.live,
+          }),
+        );
+        hls.on(Hls.Events.FRAG_LOADING, (_e, d) =>
+          T("FRAG_LOADING", { sn: d.frag.sn, url: d.frag.url.slice(0, 60) }),
+        );
+        hls.on(Hls.Events.FRAG_LOADED, (_e, d) =>
+          T("FRAG_LOADED", { sn: d.frag.sn }),
+        );
+        hls.on(Hls.Events.BUFFER_APPENDED, () => T("BUFFER_APPENDED"));
+      }
+
+      hls.loadSource(src);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setPhase("ready");
+      });
+
+      let recoverAttempts = 0;
+      hls.on(Hls.Events.ERROR, (_e, data) => {
+        if (typeof window !== "undefined") {
+          const trace = (window as unknown as { __hlsTrace?: string[] })
+            .__hlsTrace;
+          trace?.push(
+            `ERROR:${data.fatal ? "FATAL " : ""}${data.type}/${data.details}`,
+          );
+        }
+        if (!data.fatal) return;
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && recoverAttempts < 2) {
+          recoverAttempts++;
+          hls.startLoad();
+          return;
+        }
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR && recoverAttempts < 2) {
+          recoverAttempts++;
+          hls.recoverMediaError();
+          return;
+        }
+        setPhase("error");
+        setErrorDetail(
+          `${data.type}${data.details ? ` · ${data.details}` : ""}`,
+        );
+        onFatalError?.({ type: data.type, details: data.details ?? "" });
+      });
+
+      return () => {
+        hls.destroy();
+        hlsRef.current = null;
       };
-      video.addEventListener("loadedmetadata", onLoaded, { once: true });
+    }
+
+    if (isAppleSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = src;
+      const onLoaded = () => setPhase("ready");
       const onErr = () => {
         setPhase("error");
-        setErrorDetail("Native player failed");
+        setErrorDetail("Safari native HLS failed");
         onFatalError?.({ type: "native", details: "loadedmetadata error" });
       };
+      video.addEventListener("loadedmetadata", onLoaded, { once: true });
       video.addEventListener("error", onErr, { once: true });
       return () => {
         video.removeEventListener("loadedmetadata", onLoaded);
@@ -90,43 +174,8 @@ export function HlsPlayer({
       };
     }
 
-    if (!Hls.isSupported()) {
-      setPhase("error");
-      setErrorDetail("HLS is not supported in this browser.");
-      return;
-    }
-
-    const hls = new Hls(HLS_CONFIG);
-    hlsRef.current = hls;
-    hls.loadSource(src);
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      setPhase("ready");
-    });
-
-    let recoverAttempts = 0;
-    hls.on(Hls.Events.ERROR, (_e, data) => {
-      if (!data.fatal) return;
-      if (data.type === Hls.ErrorTypes.NETWORK_ERROR && recoverAttempts < 2) {
-        recoverAttempts++;
-        hls.startLoad();
-        return;
-      }
-      if (data.type === Hls.ErrorTypes.MEDIA_ERROR && recoverAttempts < 2) {
-        recoverAttempts++;
-        hls.recoverMediaError();
-        return;
-      }
-      setPhase("error");
-      setErrorDetail(data.details ?? data.type);
-      onFatalError?.({ type: data.type, details: data.details ?? "" });
-    });
-
-    return () => {
-      hls.destroy();
-      hlsRef.current = null;
-    };
+    setPhase("error");
+    setErrorDetail("HLS is not supported in this browser.");
   }, [src, onFatalError]);
 
   // Browsers gate autoplay-with-sound behind a user gesture. Start muted
