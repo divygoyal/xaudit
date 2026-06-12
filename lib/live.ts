@@ -111,17 +111,26 @@ type S3Response = {
   backup?: string;
 };
 
-export type ResolvedStream =
-  | {
-      kind: "embed";
-      url: string;
-      source: string;
-    }
-  | {
-      kind: "hls";
-      url: string;
-      source: string;
-    };
+// All playable URLs we know about for a match, ranked. The client picks
+// the primary and keeps the others as fallbacks if playback stalls.
+//
+// - `embed`: a streamed.pk embed iframe (embed.st). Usually works but
+//   their CDN sometimes blocks the manifest fetch from iframes that
+//   aren't streamed.pk's own pages — hence the fallback list.
+// - `hls`:   a raw HLS playlist proxied through dami-tv.pro/live-hls/*.
+//   We hand it to dami-tv.pro/player/hls/ (their bundled hls.js player)
+//   rather than rolling our own — their player handles their token chain.
+export type StreamSource = {
+  kind: "embed" | "hls";
+  url: string;
+  label: string;
+};
+
+export type ResolvedStream = {
+  primary: StreamSource;
+  fallbacks: StreamSource[];
+  matchId: string;
+};
 
 function toAbsolute(url: string | undefined | null): string | null {
   if (!url) return null;
@@ -147,38 +156,54 @@ async function tryJson<T>(url: string): Promise<T | null> {
   }
 }
 
-// Resolve a match id to a playable URL. Prefers the streamed.pk embed
-// (embed.st) since dami-tv.pro's /live-hls/ proxy returns a token-gated
-// placeholder ({"status":"ok","browserReady":false}) until an ad-verify
-// token is presented — we'd rather skip their ad pipeline and go straight
-// to the upstream embed.
+// Resolve a match id to one or more playable sources. We try every
+// upstream resolver and stack the results so the client has fallbacks
+// when one provider fails (embed.st sometimes refuses the manifest
+// fetch; their /live-hls proxy is token-gated; etc.).
 export async function resolveStream(
   matchId: string,
 ): Promise<ResolvedStream | null> {
+  const sources: StreamSource[] = [];
+
   const ex = await tryJson<ExtractResponse>(
     `${DAMI_ORIGIN}/papi/extract-url/${encodeURIComponent(matchId)}`,
   );
   if (ex?.success) {
     if (ex.embedUrl) {
-      return { kind: "embed", url: ex.embedUrl, source: ex.source ?? "echo" };
+      sources.push({
+        kind: "embed",
+        url: ex.embedUrl,
+        label: `Server 1 (${ex.source ?? "echo"})`,
+      });
     }
     const hls = toAbsolute(ex.hlsUrl);
-    if (hls) return { kind: "hls", url: hls, source: ex.source ?? "echo" };
+    if (hls) {
+      sources.push({ kind: "hls", url: hls, label: "Server 2 (HLS)" });
+    }
   }
 
   const dl = await tryJson<DlResponse>(
     `${DAMI_ORIGIN}/papi/dl/stream/${encodeURIComponent(matchId)}`,
   );
   if (dl?.success && dl.stream) {
-    return { kind: "hls", url: dl.stream, source: "dl" };
+    sources.push({ kind: "hls", url: dl.stream, label: "Server 3 (DL)" });
   }
 
   const s3 = await tryJson<S3Response>(
     `${DAMI_ORIGIN}/papi/s3/stream/${encodeURIComponent(matchId)}`,
   );
   if (s3?.success && s3.stream) {
-    return { kind: "hls", url: s3.stream, source: "s3" };
+    sources.push({ kind: "hls", url: s3.stream, label: "Server 4 (S3)" });
+    if (s3.backup && s3.backup !== s3.stream) {
+      sources.push({
+        kind: "hls",
+        url: s3.backup,
+        label: "Server 5 (S3 backup)",
+      });
+    }
   }
 
-  return null;
+  if (sources.length === 0) return null;
+  const [primary, ...fallbacks] = sources;
+  return { primary, fallbacks, matchId };
 }

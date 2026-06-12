@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { Match, MatchesResult, ResolvedStream } from "@/lib/live";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type {
+  Match,
+  MatchesResult,
+  ResolvedStream,
+  StreamSource,
+} from "@/lib/live";
 
 const CATEGORY_LABELS: Record<string, string> = {
   all: "All",
@@ -170,6 +175,31 @@ function MatchCard({
   );
 }
 
+// Wrap an upstream player URL with our /embed/player route. The wrapper
+// is on letxcook.com so we can sandbox the outer iframe without the
+// upstream player's anti-sandbox script noticing.
+function buildWrapperSrc(source: StreamSource, title: string): string {
+  let upstream: string;
+  if (source.kind === "embed") {
+    upstream = source.url;
+  } else {
+    // For raw HLS, hand the URL to dami-tv.pro/player/hls/. Their player
+    // bundles hls.js, deals with their token chain, and posts stall
+    // events via postMessage. The outer sandbox we apply at the parent
+    // level blocks their popunder ads regardless of whether the ad
+    // script runs inside.
+    upstream =
+      "https://dami-tv.pro/player/hls/?noad=1&v=244" +
+      `&url=${encodeURIComponent(source.url)}` +
+      `&name=${encodeURIComponent(title)}`;
+  }
+  return (
+    "/embed/player" +
+    `?src=${encodeURIComponent(upstream)}` +
+    `&title=${encodeURIComponent(title)}`
+  );
+}
+
 function PlayerOverlay({
   match,
   onClose,
@@ -179,13 +209,17 @@ function PlayerOverlay({
 }) {
   const [state, setState] = useState<
     | { kind: "loading" }
-    | { kind: "ready"; src: string; resolveKind: ResolvedStream["kind"] }
+    | { kind: "ready"; resolved: ResolvedStream; sourceIdx: number }
     | { kind: "error"; message: string }
   >({ kind: "loading" });
+  // Bumping this remounts the iframe with a fresh src — used both when
+  // the user picks another server and when we manually retry.
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const ctrl = new AbortController();
     setState({ kind: "loading" });
+    setReloadKey(0);
 
     (async () => {
       try {
@@ -200,42 +234,19 @@ function PlayerOverlay({
         if (!r.ok || "error" in data) {
           setState({
             kind: "error",
-            message:
-              "error" in data ? data.error : `HTTP ${r.status}`,
+            message: "error" in data ? data.error : `HTTP ${r.status}`,
           });
           return;
         }
-        if (data.kind === "embed") {
-          setState({
-            kind: "ready",
-            src: data.url,
-            resolveKind: "embed",
-          });
-        } else {
-          // HLS fallback — hand the URL to dami-tv's standalone player.
-          // (We don't ship hls.js ourselves yet; their player already
-          // bundles it and handles quality switching.)
-          const player =
-            "https://dami-tv.pro/player/hls/?noad=1&v=244" +
-            `&url=${encodeURIComponent(data.url)}` +
-            `&name=${encodeURIComponent(match.title)}`;
-          setState({
-            kind: "ready",
-            src: player,
-            resolveKind: "hls",
-          });
-        }
+        setState({ kind: "ready", resolved: data, sourceIdx: 0 });
       } catch (e) {
         if (ctrl.signal.aborted) return;
-        setState({
-          kind: "error",
-          message: (e as Error).message,
-        });
+        setState({ kind: "error", message: (e as Error).message });
       }
     })();
 
     return () => ctrl.abort();
-  }, [match.id, match.title]);
+  }, [match.id]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -250,6 +261,43 @@ function PlayerOverlay({
     };
   }, [onClose]);
 
+  // dami-tv.pro's /player/hls/ posts these messages to the parent when
+  // playback can't recover: { type: "hls-stall", reason: "no-play" |
+  // "fatal" | "buffer" }. We use them to nudge the user toward another
+  // source rather than auto-switching, since auto-switching mid-watch
+  // is more annoying than helpful when buffering hiccups.
+  const [stalled, setStalled] = useState(false);
+  useEffect(() => {
+    setStalled(false);
+    const handler = (e: MessageEvent) => {
+      const d = e.data as { type?: string; reason?: string } | null;
+      if (!d || typeof d !== "object") return;
+      if (d.type === "hls-stall") setStalled(true);
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [match.id, reloadKey]);
+
+  const tryNextSource = useCallback(() => {
+    setState((cur) => {
+      if (cur.kind !== "ready") return cur;
+      const total = 1 + cur.resolved.fallbacks.length;
+      const next = (cur.sourceIdx + 1) % total;
+      return { ...cur, sourceIdx: next };
+    });
+    setReloadKey((k) => k + 1);
+    setStalled(false);
+  }, []);
+
+  const allSources: StreamSource[] | null =
+    state.kind === "ready"
+      ? [state.resolved.primary, ...state.resolved.fallbacks]
+      : null;
+  const currentSource =
+    state.kind === "ready" && allSources
+      ? allSources[state.sourceIdx]
+      : null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm"
@@ -260,16 +308,23 @@ function PlayerOverlay({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-white">{match.title}</h2>
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-semibold text-white">
+              {match.title}
+            </h2>
             <p className="text-xs uppercase tracking-wider text-zinc-500">
               {CATEGORY_LABELS[match.category] ?? match.category}
+              {currentSource ? (
+                <span className="ml-2 text-zinc-400 normal-case">
+                  · {currentSource.label}
+                </span>
+              ) : null}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            className="shrink-0 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
           >
             Close
           </button>
@@ -287,21 +342,62 @@ function PlayerOverlay({
               <p className="text-xs text-zinc-500">{state.message}</p>
             </div>
           )}
-          {state.kind === "ready" && (
+          {state.kind === "ready" && currentSource && (
             <iframe
-              src={state.src}
+              // The reloadKey forces a remount so swapping sources or
+              // retrying really does load a fresh document.
+              key={`${state.sourceIdx}-${reloadKey}`}
+              src={buildWrapperSrc(currentSource, match.title)}
               title={match.title}
               className="block h-full w-full"
-              // embed.st refuses to load inside a sandboxed iframe and shows
-              // "Remove sandbox attributes on the iframe tag" — so we don't
-              // set one. Their popunder may try to open a new tab; modern
-              // browsers' popup blocker handles that without our help.
+              // Sandbox the WRAPPER iframe (our /embed/player route).
+              // The wrapper itself is on letxcook.com so the upstream
+              // player loads inside without seeing our sandbox; popups,
+              // top-navigation, and the popunder redirect trick are all
+              // blocked at this outer boundary.
+              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
               referrerPolicy="no-referrer"
               allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
               allowFullScreen
             />
           )}
         </div>
+
+        {state.kind === "ready" && allSources && allSources.length > 1 && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {allSources.map((s, i) => (
+                <button
+                  key={s.label}
+                  type="button"
+                  onClick={() => {
+                    setState((cur) =>
+                      cur.kind === "ready" ? { ...cur, sourceIdx: i } : cur,
+                    );
+                    setReloadKey((k) => k + 1);
+                    setStalled(false);
+                  }}
+                  className={`rounded-full border px-2.5 py-1 transition ${
+                    i === state.sourceIdx
+                      ? "border-orange-500 bg-orange-500/15 text-orange-300"
+                      : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700 hover:text-white"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            {stalled && (
+              <button
+                type="button"
+                onClick={tryNextSource}
+                className="rounded-md bg-orange-500 px-3 py-1.5 font-medium text-white hover:bg-orange-400"
+              >
+                Try next source →
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
