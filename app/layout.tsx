@@ -3,6 +3,7 @@ import { Instrument_Serif, Hanken_Grotesk, JetBrains_Mono, Caveat } from "next/f
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { SiteDisclaimer } from "@/components/site-disclaimer";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -42,12 +43,35 @@ const caveat = Caveat({
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-const rootOgImage = "/ogimage.png";
+
+const SITE_NAME = "letxcook";
+const SITE_TAGLINE = "Watch Sports Matches";
+const SITE_DESCRIPTION =
+  "Watch PPV Boxing, UFC, Basketball, Football, Darts and other sports content available live and on-demand.";
+const TWITTER_DESCRIPTION =
+  "Watch NFL, NBA, NHL, Premier League in HD. Zero fees, every game live.";
+const SITE_OG_IMAGE = "/ogimage.png";
 
 export const metadata: Metadata = {
-  title: "letxcook — Paste your X draft. See if the algorithm will care.",
-  description:
-    "We grade your X draft against 13 engagement signals — and rewrite it stronger. Verdict in under 30 seconds.",
+  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  description: SITE_DESCRIPTION,
+  authors: [{ name: SITE_NAME }],
+  keywords: [
+    "live sports",
+    "live streams",
+    "NFL",
+    "NBA",
+    "NHL",
+    "MLB",
+    "Premier League",
+    "Champions League",
+    "UFC",
+    "Boxing",
+    "Darts",
+    "Cricket",
+    "Tennis",
+    "Motorsport",
+  ],
   metadataBase: new URL(siteUrl),
   // IMPORTANT: setting any field inside metadata.icons OVERRIDES the
   // file-convention link Next.js generates from app/icon.svg. So we
@@ -57,30 +81,32 @@ export const metadata: Metadata = {
     icon: "/icon.svg",
     apple: "/logo-hero.svg",
   },
+  // The site links to publicly available third-party streams and is
+  // not intended to surface in organic search — leaning into noindex
+  // keeps it out of trouble with crawlers and rights holders alike.
+  robots: { index: false, follow: false },
   openGraph: {
-    title: "letxcook",
-    description: "Paste your X draft. See if the algorithm will care.",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
     type: "website",
+    url: "/",
+    siteName: SITE_NAME,
+    locale: "en_US",
+    alternateLocale: ["en_GB"],
     images: [
       {
-        url: rootOgImage,
-        width: 1717,
-        height: 912,
-        alt: "letxcook homepage preview",
+        url: SITE_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
       },
     ],
-    // url + siteName + locale satisfy the strict OG spec (og:url is one
-    // of the four required properties) and let Slack/Discord render the
-    // site label above the share card.
-    url: "/",
-    siteName: "letxcook",
-    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "letxcook",
-    description: "Paste your X draft. See if the algorithm will care.",
-    images: [rootOgImage],
+    title: SITE_NAME,
+    description: TWITTER_DESCRIPTION,
+    images: [SITE_OG_IMAGE],
   },
   // Search-engine site-ownership verification. Each env var is the
   // token a given Webmaster Tools dashboard hands you. Google is
@@ -136,12 +162,10 @@ const GA_MEASUREMENT_ID = "G-4GMENDHEL7";
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "letxcook",
-  alternateName: "let X cook",
+  name: SITE_NAME,
   url: siteUrl,
   logo: `${siteUrl}/logo-hero.svg`,
-  description:
-    "Grade your X drafts against 13 engagement signals — and rewrite them stronger.",
+  description: SITE_DESCRIPTION,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -200,7 +224,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-ink-950 text-paper antialiased font-sans selection:bg-vermillion selection:text-ink-950">
         <NextIntlClientProvider messages={messages}>
-          <div className="relative isolate min-h-screen overflow-x-hidden">
+          <div className="relative isolate flex min-h-screen flex-col overflow-x-hidden">
             {/* fine newsprint grain — blend mode switches per theme */}
             <div
               aria-hidden
@@ -215,7 +239,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               aria-hidden
               className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[600px] bg-vignette-top"
             />
-            {children}
+            <div className="flex-1">{children}</div>
+            <SiteDisclaimer />
           </div>
         </NextIntlClientProvider>
       </body>

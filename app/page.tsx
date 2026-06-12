@@ -1,51 +1,29 @@
-import type { Metadata } from "next";
-import { Navbar } from "@/components/navbar";
-import { Hero } from "@/components/hero";
-import { AnalyzePanel } from "@/components/analyze-panel";
-import { SignalsStrip } from "@/components/signals-strip";
-import { VsFolklore } from "@/components/vs-folklore";
-import { HowItWorks } from "@/components/how-it-works";
-import { Pricing } from "@/components/pricing";
-import { FAQ } from "@/components/faq";
-import { BottomCTA } from "@/components/bottom-cta";
-import { Footer } from "@/components/footer";
-import { GoogleOneTap } from "@/components/google-one-tap";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { MinimalNavbar } from "@/components/minimal-navbar";
+import { fetchMatches, type MatchesResult } from "@/lib/live";
+import { LiveBoard } from "./live/live-board";
 
-/** hreflang matrix. Next.js auto-emits these as <link rel="alternate">
- *  in <head>. Must list every enabled locale (full N×N) + x-default for
- *  the spec-compliant signal. As we ship more locales, append entries
- *  here and also bump the matching entry in app/<locale>/page.tsx. */
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/",
-    languages: {
-      en: "/",
-      "ja-JP": "/ja-jp",
-      "x-default": "/",
-    },
-  },
-};
+// Title/description/robots/OG all inherit from app/layout.tsx so the
+// homepage uses the site-wide sports streaming metadata.
+
+// Re-render the homepage at most every 30s so it stays fresh without
+// hammering the upstream feed on every request.
+export const revalidate = 30;
 
 export default async function HomePage() {
-  const sb = getSupabaseServer();
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
+  let initial: MatchesResult | null = null;
+  let initialError: string | null = null;
+  try {
+    initial = await fetchMatches();
+  } catch (err) {
+    initialError = (err as Error).message;
+  }
 
   return (
-    <main>
-      <Navbar />
-      <Hero />
-      <AnalyzePanel />
-      <SignalsStrip />
-      <VsFolklore />
-      <HowItWorks />
-      <Pricing />
-      <FAQ />
-      <BottomCTA />
-      <Footer />
-      <GoogleOneTap signedIn={Boolean(user)} />
+    <main className="flex min-h-screen flex-col bg-black">
+      <MinimalNavbar />
+      <section className="mx-auto w-full max-w-7xl flex-1 px-4 pb-16 pt-2 sm:px-8">
+        <LiveBoard initial={initial} initialError={initialError} />
+      </section>
     </main>
   );
 }
