@@ -346,24 +346,27 @@ function PlayerOverlay({
     setState((cur) => {
       if (cur.kind !== "ready") return cur;
       if (hasPlayed) return cur; // mid-watch — don't auto-swap
-      const total = 1 + cur.resolved.fallbacks.length;
-      if (total <= 1) return cur;
-      // Pick the next index we haven't auto-tried yet. If all of them
-      // have been auto-tried, give up — the user can still manually
-      // click a server button.
-      let next = (cur.sourceIdx + 1) % total;
-      let scanned = 0;
-      while (autoTriedIdx.has(next) && scanned < total) {
-        next = (next + 1) % total;
-        scanned++;
-      }
-      if (autoTriedIdx.has(next)) return cur;
+      const all = [cur.resolved.primary, ...cur.resolved.fallbacks];
+      // Auto-advance ONLY among HLS sources. embed.st sources have
+      // their own anti-sandbox check that fires "Remove sandbox
+      // attributes" on load — auto-falling-back into an embed source
+      // shows that error instead of the spinner, which is worse than
+      // staying on the still-loading HLS source. Users can still pick
+      // embed manually if they want to.
+      const candidates = all
+        .map((s, i) => ({ src: s, i }))
+        .filter(({ src }) => src.kind === "hls");
+      if (candidates.length <= 1) return cur;
+      const next = candidates.find(
+        ({ i }) => !autoTriedIdx.has(i),
+      );
+      if (!next) return cur;
       setAutoTriedIdx((s) => {
         const n = new Set(s);
-        n.add(next);
+        n.add(next.i);
         return n;
       });
-      return { ...cur, sourceIdx: next };
+      return { ...cur, sourceIdx: next.i };
     });
     setReloadKey((k) => k + 1);
     setStalled(false);
@@ -373,14 +376,23 @@ function PlayerOverlay({
   useEffect(() => {
     if (state.kind !== "ready") return;
     if (hasPlayed) return;
-    if (state.resolved.fallbacks.length === 0) return;
+    // Only set the wall-clock auto-advance if there's actually
+    // somewhere safe to fall back TO (i.e. another HLS source we
+    // haven't tried). If the only "fallback" left is embed.st, we
+    // sit on the HLS source — letting it warm rather than crashing
+    // into the upstream's sandbox-blocked player.
+    const allSrc = [state.resolved.primary, ...state.resolved.fallbacks];
+    const hasUntriedHls = allSrc.some(
+      (s, i) => s.kind === "hls" && !autoTriedIdx.has(i),
+    );
+    if (!hasUntriedHls) return;
     // 14s budget for first frame on whatever source is selected. Bumped
     // from 12s to account for the upstream's cold-start curve.
     const t = setTimeout(() => {
       autoAdvanceIfFresh();
     }, 14_000);
     return () => clearTimeout(t);
-  }, [state, hasPlayed, reloadKey, autoAdvanceIfFresh]);
+  }, [state, hasPlayed, reloadKey, autoAdvanceIfFresh, autoTriedIdx]);
 
   const handlePlayerFatal = useCallback(() => {
     setStalled(true);
@@ -450,6 +462,10 @@ function PlayerOverlay({
               poster={match.poster}
               onFatalError={handlePlayerFatal}
               onPlaying={() => setHasPlayed(true)}
+              onReloadRequest={() => {
+                setReloadKey((k) => k + 1);
+                setStalled(false);
+              }}
             />
           )}
           {state.kind === "ready" && currentSource && currentSource.kind === "embed" && (

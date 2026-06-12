@@ -9,6 +9,10 @@ type HlsPlayerProps = {
   className?: string;
   onFatalError?: (err: { type: string; details: string }) => void;
   onPlaying?: () => void;
+  // Triggered by the in-overlay "Reload" button. Lets the parent bump
+  // its reloadKey so we get a brand-new <HlsPlayer> mount instead of
+  // hls.js trying to recover on a stale instance.
+  onReloadRequest?: () => void;
 };
 
 // Low-latency live config. Picked to bias hard toward "show frame fast"
@@ -58,6 +62,7 @@ export function HlsPlayer({
   className,
   onFatalError,
   onPlaying,
+  onReloadRequest,
 }: HlsPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -235,13 +240,22 @@ export function HlsPlayer({
       )}
 
       {phase === "error" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/85 px-6 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/85 px-6 text-center">
           <p className="text-sm text-red-400">Stream unavailable.</p>
           {errorDetail ? (
             <p className="text-xs text-zinc-500">{errorDetail}</p>
           ) : null}
+          {onReloadRequest ? (
+            <button
+              type="button"
+              onClick={onReloadRequest}
+              className="mt-1 rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-400"
+            >
+              Reload stream
+            </button>
+          ) : null}
           <p className="text-[11px] text-zinc-600">
-            Try another server below.
+            Or pick another server below.
           </p>
         </div>
       )}
