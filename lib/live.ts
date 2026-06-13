@@ -22,6 +22,13 @@ type UpstreamMatch = {
     away?: { name?: string; badge?: string };
   };
   sources?: Array<{ source: string; id: string }>;
+  // dami-tv stores 4 stream-provider variants per match here (admin /
+  // delta / echo / golf typically). Their /papi/extract-url endpoint
+  // returns only one — usually the "admin" one — and for some matches
+  // (notably football PPV) that one serves anti-leech decoy segments
+  // pointing at tiktokcdn instead of real video. Keep the alternates
+  // so resolveStream can hand them to the player as fallbacks.
+  _streamedSources?: Array<{ source: string; id: string }>;
 };
 
 export type MatchStatus = "live" | "upcoming" | "ended" | "unknown";
@@ -38,6 +45,7 @@ export type Match = {
   home: { name: string; badge: string };
   away: { name: string; badge: string };
   sources: Array<{ source: string; id: string }>;
+  streamedSources: Array<{ source: string; id: string }>;
 };
 
 function normalize(m: UpstreamMatch): Match {
@@ -62,6 +70,16 @@ function normalize(m: UpstreamMatch): Match {
       badge: m.teams?.away?.badge ?? "",
     },
     sources: Array.isArray(m.sources) ? m.sources : [],
+    streamedSources: Array.isArray(m._streamedSources)
+      ? m._streamedSources.filter(
+          (s) =>
+            s &&
+            typeof s.source === "string" &&
+            typeof s.id === "string" &&
+            s.source &&
+            s.id,
+        )
+      : [],
   };
 }
 
@@ -156,17 +174,37 @@ async function tryJson<T>(url: string): Promise<T | null> {
   }
 }
 
+// Build the canonical dami-tv `/live-hls/streamed/{source}/{id}/{n}/`
+// playlist URL we can hand to our playlist proxy. The path format is
+// stable across providers (admin/delta/echo/golf) — only the slug in
+// the `id` changes per source. Stream number 1 is what dami-tv's own
+// site loads on initial play.
+function streamedHlsUrl(source: string, id: string): string {
+  return (
+    `${DAMI_ORIGIN}/live-hls/streamed/${encodeURIComponent(source)}` +
+    `/${encodeURIComponent(id)}/1/playlist.m3u8`
+  );
+}
+
 // Resolve a match id to one or more playable sources. We try every
-// upstream resolver and stack the results so the client has fallbacks
-// when one provider fails (embed.st sometimes refuses the manifest
-// fetch; their /live-hls proxy is token-gated; etc.).
+// upstream resolver in parallel and stack the results so the client
+// has fallbacks when one provider fails. Crucially we also expand the
+// match's _streamedSources list — extract-url alone often returns the
+// upstream's "admin" provider which serves anti-leech decoy segments
+// (tiktokcdn URLs) for some matches (football PPV in particular).
+// The alternate providers (delta/echo/golf) hosted at the same path
+// pattern usually have real video — including them as fallbacks lets
+// auto-fallback walk past the decoy to a working stream.
 export async function resolveStream(
   matchId: string,
 ): Promise<ResolvedStream | null> {
-  // Fan out the three upstream resolvers in parallel. Sequential
-  // awaits used to add ~1.5s to the perceived click-to-frame time;
-  // Promise.all collapses them to one round-trip wall-clock cost.
-  const [ex, dl, s3] = await Promise.all([
+  // Run the slow paths in parallel:
+  //   - extract-url tells us which provider dami-tv's own site picks
+  //     for this match, plus the embed-iframe fallback URL.
+  //   - dl/stream + s3/stream cover non-PPV matches (DaddyLive / S3).
+  //   - fetchMatches gives us the match's _streamedSources list, which
+  //     is the only place per-provider IDs live.
+  const [ex, dl, s3, matches] = await Promise.all([
     tryJson<ExtractResponse>(
       `${DAMI_ORIGIN}/papi/extract-url/${encodeURIComponent(matchId)}`,
     ),
@@ -176,45 +214,73 @@ export async function resolveStream(
     tryJson<S3Response>(
       `${DAMI_ORIGIN}/papi/s3/stream/${encodeURIComponent(matchId)}`,
     ),
+    fetchMatches().catch(() => null),
   ]);
 
-  const sources: StreamSource[] = [];
+  // Build a deduped, ordered list of (kind, url, providerLabel) tuples
+  // first; assign sequential "Server N" labels at the end so the UI
+  // never shows two of the same number after dedup.
+  type Candidate = {
+    kind: "embed" | "hls";
+    url: string;
+    providerLabel: string;
+  };
+  const candidates: Candidate[] = [];
+  const seen = new Set<string>();
+  const addCandidate = (
+    kind: "embed" | "hls",
+    rawUrl: string | undefined | null,
+    providerLabel: string,
+  ) => {
+    const url = toAbsolute(rawUrl);
+    if (!url) return;
+    const key = `${kind}::${url}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    candidates.push({ kind, url, providerLabel });
+  };
 
-  // HLS-kind sources come FIRST. Our /api/live/playlist/[id] proxy
-  // serves them with the right Referer so the upstream returns a real
-  // manifest instead of its warmup placeholder. embed.st probes the
-  // iframe sandbox and refuses to play under our (intentionally tight)
-  // popunder-blocking config, so it sits at the bottom as a manual
-  // fallback.
+  // Slot 1: extract-url's chosen provider — what dami-tv's own site
+  // hands their players. For some matches (football PPV) this is the
+  // anti-leech decoy; the alternates below cover that case.
   if (ex?.success) {
-    const hls = toAbsolute(ex.hlsUrl);
-    if (hls) sources.push({ kind: "hls", url: hls, label: "Server 1 (HLS)" });
+    addCandidate("hls", ex.hlsUrl, ex.source ?? "primary");
   }
 
-  if (dl?.success && dl.stream) {
-    sources.push({ kind: "hls", url: dl.stream, label: "Server 2 (DL)" });
-  }
-
-  if (s3?.success && s3.stream) {
-    sources.push({ kind: "hls", url: s3.stream, label: "Server 3 (S3)" });
-    if (s3.backup && s3.backup !== s3.stream) {
-      sources.push({
-        kind: "hls",
-        url: s3.backup,
-        label: "Server 4 (S3 backup)",
-      });
+  // Per-provider _streamedSources variants (admin / delta / echo /
+  // golf). These reuse the upstream /live-hls/{source}/{id}/1/playlist
+  // URL pattern — different `id` per provider, real m3u8s when the
+  // primary is decoyed.
+  const match = matches?.matches.find((m) => m.id === matchId);
+  if (match) {
+    for (const ss of match.streamedSources) {
+      addCandidate("hls", streamedHlsUrl(ss.source, ss.id), ss.source);
     }
   }
 
-  if (ex?.success && ex.embedUrl) {
-    sources.push({
-      kind: "embed",
-      url: ex.embedUrl,
-      label: `Server 5 (${ex.source ?? "echo"})`,
-    });
+  if (dl?.success && dl.stream) {
+    addCandidate("hls", dl.stream, "DaddyLive");
+  }
+  if (s3?.success && s3.stream) {
+    addCandidate("hls", s3.stream, "S3");
+    if (s3.backup && s3.backup !== s3.stream) {
+      addCandidate("hls", s3.backup, "S3 backup");
+    }
   }
 
-  if (sources.length === 0) return null;
+  // embed iframe at the very bottom — anti-sandbox probe means it can't
+  // be auto-fallen-to safely; user has to pick it manually.
+  if (ex?.success && ex.embedUrl) {
+    addCandidate("embed", ex.embedUrl, "iframe");
+  }
+
+  if (candidates.length === 0) return null;
+
+  const sources: StreamSource[] = candidates.map((c, i) => ({
+    kind: c.kind,
+    url: c.url,
+    label: `Server ${i + 1} (${c.providerLabel})`,
+  }));
   const [primary, ...fallbacks] = sources;
   return { primary, fallbacks, matchId };
 }

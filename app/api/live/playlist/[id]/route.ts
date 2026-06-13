@@ -114,6 +114,20 @@ export async function GET(
     return NextResponse.json({ error: "not_ready" }, { status: 503 });
   }
 
+  // Anti-leech decoy: dami-tv sometimes (notably for football PPV)
+  // serves a valid-looking playlist whose segments point at
+  // p16-amd-va.tiktokcdn.com / other-tiktokcdn hosts instead of the
+  // streamed.pk CDN. hls.js parses the manifest, tries to play those,
+  // and gets non-video bytes — manifest-loaded-but-no-frames hang.
+  // Fail fast here so the client's auto-fallback can try the next
+  // _streamedSources provider.
+  if (body.includes("tiktokcdn") || body.includes("tiktokcdn.com")) {
+    return NextResponse.json(
+      { error: "decoy_manifest", note: "upstream served tiktokcdn segments" },
+      { status: 502 },
+    );
+  }
+
   return new NextResponse(body, {
     status: 200,
     headers: {
