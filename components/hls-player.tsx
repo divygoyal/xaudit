@@ -38,14 +38,36 @@ const HLS_CONFIG: Partial<Hls["config"]> = {
   backBufferLength: 10,
   maxBufferSize: 30 * 1000 * 1000,
   startFragPrefetch: true,
-  // Upstream cold-start can be 5-15s for the first viewer of a stream
-  // (dami-tv warms streamed.pk lazily). 5s was triggering a retry
-  // storm in that window. 10s gives the first request a real chance
-  // and PlayerOverlay's 12s wall-clock fallback covers the rest.
-  manifestLoadingTimeOut: 10_000,
-  manifestLoadingMaxRetry: 2,
-  manifestLoadingRetryDelay: 500,
-  levelLoadingTimeOut: 10_000,
+  // hls.js 1.6 wired retry behaviour into policy objects; setting only
+  // the legacy manifestLoading* / levelLoading* / fragLoading* flags
+  // leaves their defaults active (errorRetry.maxNumRetry: 1 with a
+  // 1-8s exponential backoff). That kept the player in a silent retry
+  // loop for ~10s before firing the ERROR event, which made our 502
+  // decoy fast-fail useless. Set the policies explicitly + zero out
+  // the manifest retries: if our proxy returned 5xx, retrying it
+  // immediately won't help — we want the auto-fallback to advance.
+  manifestLoadPolicy: {
+    default: {
+      maxTimeToFirstByteMs: 4000,
+      maxLoadTimeMs: 6000,
+      timeoutRetry: { maxNumRetry: 0, retryDelayMs: 0, maxRetryDelayMs: 0 },
+      errorRetry: { maxNumRetry: 0, retryDelayMs: 0, maxRetryDelayMs: 0 },
+    },
+  },
+  manifestLoadingTimeOut: 6000,
+  manifestLoadingMaxRetry: 0,
+  manifestLoadingRetryDelay: 0,
+  // Ongoing live-playlist polls (mid-stream) should keep retrying
+  // through transient blips — only the initial manifest fast-fails.
+  playlistLoadPolicy: {
+    default: {
+      maxTimeToFirstByteMs: 5000,
+      maxLoadTimeMs: 10_000,
+      timeoutRetry: { maxNumRetry: 1, retryDelayMs: 500, maxRetryDelayMs: 2000 },
+      errorRetry: { maxNumRetry: 2, retryDelayMs: 500, maxRetryDelayMs: 2000 },
+    },
+  },
+  levelLoadingTimeOut: 6000,
   levelLoadingMaxRetry: 2,
   levelLoadingRetryDelay: 500,
   fragLoadingTimeOut: 12000,
@@ -95,6 +117,27 @@ export function HlsPlayer({
       const hls = new Hls(HLS_CONFIG);
       hlsRef.current = hls;
 
+      // Wall-clock safety net: if MANIFEST_PARSED hasn't fired within
+      // 8s and hls.js hasn't fired an ERROR either, force-fire onFatal
+      // ourselves. This guards against hls.js silently retrying past
+      // its supposed retry budget — we saw this with the new policy
+      // defaults swallowing 502 responses for ~30s before raising.
+      const manifestDeadline = setTimeout(() => {
+        if (!hlsRef.current) return;
+        setPhase("error");
+        setErrorDetail("Manifest load timed out");
+        onFatalError?.({ type: "wallclock", details: "manifest-timeout" });
+        if (typeof window !== "undefined") {
+          const trace = (window as unknown as { __hlsTrace?: string[] })
+            .__hlsTrace;
+          trace?.push("WALLCLOCK_TIMEOUT");
+        }
+      }, 8000);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => clearTimeout(manifestDeadline));
+      hls.on(Hls.Events.ERROR, (_e, data) => {
+        if (data.fatal) clearTimeout(manifestDeadline);
+      });
+
       // Validation hook — the e2e player test (scripts/validate-player.mjs)
       // reads this to see exactly which hls.js phase the player gets
       // stuck on. Cheap and harmless in production.
@@ -142,7 +185,32 @@ export function HlsPlayer({
           );
         }
         if (!data.fatal) return;
-        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && recoverAttempts < 2) {
+
+        // Read the upstream HTTP status if hls.js exposed it.
+        // - .response.code is set in recent hls.js versions
+        // - .networkDetails.status is the XHR (older / Worker path)
+        const upstreamStatus =
+          (data as { response?: { code?: number } }).response?.code ??
+          (data as { networkDetails?: { status?: number } })
+            .networkDetails?.status ??
+          0;
+        // Manifest-stage failures don't recover via hls.startLoad() — by
+        // then hls.js has already done its own internal retries
+        // (manifestLoadingMaxRetry=2). Looping again here just burns
+        // time the user could spend on a different server. So if the
+        // failure is at the manifest stage, OR our proxy explicitly
+        // signaled a permanent error (5xx / 404), give up immediately
+        // and let the overlay's auto-fallback move on.
+        const detailStr = typeof data.details === "string" ? data.details : "";
+        const isManifestStage = detailStr.toLowerCase().startsWith("manifest");
+        const isPermanent =
+          upstreamStatus >= 500 || upstreamStatus === 404 || isManifestStage;
+
+        if (
+          !isPermanent &&
+          data.type === Hls.ErrorTypes.NETWORK_ERROR &&
+          recoverAttempts < 2
+        ) {
           recoverAttempts++;
           hls.startLoad();
           return;
@@ -154,12 +222,17 @@ export function HlsPlayer({
         }
         setPhase("error");
         setErrorDetail(
-          `${data.type}${data.details ? ` · ${data.details}` : ""}`,
+          isPermanent
+            ? upstreamStatus
+              ? `Upstream ${upstreamStatus}: source unavailable`
+              : `${detailStr || data.type}`
+            : `${data.type}${detailStr ? ` · ${detailStr}` : ""}`,
         );
-        onFatalError?.({ type: data.type, details: data.details ?? "" });
+        onFatalError?.({ type: data.type, details: detailStr });
       });
 
       return () => {
+        clearTimeout(manifestDeadline);
         hls.destroy();
         hlsRef.current = null;
       };

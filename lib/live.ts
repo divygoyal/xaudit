@@ -273,6 +273,20 @@ export async function resolveStream(
   if (ex?.success && ex.embedUrl) {
     addCandidate("embed", ex.embedUrl, "iframe");
   }
+  // Synthesize iframe fallbacks from the match's streamedSources too —
+  // extract-url has started returning {"success":false,"error":"no
+  // sources"} for many matches, leaving the player with only a single
+  // (often decoy) HLS source and no manual escape hatch. embed.st's
+  // URL pattern is stable: /embed/{source}/{id}/{streamNo}.
+  if (match) {
+    for (const ss of match.streamedSources) {
+      addCandidate(
+        "embed",
+        `https://embed.st/embed/${encodeURIComponent(ss.source)}/${encodeURIComponent(ss.id)}/1`,
+        `${ss.source} iframe`,
+      );
+    }
+  }
 
   if (candidates.length === 0) return null;
 
