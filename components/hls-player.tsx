@@ -48,13 +48,20 @@ const HLS_CONFIG: Partial<Hls["config"]> = {
   // immediately won't help — we want the auto-fallback to advance.
   manifestLoadPolicy: {
     default: {
-      maxTimeToFirstByteMs: 4000,
-      maxLoadTimeMs: 6000,
+      // Real-world cold-start variance: 4-22s observed on streamed.pk-
+      // family providers (echo can spike to 22s on the very first
+      // request before any cache warms up). 28s ceiling so we don't
+      // bail on a slow-but-eventually-good upstream. Decoy responses
+      // come back as 502 within <500ms via our proxy's tiktokcdn
+      // detector, so this ceiling only applies to legitimate slow
+      // responses.
+      maxTimeToFirstByteMs: 20_000,
+      maxLoadTimeMs: 28_000,
       timeoutRetry: { maxNumRetry: 0, retryDelayMs: 0, maxRetryDelayMs: 0 },
       errorRetry: { maxNumRetry: 0, retryDelayMs: 0, maxRetryDelayMs: 0 },
     },
   },
-  manifestLoadingTimeOut: 6000,
+  manifestLoadingTimeOut: 28_000,
   manifestLoadingMaxRetry: 0,
   manifestLoadingRetryDelay: 0,
   // Ongoing live-playlist polls (mid-stream) should keep retrying
@@ -117,11 +124,13 @@ export function HlsPlayer({
       const hls = new Hls(HLS_CONFIG);
       hlsRef.current = hls;
 
-      // Wall-clock safety net: if MANIFEST_PARSED hasn't fired within
-      // 8s and hls.js hasn't fired an ERROR either, force-fire onFatal
-      // ourselves. This guards against hls.js silently retrying past
-      // its supposed retry budget — we saw this with the new policy
-      // defaults swallowing 502 responses for ~30s before raising.
+      // Wall-clock safety net: if MANIFEST_PARSED hasn't fired and
+      // hls.js hasn't fired an ERROR either, force-fire onFatal
+      // ourselves. Set BEYOND the hls.js maxLoadTimeMs so a slow-but-
+      // working upstream (the streamed.pk admin/echo/delta cold-start
+      // can be 4-15s) gets a real chance before we bail. 22s is the
+      // sweet spot: long enough to swallow that, short enough that
+      // truly dead sources don't keep the user staring at a spinner.
       const manifestDeadline = setTimeout(() => {
         if (!hlsRef.current) return;
         setPhase("error");
@@ -132,7 +141,7 @@ export function HlsPlayer({
             .__hlsTrace;
           trace?.push("WALLCLOCK_TIMEOUT");
         }
-      }, 8000);
+      }, 30_000);
       hls.on(Hls.Events.MANIFEST_PARSED, () => clearTimeout(manifestDeadline));
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (data.fatal) clearTimeout(manifestDeadline);

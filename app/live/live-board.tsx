@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
+  cancelLivePrewarm,
   getCachedStream,
   prefetchStream,
+  prewarmLiveMatches,
 } from "@/lib/live-prefetch";
 import type {
   Match,
@@ -254,6 +256,11 @@ function PlayerOverlay({
     setState({ kind: "loading" });
     setReloadKey(0);
 
+    // The user just initiated a click, so this match is more important
+    // than every other live match we were prewarming. Cancel the
+    // remaining prewarm queue to free connection-pool slots.
+    cancelLivePrewarm();
+
     (async () => {
       try {
         // First check the hover-prefetch cache. If the user hovered
@@ -386,11 +393,15 @@ function PlayerOverlay({
       (s, i) => s.kind === "hls" && !autoTriedIdx.has(i),
     );
     if (!hasUntriedHls) return;
-    // 14s budget for first frame on whatever source is selected. Bumped
-    // from 12s to account for the upstream's cold-start curve.
+    // 33s budget for first frame on whatever source is selected.
+    // Cold-start of a streamed.pk-family provider can take up to ~22s
+    // before the upstream serves a real m3u8 (observed in dev). Plus
+    // 3-6s for first segment fetch + decode. Sits beyond HlsPlayer's
+    // 30s wall-clock so the player's own error path fires first when
+    // the source is truly dead.
     const t = setTimeout(() => {
       autoAdvanceIfFresh();
-    }, 14_000);
+    }, 33_000);
     return () => clearTimeout(t);
   }, [state, hasPlayed, reloadKey, autoAdvanceIfFresh, autoTriedIdx]);
 
@@ -567,7 +578,26 @@ export function LiveBoard({
     };
   }, []);
 
+  // Page-load prewarm: as soon as we have a match list, fire a
+  // playlist warm-up for every live match in the background. This is
+  // the biggest single-step improvement to click-to-play time —
+  // without it, the first click on a "cold" stream pays the full
+  // ~5-15s upstream warmup; with it, edge cache already has the m3u8
+  // and the click resolves in ~1-2s.
+  //
+  // Guarded internally against slow connections + staggered after the
+  // first 4 fires to keep the browser's connection pool free for any
+  // click that lands during the prewarm window. Safe to call again on
+  // every refresh — warmPlaylist itself dedupes within ~12s.
   const matches = data?.matches ?? [];
+
+  useEffect(() => {
+    if (matches.length === 0) return;
+    prewarmLiveMatches(matches);
+    // matches array identity changes on every refresh, so this fires
+    // after every 60s refresh too — that keeps the edge cache warm
+    // for long-idle pages.
+  }, [matches]);
 
   const liveByCategory = useMemo(() => {
     const counts: Record<string, number> = {};

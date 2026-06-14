@@ -27,10 +27,11 @@ const DAMI_HEADERS: HeadersInit = {
 // straight away (verified — see "Probing dami-tv stream" experiment).
 // SSRF guard. The `src` query param is only honoured if it points at
 // one of these hostnames — the playlist providers we currently know
-// about (dami-tv.pro's /live-hls/ proxy plus the CDN it itself proxies
-// to). Without this an attacker could turn our route into an open
-// fetcher.
-const SRC_ALLOWED_HOST = /^[a-z0-9-]+(?:\.strmd\.st|\.streamed\.pk|\.dami-tv\.pro)$|^dami-tv\.pro$/i;
+// about (dami-tv.pro's /live-hls/ proxy + the CDN it itself proxies
+// to, plus the DLHD CDN we use in Phase 3). Without this allowlist an
+// attacker could turn our route into an open fetcher.
+const SRC_ALLOWED_HOST =
+  /^[a-z0-9-]+(?:\.strmd\.st|\.streamed\.pk|\.dami-tv\.pro)$|^dami-tv\.pro$|^lewblivehdplay\.ru$|^[a-z0-9-]+\.lewblivehdplay\.ru$/i;
 
 export async function GET(
   req: NextRequest,
@@ -84,10 +85,22 @@ export async function GET(
     hlsUrl = ex.hlsUrl.startsWith("http") ? ex.hlsUrl : `${ORIGIN}${ex.hlsUrl}`;
   }
 
+  // Per-CDN Referer. dami-tv expects /watch/{id}; the DLHD CDN
+  // (lewblivehdplay.ru) refuses requests without its own host as the
+  // referer. Pick by hostname so the right header lands on the wire.
+  let referer = `${ORIGIN}/watch/${id}`;
+  try {
+    const host = new URL(hlsUrl).hostname.toLowerCase();
+    if (host.endsWith("lewblivehdplay.ru")) {
+      referer = "https://lewblivehdplay.ru/";
+    }
+  } catch {
+    /* keep dami-tv default */
+  }
   let m3u8: Response;
   try {
     m3u8 = await fetch(hlsUrl, {
-      headers: { ...DAMI_HEADERS, Referer: `${ORIGIN}/watch/${id}` },
+      headers: { ...DAMI_HEADERS, Referer: referer },
       cache: "no-store",
     });
   } catch (e) {
